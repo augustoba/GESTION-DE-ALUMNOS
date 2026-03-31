@@ -26,6 +26,7 @@ public class AlumnoController {
 
         List<Alumno> clienteList = alumnoService.alumnoList();
         if (clienteList.isEmpty()){
+            System.out.println("asdasdas");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(HttpStatus.BAD_REQUEST);
         }
 
