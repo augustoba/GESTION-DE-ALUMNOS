@@ -24,13 +24,12 @@ public class AlumnoController {
     @GetMapping("/alumnos")
     ResponseEntity<Object> listarClientes(){
 
-        List<Alumno> clienteList = alumnoService.alumnoList();
-        if (clienteList.isEmpty()){
+        List<Alumno> alumnoList = alumnoService.alumnoList();
+        if (alumnoList.isEmpty()){
             System.out.println("asdasdas");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(HttpStatus.BAD_REQUEST);
         }
-
-        return  ResponseEntity.status(HttpStatus.OK).body(clienteList);
+        return  ResponseEntity.status(HttpStatus.OK).body(alumnoList);
     }
 
 }

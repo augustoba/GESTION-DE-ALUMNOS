@@ -1,12 +1,10 @@
 package coviello.gestion_de_alumnos.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -22,97 +20,12 @@ public class Alumno {
     private String email = null;
     private String cuil= null;
     private LocalDate fechaNac= null;
+    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
+    private List<Documento> documentos;
 
-    public Alumno() {
-    }
-
-    public Alumno(Long id, String nombres, String apellidos, String dni, String direccion, String email, String cuil, LocalDate fechaNac) {
-        this.id = id;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.dni = dni;
-        this.direccion = direccion;
-        this.email = email;
-        this.cuil = cuil;
-        this.fechaNac = fechaNac;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombres() {
-        return nombres;
-    }
-
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCuil() {
-        return cuil;
-    }
-
-    public void setCuil(String cuil) {
-        this.cuil = cuil;
-    }
-
-    public LocalDate getFechaNac() {
-        return fechaNac;
-    }
-
-    public void setFechaNac(LocalDate fechaNac) {
-        this.fechaNac = fechaNac;
-    }
+    @OneToOne
+    @MapsId
+    private Usuario usuario;
 
 
-    @Override
-    public String toString() {
-        return "Alumno{" +
-                "id=" + id +
-                ", nombres='" + nombres + '\'' +
-                ", apellidos='" + apellidos + '\'' +
-                ", dni='" + dni + '\'' +
-                ", direccion='" + direccion + '\'' +
-                ", email='" + email + '\'' +
-                ", cuil='" + cuil + '\'' +
-                ", fechaNac=" + fechaNac +
-                '}';
-    }
 }
