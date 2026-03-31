@@ -17,4 +17,9 @@ public class AlumnoService {
 
     public List<Alumno> alumnoList(){
     return alumnoRepository.findAll();}
+
+    public List<Alumno> alumnoListName(String nombre, String apellidos) {
+        return alumnoRepository.findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(nombre, apellidos);
+    }
+
 }

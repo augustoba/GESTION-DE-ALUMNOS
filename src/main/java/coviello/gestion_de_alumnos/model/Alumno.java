@@ -24,7 +24,7 @@ public class Alumno {
     private List<Documento> documentos;
 
     @OneToOne
-    @MapsId
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
 
