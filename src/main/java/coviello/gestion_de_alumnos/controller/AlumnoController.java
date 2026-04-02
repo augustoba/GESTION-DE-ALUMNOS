@@ -79,4 +79,34 @@ public class AlumnoController {
         );
     }
 
-}
+    @GetMapping("/alumnosnombrepag")
+    public ResponseEntity<ApiResponse> findByNamePaged(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellidos,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Alumno> alumnoPage = alumnoService.alumnoListNamePaged(nombre, apellidos, pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", alumnoPage.getContent());
+        response.put("currentPage", alumnoPage.getNumber());
+        response.put("totalItems", alumnoPage.getTotalElements());
+        response.put("totalPages", alumnoPage.getTotalPages());
+        response.put("pageSize", alumnoPage.getSize());
+        response.put("hasNext", alumnoPage.hasNext());
+        response.put("hasPrevious", alumnoPage.hasPrevious());
+
+        // Agregar parámetros de búsqueda a la respuesta
+        response.put("searchParams", Map.of(
+                "nombre", nombre != null ? nombre : "",
+                "apellidos", apellidos != null ? apellidos : ""
+        ));
+
+        String message = alumnoPage.isEmpty() ? "No se encontraron alumnos" : "Resultados de búsqueda paginados";
+
+        return ResponseEntity.ok(new ApiResponse(message, response));
+    }
+    }
+

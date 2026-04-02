@@ -29,8 +29,8 @@ public class AlumnoService {
         return alumnoRepository.findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(nombre, apellidos);
     }
 
-    /*public Page<Alumno> alumnoListNamePaged(String nombre, String apellidos, DataWebProperties.Pageable pageable) {
+    public Page<Alumno> alumnoListNamePaged(String nombre, String apellidos, Pageable pageable) {
         return alumnoRepository.findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(nombre, apellidos, pageable);
-    }*/
+    }
 
 }
