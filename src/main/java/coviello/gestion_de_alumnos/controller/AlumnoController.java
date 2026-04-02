@@ -4,10 +4,7 @@ import coviello.gestion_de_alumnos.Util.ApiResponse;
 import coviello.gestion_de_alumnos.model.Alumno;
 import coviello.gestion_de_alumnos.service.AlumnoService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -108,5 +105,22 @@ public class AlumnoController {
 
         return ResponseEntity.ok(new ApiResponse(message, response));
     }
+
+    @PutMapping("/alumnos/{id}")
+    public ResponseEntity<ApiResponse> updateAlumno(
+            @PathVariable Long id,
+            @RequestBody Alumno alumnoDetails) {
+
+        try {
+            Alumno alumnoActualizado = alumnoService.updateAlumno(id, alumnoDetails);
+            return ResponseEntity.ok(
+                    new ApiResponse("Alumno actualizado correctamente", alumnoActualizado)
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse("Error al actualizar alumno: " + e.getMessage(), null));
+        }
     }
+
+}
 

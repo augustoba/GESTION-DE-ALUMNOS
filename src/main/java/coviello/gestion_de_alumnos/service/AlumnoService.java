@@ -33,4 +33,54 @@ public class AlumnoService {
         return alumnoRepository.findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(nombre, apellidos, pageable);
     }
 
+    public Alumno updateAlumno(Long id, Alumno alumnoDetails) {
+        // Buscar el alumno existente
+        Alumno alumnoExistente = alumnoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Alumno no encontrado con id: " + id));
+
+        // Actualizar solo los campos que no son nulos
+        if (alumnoDetails.getNombres() != null) {
+            alumnoExistente.setNombres(alumnoDetails.getNombres());
+        }
+        if (alumnoDetails.getApellidos() != null) {
+            alumnoExistente.setApellidos(alumnoDetails.getApellidos());
+        }
+        if (alumnoDetails.getDni() != null) {
+            // Verificar que el nuevo DNI no exista en otro alumno
+            if (!alumnoExistente.getDni().equals(alumnoDetails.getDni()) &&
+                    alumnoRepository.findByDni(alumnoDetails.getDni()).isPresent()) {
+                throw new RuntimeException("Ya existe un alumno con el DNI: " + alumnoDetails.getDni());
+            }
+            alumnoExistente.setDni(alumnoDetails.getDni());
+        }
+        if (alumnoDetails.getCuil() != null) {
+            // Verificar que el nuevo CUIL no exista en otro alumno
+            if (!alumnoExistente.getCuil().equals(alumnoDetails.getCuil()) &&
+                    alumnoRepository.findByCuil(alumnoDetails.getCuil()).isPresent()) {
+                throw new RuntimeException("Ya existe un alumno con el CUIL: " + alumnoDetails.getCuil());
+            }
+            alumnoExistente.setCuil(alumnoDetails.getCuil());
+        }
+        if (alumnoDetails.getEmail() != null) {
+            // Verificar que el nuevo email no exista en otro alumno
+            if (!alumnoExistente.getEmail().equals(alumnoDetails.getEmail()) &&
+                    alumnoRepository.findByEmail(alumnoDetails.getEmail()).isPresent()) {
+                throw new RuntimeException("Ya existe un alumno con el email: " + alumnoDetails.getEmail());
+            }
+            alumnoExistente.setEmail(alumnoDetails.getEmail());
+        }
+        if (alumnoDetails.getDireccion() != null) {
+            alumnoExistente.setDireccion(alumnoDetails.getDireccion());
+        }
+        if (alumnoDetails.getFechaNac() != null) {
+            alumnoExistente.setFechaNac(alumnoDetails.getFechaNac());
+        }
+        if (alumnoDetails.getStatus() != null) {
+            alumnoExistente.setStatus(alumnoDetails.getStatus());
+        }
+
+        // Guardar el alumno actualizado
+        return alumnoRepository.save(alumnoExistente);
+    }
+
 }

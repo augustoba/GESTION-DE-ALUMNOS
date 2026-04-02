@@ -20,6 +20,8 @@ public class Alumno {
     private String email = null;
     private String cuil= null;
     private LocalDate fechaNac= null;
+    private Boolean status= null;
+
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private List<Documento> documentos;
 
