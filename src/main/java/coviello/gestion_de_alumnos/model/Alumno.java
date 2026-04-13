@@ -22,8 +22,8 @@ public class Alumno {
     private LocalDate fechaNac= null;
     private Boolean status= null;
 
-    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
-    private List<Documento> documentos;
+   // @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
+    //private List<Documento> documentos;
 
     @OneToOne
     @JoinColumn(name = "usuario_id")

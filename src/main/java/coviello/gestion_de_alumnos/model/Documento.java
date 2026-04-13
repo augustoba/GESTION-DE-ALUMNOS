@@ -9,13 +9,15 @@ public class Documento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreArchivo;
-    private String tipo; // DNI_FRENTE, DNI_DORSO, TITULO, PAGO
-    private String contentType; // image/jpeg, application/pdf
+    private String tipo; // DNI_FRENTE, DNI_DORSO, FOTO, TITULO
 
     @Lob
-    private byte[] data;
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] archivo;
+
+    private boolean validado = false;
 
     @ManyToOne
-    private Alumno alumno;
+    @JoinColumn(name = "preinscripcion_id")
+    private Preinscripcion preinscripcion;
 }
