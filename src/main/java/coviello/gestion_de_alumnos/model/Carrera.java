@@ -21,6 +21,10 @@ public class Carrera {
     @Column(name = "activa")
     private Boolean activa = true;
 
+    // 0 = sin límite
+    @Column(name = "cupo_maximo")
+    private int cupoMaximo = 0;
+
     @ManyToMany
     @JoinTable(
             name = "carrera_docente",
@@ -79,6 +83,14 @@ public class Carrera {
 
     public void setDocentes(List<Docente> docentes) {
         this.docentes = docentes;
+    }
+
+    public int getCupoMaximo() {
+        return cupoMaximo;
+    }
+
+    public void setCupoMaximo(int cupoMaximo) {
+        this.cupoMaximo = cupoMaximo;
     }
 
     @Override

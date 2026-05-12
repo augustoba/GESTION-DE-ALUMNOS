@@ -31,6 +31,10 @@ public class Preinscripcion {
 
     private LocalDateTime fechaCreacion;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado")
+    private EstadoPreinscripcion estado;
+
     @OneToMany(mappedBy = "preinscripcion", cascade = CascadeType.ALL)
     private List<Documento> documentos;
 
@@ -146,6 +150,14 @@ public class Preinscripcion {
 
     public void setDocumentos(List<Documento> documentos) {
         this.documentos = documentos;
+    }
+
+    public EstadoPreinscripcion getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoPreinscripcion estado) {
+        this.estado = estado;
     }
 
     @Override

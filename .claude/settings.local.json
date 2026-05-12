@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"G:\\\\proyecto final coviello\\\\gestion-de-alumnos\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(Get-ChildItem -Path \"G:\\\\proyecto final coviello\\\\gestion-de-alumnos\\\\src\\\\main\\\\resources\" -Recurse -File)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(./mvnw compile *)"
+    ]
+  }
+}

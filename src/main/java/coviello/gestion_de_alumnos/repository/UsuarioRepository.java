@@ -1,0 +1,10 @@
+package coviello.gestion_de_alumnos.repository;
+
+import coviello.gestion_de_alumnos.model.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+    Optional<Usuario> findByUsername(String username);
+}

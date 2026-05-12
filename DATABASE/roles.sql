@@ -1,0 +1,3 @@
+INSERT INTO rol (nombre) VALUES ('ALUMNO');
+INSERT INTO rol (nombre) VALUES ('ADMIN');
+INSERT INTO rol (nombre) VALUES ('DOCENTE');
