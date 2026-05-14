@@ -5,6 +5,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EmailService {
 
@@ -91,6 +93,63 @@ public class EmailService {
                 """.formatted(nombre, carrera, institucion);
 
         enviar(destinatario, asunto, cuerpo);
+    }
+
+    public void enviarDocumentosAprobados(String destinatario, String nombre, String carrera) {
+        String asunto = "Inscripción aprobada - " + carrera;
+        String cuerpo = """
+                Hola %s,
+
+                ¡Felicitaciones! Todos tus documentos para la carrera "%s" fueron revisados
+                y aprobados por la administración.
+
+                Ya tenés acceso completo al sistema. Podés iniciar sesión con tu email
+                y contraseña habituales.
+
+                Bienvenido/a al instituto.
+
+                Saludos,
+                Administración - %s
+                """.formatted(nombre, carrera, institucion);
+
+        enviar(destinatario, asunto, cuerpo);
+    }
+
+    public void enviarDocumentosRechazados(String destinatario, String nombre, String carrera,
+                                           List<String> tiposRechazados) {
+        String listaDocumentos = tiposRechazados.stream()
+                .map(this::nombreLegibleDocumento)
+                .map(d -> "  - " + d)
+                .collect(java.util.stream.Collectors.joining("\n"));
+
+        String asunto = "Documentos pendientes de corrección - " + carrera;
+        String cuerpo = """
+                Hola %s,
+
+                Revisamos tu documentación para la carrera "%s" y encontramos que los
+                siguientes documentos deben ser corregidos o vueltos a subir:
+
+                %s
+
+                Por favor, ingresá al sistema y subí nuevamente los archivos indicados.
+                Una vez resubidos, el equipo de administración los revisará nuevamente.
+
+                Saludos,
+                Administración - %s
+                """.formatted(nombre, carrera, listaDocumentos, institucion);
+
+        enviar(destinatario, asunto, cuerpo);
+    }
+
+    private String nombreLegibleDocumento(String tipo) {
+        return switch (tipo) {
+            case "DNI_FRENTE"       -> "DNI (frente)";
+            case "DNI_DORSO"        -> "DNI (dorso)";
+            case "TITULO"           -> "Título secundario";
+            case "FOTO_CARNET"      -> "Foto carnet";
+            case "COMPROBANTE_PAGO" -> "Comprobante de pago";
+            default                 -> tipo;
+        };
     }
 
     private void enviar(String destinatario, String asunto, String cuerpo) {

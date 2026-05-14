@@ -26,7 +26,9 @@ public class Documento {
     private String nombreArchivo;
     private String contentType;
 
-    private boolean validado = false;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoDocumento estado = EstadoDocumento.PENDIENTE;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "preinscripcion_id")

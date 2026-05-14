@@ -19,6 +19,7 @@ public class Alumno {
     private String direccion = null;
     private String email = null;
     private String cuil= null;
+    private String telefono = null;
     private LocalDate fechaNac= null;
     private Boolean status= null;
 

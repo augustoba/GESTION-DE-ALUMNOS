@@ -50,10 +50,6 @@ public class AuthService {
             throw new RuntimeException("El DNI ya está registrado");
         }
 
-        if (request.password() == null || request.password().isBlank()) {
-            throw new RuntimeException("La contraseña no puede estar vacía");
-        }
-
         Rol rolAlumno = rolRepository.findByNombre("ALUMNO")
                 .orElseThrow(() -> new RuntimeException("Rol ALUMNO no encontrado en la base de datos"));
 
@@ -86,7 +82,15 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByUsername(request.username())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         String token = jwtUtil.generateToken(usuario);
-        return new LoginResponse(token, usuario.getUsername(), usuario.getRol().getNombre());
+
+        Boolean status = null;
+        if ("ALUMNO".equals(usuario.getRol().getNombre())) {
+            status = alumnoRepository.findByEmail(usuario.getUsername())
+                    .map(Alumno::getStatus)
+                    .orElse(false);
+        }
+
+        return new LoginResponse(token, usuario.getUsername(), usuario.getRol().getNombre(), status);
     }
 
 }

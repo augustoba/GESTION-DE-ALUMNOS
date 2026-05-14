@@ -1,8 +1,11 @@
 package coviello.gestion_de_alumnos.repository;
 
+import coviello.gestion_de_alumnos.model.EstadoDocumento;
 import coviello.gestion_de_alumnos.model.EstadoPreinscripcion;
 import coviello.gestion_de_alumnos.model.Preinscripcion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -17,10 +20,11 @@ public interface PreinscripcionRepository extends JpaRepository<Preinscripcion, 
 
     List<Preinscripcion> findByEstado(EstadoPreinscripcion estado);
 
-    // Para el scheduler: inscripciones pendientes de pago creadas hace más de 48hs
     List<Preinscripcion> findByEstadoAndFechaCreacionBefore(
             EstadoPreinscripcion estado, LocalDateTime fechaLimite);
 
-    // Para el control de cupos: cuenta activas (todo excepto EXPIRADA)
     long countByCarreraIdAndEstadoNot(Long carreraId, EstadoPreinscripcion estadoExcluido);
+
+    @Query("SELECT DISTINCT p FROM Preinscripcion p JOIN p.documentos d WHERE d.estado = :estado")
+    List<Preinscripcion> findDistinctByDocumentosEstado(@Param("estado") EstadoDocumento estado);
 }

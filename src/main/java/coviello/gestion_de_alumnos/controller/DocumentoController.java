@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/documentos")
-@Tag(name = "Documentos", description = "Carga y validación de documentación obligatoria: DNI frente, DNI dorso y título secundario.")
+@Tag(name = "Documentos", description = "Carga y validación de documentación obligatoria: DNI frente, DNI dorso, título secundario y foto carnet.")
 public class DocumentoController {
 
     private final DocumentoService documentoService;
@@ -34,23 +34,22 @@ public class DocumentoController {
     @Operation(
         summary = "Subir documento (ALUMNO)",
         description = """
-            El alumno sube uno de los documentos requeridos para completar su inscripción.
-            Solo disponible cuando la preinscripción está en estado PAGO_VALIDADO o DOCUMENTOS_COMPLETOS.
-            Si ya existe un documento del mismo tipo, se reemplaza y se resetea su validación.
-            Tipos aceptados: DNI_FRENTE, DNI_DORSO, TITULO, FOTO.
-            Formatos recomendados: JPG, PNG, PDF.
+            El alumno sube uno de los cuatro documentos requeridos.
+            Si ya existe un documento del mismo tipo, se reemplaza y su estado vuelve a PENDIENTE.
+            Tipos aceptados: DNI_FRENTE, DNI_DORSO, TITULO, FOTO_CARNET.
+            Formatos recomendados: JPG, PNG para imágenes; PDF para el título secundario.
             """
     )
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Documento subido correctamente."),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "La preinscripción no existe, está expirada o el pago aún no fue validado."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "La preinscripción no existe o está expirada."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos para realizar esta acción.")
     })
     public ResponseEntity<ApiResponse> subirDocumento(
-            @Parameter(description = "ID de la preinscripción a la que pertenece el documento", example = "1")
+            @Parameter(description = "ID de la preinscripción", example = "1")
             @PathVariable Long preinscripcionId,
-            @Parameter(description = "Tipo de documento. Valores: DNI_FRENTE, DNI_DORSO, TITULO, FOTO", example = "DNI_FRENTE")
+            @Parameter(description = "Tipo de documento. Valores: DNI_FRENTE, DNI_DORSO, TITULO, FOTO_CARNET", example = "DNI_FRENTE")
             @RequestParam TipoDocumento tipo,
             @Parameter(description = "Archivo del documento (JPG, PNG o PDF)")
             @RequestParam("archivo") MultipartFile archivo) {
@@ -65,20 +64,21 @@ public class DocumentoController {
     }
 
     @GetMapping("/preinscripcion/{preinscripcionId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ALUMNO', 'ADMIN')")
     @Operation(
-        summary = "Listar documentos de una preinscripción (ADMIN)",
+        summary = "Listar documentos de una preinscripción",
         description = """
-            Devuelve la lista de documentos subidos para una preinscripción.
-            El campo 'archivo' (binario) no se incluye en el JSON para no sobrecargar la respuesta.
-            Para descargar un archivo, usá el endpoint GET /api/documentos/{id}/descargar con el ID del documento.
+            Devuelve la lista de documentos subidos para una preinscripción, con su estado actual:
+            PENDIENTE (en revisión), VALIDADO (aprobado) o RESUBIR (debe volver a subirse).
+            El campo 'archivo' (binario) no se incluye en el JSON.
+            Para descargar un archivo usá GET /api/documentos/{id}/descargar.
             """
     )
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista devuelta correctamente."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Preinscripción no encontrada."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos (se requiere rol ADMIN).")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos para realizar esta acción.")
     })
     public ResponseEntity<ApiResponse> listarPorPreinscripcion(
             @Parameter(description = "ID de la preinscripción", example = "1")
@@ -89,23 +89,19 @@ public class DocumentoController {
     }
 
     @GetMapping("/{documentoId}/descargar")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ALUMNO')")
     @Operation(
-        summary = "Descargar archivo de un documento (ADMIN)",
-        description = """
-            Descarga el archivo binario del documento (imagen o PDF).
-            El cliente recibirá el archivo con su nombre y tipo de contenido original.
-            Nota: este endpoint no devuelve JSON, devuelve el archivo directamente.
-            """
+        summary = "Ver/descargar archivo de un documento (ADMIN, ALUMNO)",
+        description = "Devuelve el archivo binario del documento. El navegador lo mostrará en línea (PDF/imagen) o lo descargará según el tipo."
     )
     @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Archivo descargado correctamente."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Archivo devuelto correctamente."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Documento no encontrado."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos (se requiere rol ADMIN).")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos para realizar esta acción.")
     })
     public ResponseEntity<byte[]> descargarDocumento(
-            @Parameter(description = "ID del documento a descargar", example = "1")
+            @Parameter(description = "ID del documento a ver/descargar", example = "1")
             @PathVariable Long documentoId) {
 
         Documento documento = documentoService.obtenerPorId(documentoId);
@@ -119,7 +115,7 @@ public class DocumentoController {
                 : "documento_" + documentoId;
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nombreArchivo + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + nombreArchivo + "\"")
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(documento.getArchivo());
     }
@@ -129,9 +125,9 @@ public class DocumentoController {
     @Operation(
         summary = "Validar un documento (ADMIN)",
         description = """
-            El admin marca el documento como válido.
-            Cuando los tres documentos obligatorios (DNI_FRENTE, DNI_DORSO y TITULO) queden todos validados,
-            la preinscripción pasa automáticamente a DOCUMENTOS_COMPLETOS, finalizando el proceso de inscripción.
+            El admin marca el documento como VALIDADO.
+            Cuando los cuatro documentos obligatorios (DNI_FRENTE, DNI_DORSO, TITULO y FOTO_CARNET)
+            queden todos en estado VALIDADO, la preinscripción pasa automáticamente a DOCUMENTOS_COMPLETOS.
             """
     )
     @ApiResponses({
@@ -148,26 +144,28 @@ public class DocumentoController {
         return ResponseEntity.ok(new ApiResponse("Documento validado correctamente", documento));
     }
 
-    @PutMapping("/{documentoId}/rechazar")
+    @PutMapping("/{documentoId}/resubir")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-        summary = "Rechazar un documento (ADMIN)",
+        summary = "Solicitar resubida de un documento (ADMIN)",
         description = """
-            El admin rechaza el documento porque está incompleto, es ilegible o no corresponde al tipo indicado.
-            El alumno deberá volver a subir ese documento desde el endpoint de carga.
+            El admin marca el documento como RESUBIR porque está incompleto, es ilegible
+            o no corresponde al tipo indicado.
+            El alumno verá el estado RESUBIR en su lista de documentos y deberá volver a subir ese archivo.
+            Al subir el nuevo archivo, el estado vuelve automáticamente a PENDIENTE.
             """
     )
     @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Documento rechazado. El alumno deberá volver a subirlo."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Documento marcado como RESUBIR. El alumno deberá volver a subir el archivo."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Documento no encontrado."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos (se requiere rol ADMIN).")
     })
-    public ResponseEntity<ApiResponse> rechazarDocumento(
-            @Parameter(description = "ID del documento a rechazar", example = "1")
+    public ResponseEntity<ApiResponse> solicitarResubida(
+            @Parameter(description = "ID del documento a solicitar resubida", example = "1")
             @PathVariable Long documentoId) {
 
-        Documento documento = documentoService.rechazarDocumento(documentoId);
-        return ResponseEntity.ok(new ApiResponse("Documento rechazado. El alumno deberá volver a subirlo.", documento));
+        Documento documento = documentoService.solicitarResubida(documentoId);
+        return ResponseEntity.ok(new ApiResponse("Se solicitó la resubida del documento. El alumno deberá volver a subir el archivo.", documento));
     }
 }

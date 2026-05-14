@@ -1,0 +1,804 @@
+{
+  "info": {
+    "name": "Gestion de Alumnos API",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "description": "Collection para probar el flujo completo: registro, preinscripción, carga de documentos y validación administrativa.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Se llena automáticamente al hacer Login"
+    },
+    {
+      "key": "preinscripcion_id",
+      "value": "1",
+      "type": "string",
+      "description": "Se llena automáticamente al crear una preinscripción"
+    },
+    {
+      "key": "documento_id",
+      "value": "1",
+      "type": "string",
+      "description": "Se llena automáticamente al subir un documento"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Autenticacion",
+      "item": [
+        {
+          "name": "Registro de alumno",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Perez\",\n  \"dni\": \"12345678\",\n  \"email\": \"juan.perez@gmail.com\",\n  \"password\": \"MiContrasenia123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "registro"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Registro exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('Registro exitoso');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"juan.perez@gmail.com\",\n  \"password\": \"MiContrasenia123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login exitoso y token guardado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('token');",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    console.log('Token guardado: ' + jsonData.data.token.substring(0, 30) + '...');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login como ADMIN",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin@admin.com\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login admin exitoso y token guardado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('token');",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    console.log('Token ADMIN guardado.');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Preinscripcion (Alumno)",
+      "item": [
+        {
+          "name": "Crear preinscripcion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "nombre",          "value": "Juan",                    "type": "text", "description": "Sin numeros" },
+                { "key": "apellido",        "value": "Perez",                   "type": "text", "description": "Sin numeros" },
+                { "key": "dni",             "value": "12345678",                "type": "text", "description": "Minimo 8 digitos numericos" },
+                { "key": "email",           "value": "juan.perez@gmail.com",    "type": "text" },
+                { "key": "telefono",        "value": "1123456789",              "type": "text" },
+                { "key": "direccion",       "value": "Av. Corrientes 1234",     "type": "text" },
+                { "key": "fechaNacimiento", "value": "1995-08-20",              "type": "text", "description": "Formato YYYY-MM-DD" },
+                { "key": "carreraId",       "value": "1",                       "type": "text", "description": "1=Desarrollo Software, 2=Gestion Eventos, 3=Administracion Empresas" },
+                { "key": "comprobante",     "type": "file", "src": "",          "description": "Foto o PDF del comprobante de pago" },
+                { "key": "dniFente",        "type": "file", "src": "",          "description": "JPG o PNG del frente del DNI" },
+                { "key": "dniDorso",        "type": "file", "src": "",          "description": "JPG o PNG del dorso del DNI" },
+                { "key": "titulo",          "type": "file", "src": "",          "description": "PDF del titulo secundario" },
+                { "key": "fotoCarnet",      "type": "file", "src": "",          "description": "JPG o PNG foto carnet (fondo blanco)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/preinscripciones",
+              "host": ["{{base_url}}"],
+              "path": ["api", "preinscripciones"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Preinscripcion creada y ID guardado', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.collectionVariables.set('preinscripcion_id', jsonData.data.id);",
+                  "    console.log('preinscripcion_id guardado: ' + jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Documentos (Alumno)",
+      "item": [
+        {
+          "name": "Subir DNI Frente",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "tipo",    "value": "DNI_FRENTE", "type": "text" },
+                { "key": "archivo", "type": "file", "src": "", "description": "JPG o PNG del frente del DNI" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documentos/preinscripcion/{{preinscripcion_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "preinscripcion", "{{preinscripcion_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('DNI Frente subido', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.tipo).to.eql('DNI_FRENTE');",
+                  "    pm.expect(jsonData.data.estado).to.eql('PENDIENTE');",
+                  "    pm.collectionVariables.set('documento_id', jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Subir DNI Dorso",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "tipo",    "value": "DNI_DORSO", "type": "text" },
+                { "key": "archivo", "type": "file", "src": "", "description": "JPG o PNG del dorso del DNI" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documentos/preinscripcion/{{preinscripcion_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "preinscripcion", "{{preinscripcion_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('DNI Dorso subido', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.tipo).to.eql('DNI_DORSO');",
+                  "    pm.expect(jsonData.data.estado).to.eql('PENDIENTE');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Subir Titulo Secundario",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "tipo",    "value": "TITULO", "type": "text" },
+                { "key": "archivo", "type": "file", "src": "", "description": "PDF del titulo secundario" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documentos/preinscripcion/{{preinscripcion_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "preinscripcion", "{{preinscripcion_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Titulo subido', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.tipo).to.eql('TITULO');",
+                  "    pm.expect(jsonData.data.estado).to.eql('PENDIENTE');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Subir Foto Carnet",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "tipo",    "value": "FOTO_CARNET", "type": "text" },
+                { "key": "archivo", "type": "file", "src": "", "description": "JPG o PNG de la foto carnet (fondo blanco, frente)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documentos/preinscripcion/{{preinscripcion_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "preinscripcion", "{{preinscripcion_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Foto carnet subida', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.tipo).to.eql('FOTO_CARNET');",
+                  "    pm.expect(jsonData.data.estado).to.eql('PENDIENTE');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver mis documentos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documentos/preinscripcion/{{preinscripcion_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "preinscripcion", "{{preinscripcion_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Lista de documentos devuelta', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    console.log('Documentos encontrados: ' + jsonData.data.length);",
+                  "    jsonData.data.forEach(function(doc) {",
+                  "        console.log(' - ' + doc.tipo + ': ' + doc.estado);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Administracion - Preinscripciones",
+      "item": [
+        {
+          "name": "Listar todas (paginado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/preinscripciones?page=0&size=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "preinscripciones"],
+              "query": [
+                { "key": "page", "value": "0",  "description": "Numero de pagina (desde 0)" },
+                { "key": "size", "value": "20", "description": "Resultados por pagina" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Lista paginada devuelta', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    var page = jsonData.data;",
+                  "    pm.expect(page).to.have.property('content');",
+                  "    pm.expect(page).to.have.property('totalElements');",
+                  "    pm.expect(page).to.have.property('totalPages');",
+                  "    console.log('Total preinscripciones: ' + page.totalElements);",
+                  "    console.log('Total paginas: ' + page.totalPages);",
+                  "    if (page.content.length > 0) {",
+                  "        pm.collectionVariables.set('preinscripcion_id', page.content[0].id);",
+                  "        console.log('preinscripcion_id actualizado: ' + page.content[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver detalle de preinscripcion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/preinscripciones/{{preinscripcion_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "preinscripciones", "{{preinscripcion_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Detalle devuelto con documentos', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    var detalle = jsonData.data;",
+                  "    pm.expect(detalle).to.have.property('nombre');",
+                  "    pm.expect(detalle).to.have.property('documentos');",
+                  "    pm.expect(detalle.documentos).to.be.an('array');",
+                  "    console.log('Alumno: ' + detalle.nombre + ' ' + detalle.apellido);",
+                  "    console.log('Estado: ' + detalle.estado);",
+                  "    console.log('Documentos:');",
+                  "    detalle.documentos.forEach(function(doc) {",
+                  "        console.log('  [' + doc.id + '] ' + doc.tipo + ' -> ' + doc.estado);",
+                  "        pm.collectionVariables.set('documento_id', doc.id);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar pendientes de pago",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/preinscripciones/pendientes-pago",
+              "host": ["{{base_url}}"],
+              "path": ["api", "preinscripciones", "pendientes-pago"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Pendientes devueltos', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    console.log('Pendientes de pago: ' + jsonData.data.length);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validar pago",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/preinscripciones/{{preinscripcion_id}}/validar-pago",
+              "host": ["{{base_url}}"],
+              "path": ["api", "preinscripciones", "{{preinscripcion_id}}", "validar-pago"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Pago validado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.estado).to.eql('PAGO_VALIDADO');",
+                  "    pm.expect(jsonData.data.pagoValidado).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rechazar pago",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"El comprobante es ilegible. Por favor subí una imagen más clara.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/preinscripciones/{{preinscripcion_id}}/rechazar-pago",
+              "host": ["{{base_url}}"],
+              "path": ["api", "preinscripciones", "{{preinscripcion_id}}", "rechazar-pago"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Pago rechazado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.estado).to.eql('PENDIENTE_PAGO');",
+                  "    pm.expect(jsonData.data.pagoValidado).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Administracion - Documentos",
+      "item": [
+        {
+          "name": "Ver documentos de preinscripcion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documentos/preinscripcion/{{preinscripcion_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "preinscripcion", "{{preinscripcion_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Documentos devueltos', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    if (jsonData.data.length > 0) {",
+                  "        pm.collectionVariables.set('documento_id', jsonData.data[0].id);",
+                  "        console.log('documento_id actualizado: ' + jsonData.data[0].id);",
+                  "    }",
+                  "    jsonData.data.forEach(function(doc) {",
+                  "        console.log('[' + doc.id + '] ' + doc.tipo + ' -> ' + doc.estado);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validar documento",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documentos/{{documento_id}}/validar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "{{documento_id}}", "validar"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Documento validado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.estado).to.eql('VALIDADO');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Solicitar resubida de documento",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documentos/{{documento_id}}/resubir",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "{{documento_id}}", "resubir"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Documento marcado como RESUBIR', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.estado).to.eql('RESUBIR');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar documento (admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documentos/{{documento_id}}/descargar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documentos", "{{documento_id}}", "descargar"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Archivo descargado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Validaciones - Casos de error",
+      "item": [
+        {
+          "name": "Registro - nombre con numeros (debe fallar)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan123\",\n  \"apellidos\": \"Perez\",\n  \"dni\": \"12345678\",\n  \"email\": \"juan@gmail.com\",\n  \"password\": \"pass123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "registro"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Debe rechazar nombre con numeros', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log('Error recibido: ' + JSON.stringify(jsonData));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro - DNI corto (debe fallar)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Perez\",\n  \"dni\": \"1234\",\n  \"email\": \"juan@gmail.com\",\n  \"password\": \"pass123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "registro"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Debe rechazar DNI corto', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log('Error recibido: ' + JSON.stringify(jsonData));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro - email invalido (debe fallar)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Perez\",\n  \"dni\": \"12345678\",\n  \"email\": \"no-es-un-email\",\n  \"password\": \"pass123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "registro"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Debe rechazar email invalido', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log('Error recibido: ' + JSON.stringify(jsonData));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro - DNI duplicado (debe fallar)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Otro\",\n  \"apellidos\": \"Usuario\",\n  \"dni\": \"12345678\",\n  \"email\": \"otro@gmail.com\",\n  \"password\": \"pass123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "registro"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Debe rechazar DNI ya existente', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('DNI');",
+                  "    console.log('Mensaje: ' + jsonData.message);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

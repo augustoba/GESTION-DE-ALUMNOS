@@ -4,5 +4,6 @@ public enum TipoDocumento {
     DNI_FRENTE,
     DNI_DORSO,
     TITULO,
-    FOTO
+    FOTO_CARNET,
+    COMPROBANTE_PAGO
 }

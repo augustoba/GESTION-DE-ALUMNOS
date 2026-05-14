@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,7 +54,7 @@ public class AuthController {
                 """)
         )
     )
-    public ResponseEntity<ApiResponse> registro(@RequestBody RegistroRequest request) {
+    public ResponseEntity<ApiResponse> registro(@Valid @RequestBody RegistroRequest request) {
         try {
             authService.registrar(request);
             return ResponseEntity.ok(new ApiResponse(

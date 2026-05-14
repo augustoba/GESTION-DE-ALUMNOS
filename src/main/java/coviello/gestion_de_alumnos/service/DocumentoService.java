@@ -14,9 +14,8 @@ import java.util.List;
 @Slf4j
 public class DocumentoService {
 
-    // Los tres documentos obligatorios para completar la inscripción
     private static final List<TipoDocumento> DOCS_OBLIGATORIOS =
-            List.of(TipoDocumento.DNI_FRENTE, TipoDocumento.DNI_DORSO, TipoDocumento.TITULO);
+            List.of(TipoDocumento.DNI_FRENTE, TipoDocumento.DNI_DORSO, TipoDocumento.TITULO, TipoDocumento.FOTO_CARNET);
 
     private final DocumentoRepository documentoRepository;
     private final PreinscripcionRepository preinscripcionRepository;
@@ -36,11 +35,8 @@ public class DocumentoService {
         if (preinscripcion.getEstado() == EstadoPreinscripcion.EXPIRADA) {
             throw new RuntimeException("No se pueden subir documentos: la inscripción está expirada");
         }
-        if (preinscripcion.getEstado() == EstadoPreinscripcion.PENDIENTE_PAGO) {
-            throw new RuntimeException("No se pueden subir documentos hasta que el pago sea validado");
-        }
 
-        // Si ya existe un documento del mismo tipo, reemplazarlo
+        // Si ya existe un documento del mismo tipo, reemplazarlo y resetear su estado
         Documento documento = documentoRepository
                 .findByPreinscripcionIdAndTipo(preinscripcionId, tipo)
                 .orElse(new Documento());
@@ -49,7 +45,7 @@ public class DocumentoService {
         documento.setArchivo(archivo.getBytes());
         documento.setNombreArchivo(archivo.getOriginalFilename());
         documento.setContentType(archivo.getContentType());
-        documento.setValidado(false);
+        documento.setEstado(EstadoDocumento.PENDIENTE);
         documento.setPreinscripcion(preinscripcion);
 
         return documentoRepository.save(documento);
@@ -69,7 +65,7 @@ public class DocumentoService {
 
     public Documento validarDocumento(Long documentoId) {
         Documento documento = obtenerPorId(documentoId);
-        documento.setValidado(true);
+        documento.setEstado(EstadoDocumento.VALIDADO);
         Documento guardado = documentoRepository.save(documento);
 
         verificarDocumentosCompletos(documento.getPreinscripcion().getId());
@@ -77,16 +73,15 @@ public class DocumentoService {
         return guardado;
     }
 
-    public Documento rechazarDocumento(Long documentoId) {
+    public Documento solicitarResubida(Long documentoId) {
         Documento documento = obtenerPorId(documentoId);
-        documento.setValidado(false);
+        documento.setEstado(EstadoDocumento.RESUBIR);
         return documentoRepository.save(documento);
     }
 
-    // Verifica si todos los documentos obligatorios están validados y actualiza la preinscripción
     private void verificarDocumentosCompletos(Long preinscripcionId) {
-        long validados = documentoRepository.countByPreinscripcionIdAndTipoInAndValidadoTrue(
-                preinscripcionId, DOCS_OBLIGATORIOS);
+        long validados = documentoRepository.countByPreinscripcionIdAndTipoInAndEstado(
+                preinscripcionId, DOCS_OBLIGATORIOS, EstadoDocumento.VALIDADO);
 
         if (validados >= DOCS_OBLIGATORIOS.size()) {
             preinscripcionRepository.findById(preinscripcionId).ifPresent(pre -> {

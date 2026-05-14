@@ -4,5 +4,6 @@ public enum EstadoPreinscripcion {
     PENDIENTE_PAGO,
     PAGO_VALIDADO,
     DOCUMENTOS_COMPLETOS,
+    APROBADA,
     EXPIRADA
 }
