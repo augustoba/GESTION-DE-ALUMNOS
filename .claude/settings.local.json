@@ -23,7 +23,9 @@
       "Bash(npx @angular/cli add @angular/material --skip-confirmation --no-interactive --legacy-peer-deps)",
       "Bash(npx @angular/cli build --no-progress)",
       "Bash(Move-Item *)",
-      "Bash(npx ng *)"
+      "Bash(npx ng *)",
+      "Bash(git -C \"G:/proyecto final coviello/gestion-de-alumnos\" ls-files)",
+      "Bash(git *)"
     ]
   }
 }
