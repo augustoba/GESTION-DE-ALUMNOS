@@ -1,6 +1,7 @@
 package coviello.gestion_de_alumnos.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class Carrera {
     @Column(name = "cupo_maximo")
     private int cupoMaximo = 0;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "carrera_docente",
@@ -32,6 +34,11 @@ public class Carrera {
             inverseJoinColumns = @JoinColumn(name = "docente_id")
     )
     private List<Docente> docentes = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "carrera", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("numeroAnio ASC")
+    private List<AnioCarrera> anios = new ArrayList<>();
 
 
     public Carrera() {
@@ -83,6 +90,14 @@ public class Carrera {
 
     public void setDocentes(List<Docente> docentes) {
         this.docentes = docentes;
+    }
+
+    public List<AnioCarrera> getAnios() {
+        return anios;
+    }
+
+    public void setAnios(List<AnioCarrera> anios) {
+        this.anios = anios;
     }
 
     public int getCupoMaximo() {

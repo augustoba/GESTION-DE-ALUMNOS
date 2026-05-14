@@ -18,6 +18,9 @@ public class Docente {
     private String dni;
     private String email;
     private String telefono;
+
+    @Column(nullable = false)
+    private boolean activo = true;
     @ManyToMany
     @JoinTable(
             name = "docente_materia",

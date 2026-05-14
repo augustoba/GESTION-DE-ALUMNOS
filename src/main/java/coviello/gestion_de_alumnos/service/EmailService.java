@@ -141,6 +141,26 @@ public class EmailService {
         enviar(destinatario, asunto, cuerpo);
     }
 
+    public void enviarBienvenidaDocente(String destinatario, String nombres, String dni) {
+        String asunto = "Bienvenido/a al sistema docente - " + institucion;
+        String cuerpo = """
+                Hola %s,
+
+                Tu cuenta docente fue creada exitosamente en el sistema de %s.
+
+                Podés iniciar sesión con tu email y la siguiente contraseña inicial:
+
+                  Contraseña: %s (tu número de DNI)
+
+                Por seguridad, te recomendamos cambiar tu contraseña una vez que ingreses al sistema.
+
+                Saludos,
+                Administración - %s
+                """.formatted(nombres, institucion, dni, institucion);
+
+        enviar(destinatario, asunto, cuerpo);
+    }
+
     private String nombreLegibleDocumento(String tipo) {
         return switch (tipo) {
             case "DNI_FRENTE"       -> "DNI (frente)";

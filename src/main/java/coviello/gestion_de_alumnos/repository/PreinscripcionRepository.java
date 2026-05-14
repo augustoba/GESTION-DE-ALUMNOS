@@ -27,4 +27,6 @@ public interface PreinscripcionRepository extends JpaRepository<Preinscripcion, 
 
     @Query("SELECT DISTINCT p FROM Preinscripcion p JOIN p.documentos d WHERE d.estado = :estado")
     List<Preinscripcion> findDistinctByDocumentosEstado(@Param("estado") EstadoDocumento estado);
+
+    List<Preinscripcion> findByCarreraIdInAndEstado(List<Long> carreraIds, EstadoPreinscripcion estado);
 }
