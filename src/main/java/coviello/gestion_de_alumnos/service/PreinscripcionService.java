@@ -2,6 +2,7 @@ package coviello.gestion_de_alumnos.service;
 
 import coviello.gestion_de_alumnos.dto.DocumentoResumen;
 import coviello.gestion_de_alumnos.dto.PreinscripcionDetalleResponse;
+import coviello.gestion_de_alumnos.dto.AprobarRequest;
 import coviello.gestion_de_alumnos.dto.RevisionDocumentosRequest;
 import coviello.gestion_de_alumnos.model.Alumno;
 import coviello.gestion_de_alumnos.model.Documento;
@@ -12,15 +13,14 @@ import coviello.gestion_de_alumnos.model.TipoDocumento;
 import coviello.gestion_de_alumnos.repository.AlumnoRepository;
 import coviello.gestion_de_alumnos.repository.DocumentoRepository;
 import coviello.gestion_de_alumnos.repository.PreinscripcionRepository;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,52 +36,74 @@ public class PreinscripcionService {
     private final DocumentoRepository documentoRepository;
     private final AlumnoRepository alumnoRepository;
     private final EmailService emailService;
+    private final PdfService pdfService;
 
     public PreinscripcionService(PreinscripcionRepository preinscripcionRepository,
                                   DocumentoRepository documentoRepository,
                                   AlumnoRepository alumnoRepository,
-                                  EmailService emailService) {
+                                  EmailService emailService,
+                                  PdfService pdfService) {
         this.preinscripcionRepository = preinscripcionRepository;
         this.documentoRepository = documentoRepository;
         this.alumnoRepository = alumnoRepository;
         this.emailService = emailService;
+        this.pdfService = pdfService;
     }
 
-    public Preinscripcion guardar(Preinscripcion preinscripcion,
-                                   MultipartFile comprobante,
-                                   MultipartFile dniFente,
-                                   MultipartFile dniDorso,
-                                   MultipartFile titulo,
-                                   MultipartFile fotoCarnet) throws IOException {
+    @Transactional
+    public Preinscripcion guardar(Preinscripcion preinscripcion) {
         verificarCupo(preinscripcion);
 
         preinscripcion.setFechaCreacion(LocalDateTime.now());
         preinscripcion.setPagoValidado(false);
         preinscripcion.setDocumentosCompletos(false);
-        preinscripcion.setEstado(EstadoPreinscripcion.PENDIENTE_PAGO);
+        preinscripcion.setEstado(EstadoPreinscripcion.ENVIADA);
         Preinscripcion guardada = preinscripcionRepository.save(preinscripcion);
 
         sincronizarAlumno(guardada);
 
-        guardarDocumento(guardada, TipoDocumento.COMPROBANTE_PAGO, comprobante);
-        guardarDocumento(guardada, TipoDocumento.DNI_FRENTE,       dniFente);
-        guardarDocumento(guardada, TipoDocumento.DNI_DORSO,        dniDorso);
-        guardarDocumento(guardada, TipoDocumento.TITULO,           titulo);
-        guardarDocumento(guardada, TipoDocumento.FOTO_CARNET,      fotoCarnet);
+        try {
+            byte[] pdf = pdfService.generarFormularioPreinscripcion(guardada);
+            String nombre = guardada.getNombre() + " " + guardada.getApellido();
+            emailService.enviarFormularioPreinscripcion(guardada.getEmail(), nombre, guardada.getId(), pdf);
+        } catch (Exception e) {
+            log.error("No se pudo enviar el formulario PDF a {}: {}", guardada.getEmail(), e.getMessage());
+        }
 
         return guardada;
     }
 
-    private void guardarDocumento(Preinscripcion preinscripcion, TipoDocumento tipo, MultipartFile archivo)
-            throws IOException {
-        Documento doc = new Documento();
-        doc.setTipo(tipo);
-        doc.setArchivo(archivo.getBytes());
-        doc.setNombreArchivo(archivo.getOriginalFilename());
-        doc.setContentType(archivo.getContentType());
-        doc.setEstado(EstadoDocumento.PENDIENTE);
-        doc.setPreinscripcion(preinscripcion);
-        documentoRepository.save(doc);
+    public Preinscripcion aprobar(Long id, AprobarRequest requisitos) {
+        Preinscripcion pre = obtenerPorId(id);
+        pre.setEstado(EstadoPreinscripcion.APROBADA);
+        pre.setDocumentosCompletos(true);
+
+        if (requisitos != null) {
+            pre.setReqTituloSecundario(requisitos.tituloSecundario());
+            pre.setReqConstanciaTituloTramite(requisitos.constanciaTituloTramite());
+            pre.setReqDni(requisitos.dni());
+            pre.setReqFoto(requisitos.foto());
+            pre.setReqActaNacimiento(requisitos.actaNacimiento());
+            pre.setReqPsicofisico(requisitos.psicofisico());
+            pre.setReqBuenaConducta(requisitos.buenaConducta());
+        }
+
+        Preinscripcion guardada = preinscripcionRepository.save(pre);
+
+        alumnoRepository.findByEmail(pre.getEmail()).ifPresent(alumno -> {
+            alumno.setStatus(true);
+            alumnoRepository.save(alumno);
+        });
+
+        try {
+            String nombre = pre.getNombre() + " " + pre.getApellido();
+            String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : "la carrera seleccionada";
+            emailService.enviarDocumentosAprobados(pre.getEmail(), nombre, carrera);
+        } catch (MailException e) {
+            log.error("No se pudo enviar email de aprobación a {}: {}", pre.getEmail(), e.getMessage());
+        }
+
+        return guardada;
     }
 
     public List<Preinscripcion> obtenerTodas() {
@@ -105,10 +127,23 @@ public class PreinscripcionService {
 
         return new PreinscripcionDetalleResponse(
                 pre.getId(), pre.getNombre(), pre.getApellido(), pre.getDni(),
-                pre.getEmail(), pre.getTelefono(), pre.getDireccion(), pre.getFechaNacimiento(),
+                pre.getEmail(), pre.getTelefono(), pre.getDireccion(), pre.getLocalidad(),
+                pre.getFechaNacimiento(), pre.getLugarNacimiento(), pre.getNacionalidad(),
+                pre.getEgresadoDe(), pre.getTituloDe(),
+                pre.getDebeMaterias(), pre.getMateriasAdeudadas(),
+                pre.getAfeccionEspecifica(), pre.getGrupoSanguineo(),
                 carrera, pre.getFechaCreacion(), pre.getEstado(),
-                pre.getPagoValidado(), pre.getDocumentosCompletos(), docsResumen
+                pre.getDocumentosCompletos(),
+                pre.getReqTituloSecundario(), pre.getReqConstanciaTituloTramite(),
+                pre.getReqDni(), pre.getReqFoto(), pre.getReqActaNacimiento(),
+                pre.getReqPsicofisico(), pre.getReqBuenaConducta(),
+                docsResumen
         );
+    }
+
+    public byte[] generarPdf(Long id) {
+        Preinscripcion pre = obtenerPorId(id);
+        return pdfService.generarFormularioPreinscripcion(pre);
     }
 
     public Preinscripcion obtenerPorId(Long id) {

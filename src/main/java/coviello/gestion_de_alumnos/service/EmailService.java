@@ -1,8 +1,12 @@
 package coviello.gestion_de_alumnos.service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +24,38 @@ public class EmailService {
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
+    }
+
+    public void enviarFormularioPreinscripcion(String destinatario, String nombre, Long id, byte[] pdf) {
+        try {
+            MimeMessage mensaje = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
+            helper.setFrom(from);
+            helper.setTo(destinatario);
+            helper.setSubject("Formulario de Preinscripción N° " + id + " - " + institucion);
+            helper.setText("""
+                    Hola %s,
+
+                    Recibimos tu formulario de preinscripción correctamente.
+
+                    Tu número de formulario es: %d
+
+                    Adjunto encontrás el formulario en formato PDF. Por favor imprimilo y
+                    presentalo el día de tu inscripción presencial junto con la documentación
+                    requerida: DNI (original y copia frente y dorso), título secundario
+                    (original y copia) y foto carné 4x4.
+
+                    Saludos,
+                    Administración - %s
+                    """.formatted(nombre, id, institucion));
+            helper.addAttachment(
+                    "formulario-preinscripcion-" + id + ".pdf",
+                    new ByteArrayResource(pdf),
+                    "application/pdf");
+            mailSender.send(mensaje);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Error al enviar el formulario por email: " + e.getMessage(), e);
+        }
     }
 
     public void enviarBienvenida(String destinatario, String nombre) {

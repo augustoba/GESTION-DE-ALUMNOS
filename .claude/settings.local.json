@@ -25,7 +25,10 @@
       "Bash(Move-Item *)",
       "Bash(npx ng *)",
       "Bash(git -C \"G:/proyecto final coviello/gestion-de-alumnos\" ls-files)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(mvn dependency:resolve -Dartifact=io.github.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10 -U)",
+      "Bash(npx tsc *)",
+      "Bash(npx --prefix \"G:/proyecto final coviello/gestion-alumnos-front\" tsc -p \"G:/proyecto final coviello/gestion-alumnos-front/tsconfig.json\" --noEmit)"
     ]
   }
 }
