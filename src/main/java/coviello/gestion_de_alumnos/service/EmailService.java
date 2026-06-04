@@ -141,6 +141,28 @@ public class EmailService {
         enviar(destinatario, asunto, cuerpo);
     }
 
+    public void enviarNuevaContrasena(String destinatario, String nombre, String nuevaContrasena) {
+        String asunto = "Recuperación de contraseña - " + institucion;
+        String cuerpo = """
+                Hola %s,
+
+                Recibiste este email porque solicitaste recuperar tu contraseña en el sistema de %s.
+
+                Tu nueva contraseña temporal es:
+
+                  %s
+
+                Por seguridad, te recomendamos cambiarla una vez que ingreses al sistema.
+
+                Si no solicitaste este cambio, ignorá este mensaje.
+
+                Saludos,
+                Administración - %s
+                """.formatted(nombre, institucion, nuevaContrasena, institucion);
+
+        enviar(destinatario, asunto, cuerpo);
+    }
+
     public void enviarBienvenidaDocente(String destinatario, String nombres, String dni) {
         String asunto = "Bienvenido/a al sistema docente - " + institucion;
         String cuerpo = """

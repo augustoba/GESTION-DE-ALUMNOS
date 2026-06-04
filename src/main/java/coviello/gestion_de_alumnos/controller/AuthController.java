@@ -3,6 +3,7 @@ package coviello.gestion_de_alumnos.controller;
 import coviello.gestion_de_alumnos.Util.ApiResponse;
 import coviello.gestion_de_alumnos.dto.LoginRequest;
 import coviello.gestion_de_alumnos.dto.LoginResponse;
+import coviello.gestion_de_alumnos.dto.RecuperarPasswordRequest;
 import coviello.gestion_de_alumnos.dto.RegistroRequest;
 import coviello.gestion_de_alumnos.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,6 +60,26 @@ public class AuthController {
             authService.registrar(request);
             return ResponseEntity.ok(new ApiResponse(
                     "Registro exitoso. Te enviamos la contraseña a " + request.email(), null
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/recuperar-password")
+    @Operation(
+        summary = "Recuperar contraseña",
+        description = "Genera una nueva contraseña aleatoria y la envía al email del usuario registrado."
+    )
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Nueva contraseña enviada al email."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "No existe una cuenta con ese email.")
+    })
+    public ResponseEntity<ApiResponse> recuperarPassword(@Valid @RequestBody RecuperarPasswordRequest request) {
+        try {
+            authService.recuperarPassword(request.email());
+            return ResponseEntity.ok(new ApiResponse(
+                    "Se envió una nueva contraseña a " + request.email(), null
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new ApiResponse(e.getMessage(), null));

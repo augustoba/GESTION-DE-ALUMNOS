@@ -12,6 +12,7 @@ import coviello.gestion_de_alumnos.repository.UsuarioRepository;
 import coviello.gestion_de_alumnos.security.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
+import java.security.SecureRandom;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,6 +74,36 @@ public class AuthService {
         } catch (MailException e) {
             log.error("No se pudo enviar el email de bienvenida a {}: {}", request.email(), e.getMessage());
         }
+    }
+
+    public void recuperarPassword(String email) {
+        Usuario usuario = usuarioRepository.findByUsername(email)
+                .orElseThrow(() -> new RuntimeException("No existe una cuenta registrada con ese email"));
+
+        String nuevaPassword = generarPasswordAleatoria();
+        usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+        usuarioRepository.save(usuario);
+
+        String nombre = alumnoRepository.findByEmail(email)
+                .map(Alumno::getNombres)
+                .orElse("Usuario");
+
+        try {
+            emailService.enviarNuevaContrasena(email, nombre, nuevaPassword);
+        } catch (MailException e) {
+            log.error("No se pudo enviar el email de recuperación a {}: {}", email, e.getMessage());
+            throw new RuntimeException("Error al enviar el email. Intentá nuevamente más tarde.");
+        }
+    }
+
+    private String generarPasswordAleatoria() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(10);
+        for (int i = 0; i < 10; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
     }
 
     public LoginResponse login(LoginRequest request) {

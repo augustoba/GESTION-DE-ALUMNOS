@@ -30,6 +30,7 @@ public class Docente {
     private List<Materia> materias;
     @OneToOne
     @MapsId
+    @JoinColumn(name = "id")
     private Usuario usuario;
 
 
