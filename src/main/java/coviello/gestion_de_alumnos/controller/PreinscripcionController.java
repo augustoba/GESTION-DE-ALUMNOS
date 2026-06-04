@@ -2,6 +2,8 @@ package coviello.gestion_de_alumnos.controller;
 
 import coviello.gestion_de_alumnos.Util.ApiResponse;
 import coviello.gestion_de_alumnos.dto.PreinscripcionDetalleResponse;
+import coviello.gestion_de_alumnos.dto.AprobarRequest;
+import coviello.gestion_de_alumnos.dto.PreinscripcionRequest;
 import coviello.gestion_de_alumnos.dto.RevisionDocumentosRequest;
 import coviello.gestion_de_alumnos.model.Carrera;
 import coviello.gestion_de_alumnos.model.Preinscripcion;
@@ -14,16 +16,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -40,61 +40,81 @@ public class PreinscripcionController {
         this.carreraService = carreraService;
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping
     @PreAuthorize("hasAnyRole('ALUMNO', 'ADMIN')")
     @Operation(
         summary = "Crear preinscripción (ALUMNO)",
         description = """
-            El alumno completa su preinscripción en un solo paso: datos personales, selección de carrera,
-            comprobante de pago y los cuatro documentos obligatorios (DNI frente, DNI dorso, título secundario y foto carnet).
-            Estado inicial: PENDIENTE_PAGO. El admin revisará el pago y cada documento por separado.
-            Si la carrera llegó al cupo máximo, la inscripción es rechazada.
+            El alumno completa el formulario de preinscripción con sus datos personales.
+            El sistema guarda el formulario, le asigna un ID único y envía el formulario
+            en formato PDF al email del alumno para que lo imprima y lo lleve el día de
+            la inscripción presencial junto con la documentación requerida.
+            Estado inicial: ENVIADA.
             """
     )
     @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Preinscripción creada. El admin revisará el pago y los documentos."),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "No hay cupos disponibles para la carrera seleccionada."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Formulario enviado. Se envió el PDF al email del alumno."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos inválidos o sin cupos disponibles para la carrera seleccionada."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos para realizar esta acción.")
     })
-    public ResponseEntity<ApiResponse> crearPreinscripcion(
-            @Parameter(description = "Nombre del alumno", example = "Juan") @RequestParam String nombre,
-            @Parameter(description = "Apellido del alumno", example = "Pérez") @RequestParam String apellido,
-            @Parameter(description = "DNI del alumno (sin puntos)", example = "12345678") @RequestParam String dni,
-            @Parameter(description = "Email del alumno", example = "juan.perez@gmail.com") @RequestParam String email,
-            @Parameter(description = "Teléfono de contacto", example = "1123456789") @RequestParam String telefono,
-            @Parameter(description = "Dirección (calle y número)", example = "Av. Corrientes 1234") @RequestParam String direccion,
-            @Parameter(description = "Fecha de nacimiento (YYYY-MM-DD)", example = "1995-08-20") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaNacimiento,
-            @Parameter(description = "ID de la carrera", example = "1") @RequestParam Long carreraId,
-            @Parameter(description = "Comprobante de pago (JPG, PNG o PDF)") @RequestParam("comprobante") MultipartFile comprobante,
-            @Parameter(description = "Foto del frente del DNI (JPG o PNG)") @RequestParam("dniFente") MultipartFile dniFente,
-            @Parameter(description = "Foto del dorso del DNI (JPG o PNG)") @RequestParam("dniDorso") MultipartFile dniDorso,
-            @Parameter(description = "PDF del título secundario") @RequestParam("titulo") MultipartFile titulo,
-            @Parameter(description = "Foto carnet (JPG o PNG, fondo blanco)") @RequestParam("fotoCarnet") MultipartFile fotoCarnet) {
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        content = @Content(
+            mediaType = "application/json",
+            examples = @ExampleObject(value = """
+                {
+                  "nombres": "Juan",
+                  "apellidos": "Pérez",
+                  "dni": "12345678",
+                  "fechaNacimiento": "1995-08-20",
+                  "lugarNacimiento": "Córdoba",
+                  "nacionalidad": "Argentina",
+                  "domicilio": "Av. Corrientes 1234",
+                  "localidad": "Buenos Aires",
+                  "telefono": "1123456789",
+                  "email": "juan.perez@gmail.com",
+                  "egresadoDe": "Colegio Nacional N°1",
+                  "tituloDe": "Bachiller con orientación en Informática",
+                  "debeMaterias": false,
+                  "materiasAdeudadas": null,
+                  "afeccionEspecifica": null,
+                  "grupoSanguineo": "A+",
+                  "carreraId": 1
+                }
+                """)
+        )
+    )
+    public ResponseEntity<ApiResponse> crearPreinscripcion(@Valid @RequestBody PreinscripcionRequest request) {
+        Preinscripcion preinscripcion = new Preinscripcion();
+        preinscripcion.setNombre(request.nombres());
+        preinscripcion.setApellido(request.apellidos());
+        preinscripcion.setDni(request.dni());
+        preinscripcion.setFechaNacimiento(request.fechaNacimiento());
+        preinscripcion.setLugarNacimiento(request.lugarNacimiento());
+        preinscripcion.setNacionalidad(request.nacionalidad());
+        preinscripcion.setDireccion(request.domicilio());
+        preinscripcion.setLocalidad(request.localidad());
+        preinscripcion.setTelefono(request.telefono());
+        preinscripcion.setEmail(request.email());
+        preinscripcion.setEgresadoDe(request.egresadoDe());
+        preinscripcion.setTituloDe(request.tituloDe());
+        preinscripcion.setDebeMaterias(request.debeMaterias());
+        preinscripcion.setMateriasAdeudadas(request.materiasAdeudadas());
+        preinscripcion.setAfeccionEspecifica(request.afeccionEspecifica());
+        preinscripcion.setGrupoSanguineo(request.grupoSanguineo());
 
-        try {
-            Carrera carrera = carreraService.obtenerPorId(carreraId);
-
-            Preinscripcion preinscripcion = new Preinscripcion();
-            preinscripcion.setNombre(nombre);
-            preinscripcion.setApellido(apellido);
-            preinscripcion.setDni(dni);
-            preinscripcion.setEmail(email);
-            preinscripcion.setTelefono(telefono);
-            preinscripcion.setDireccion(direccion);
-            preinscripcion.setFechaNacimiento(fechaNacimiento);
+        if (request.carreraId() != null) {
+            Carrera carrera = carreraService.obtenerPorId(request.carreraId());
             preinscripcion.setCarrera(carrera);
-
-            Preinscripcion guardada = preinscripcionService.guardar(
-                    preinscripcion, comprobante, dniFente, dniDorso, titulo, fotoCarnet);
-
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse("Preinscripción creada. El equipo de administración revisará tu documentación.", guardada));
-
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError()
-                    .body(new ApiResponse("Error al guardar los archivos: " + e.getMessage(), null));
         }
+
+        Preinscripcion guardada = preinscripcionService.guardar(preinscripcion);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse(
+                        "Formulario de preinscripción N° " + guardada.getId() +
+                        " registrado. Se envió el PDF a tu email para que lo imprimas.",
+                        guardada));
     }
 
     @GetMapping
@@ -164,6 +184,20 @@ public class PreinscripcionController {
     public ResponseEntity<ApiResponse> obtenerPendientesPago() {
         List<Preinscripcion> lista = preinscripcionService.obtenerPendientesPago();
         return ResponseEntity.ok(new ApiResponse("Preinscripciones pendientes de validación de pago", lista));
+    }
+
+    @GetMapping("/{id}/pdf")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Ver PDF del formulario de preinscripción (ADMIN)", description = "Devuelve el PDF generado del formulario para visualizarlo en el navegador.")
+    public ResponseEntity<byte[]> verPdf(
+            @Parameter(description = "ID de la preinscripción", example = "1")
+            @PathVariable Long id) {
+
+        byte[] pdf = preinscripcionService.generarPdf(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "formulario-preinscripcion-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
     }
 
     @PutMapping("/{id}/validar-pago")
@@ -268,6 +302,50 @@ public class PreinscripcionController {
                 ? "Inscripción aprobada. Se notificó al alumno por email."
                 : "Revisión guardada. Se notificó al alumno sobre los documentos a corregir.";
         return ResponseEntity.ok(new ApiResponse(mensaje, pre));
+    }
+
+    @PutMapping("/{id}/aprobar")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+        summary = "Aprobar preinscripción presencial (ADMIN)",
+        description = """
+            El alumno se presentó presencialmente con el formulario impreso y la documentación.
+            El admin busca el formulario por su ID, marca en el cuerpo cuáles documentos físicos
+            presentó el alumno, y confirma la aprobación.
+            El alumno queda dado de alta en el sistema (status = true) y recibe un email de bienvenida.
+            """
+    )
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Alumno dado de alta. Email de bienvenida enviado."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Preinscripción no encontrada."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tenés permisos (se requiere rol ADMIN).")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        content = @Content(
+            mediaType = "application/json",
+            examples = @ExampleObject(value = """
+                {
+                  "tituloSecundario": true,
+                  "constanciaTituloTramite": false,
+                  "dni": true,
+                  "foto": true,
+                  "actaNacimiento": true,
+                  "psicofisico": true,
+                  "buenaConducta": true
+                }
+                """)
+        )
+    )
+    public ResponseEntity<ApiResponse> aprobar(
+            @Parameter(description = "ID del formulario de preinscripción", example = "1")
+            @PathVariable Long id,
+            @RequestBody AprobarRequest requisitos) {
+
+        Preinscripcion pre = preinscripcionService.aprobar(id, requisitos);
+        return ResponseEntity.ok(new ApiResponse(
+                "Alumno dado de alta correctamente. Se notificó por email.",
+                pre));
     }
 
     @PutMapping("/{id}/rechazar-pago")

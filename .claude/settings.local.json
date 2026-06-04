@@ -25,8 +25,7 @@
       "Bash(Move-Item *)",
       "Bash(npx ng *)",
       "Bash(git -C \"G:/proyecto final coviello/gestion-de-alumnos\" ls-files)",
-      "Bash(git *)",
-      "Bash(Get-ChildItem -Recurse -Directory)"
+      "Bash(git *)"
     ]
   }
 }
