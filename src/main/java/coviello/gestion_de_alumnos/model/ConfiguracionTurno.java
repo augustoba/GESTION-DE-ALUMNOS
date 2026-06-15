@@ -30,6 +30,9 @@ public class ConfiguracionTurno {
     @Column(name = "intervalo_minutos", nullable = false)
     private int intervaloMinutos = 5;
 
+    @Column(name = "cupo_maximo", nullable = false)
+    private int cupoMaximo = 100;
+
     @Column(nullable = false)
     private boolean activo = false;
 }

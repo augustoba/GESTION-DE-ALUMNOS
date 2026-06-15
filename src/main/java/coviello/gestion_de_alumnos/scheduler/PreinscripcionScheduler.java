@@ -1,21 +1,6 @@
 package coviello.gestion_de_alumnos.scheduler;
 
-import coviello.gestion_de_alumnos.service.PreinscripcionService;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-@Component
+// Scheduler vacío — la lógica de expiración de 48hs no aplica al nuevo flujo presencial.
+// Las preinscripciones no expiran automáticamente; administración gestiona el estado manualmente.
 public class PreinscripcionScheduler {
-
-    private final PreinscripcionService preinscripcionService;
-
-    public PreinscripcionScheduler(PreinscripcionService preinscripcionService) {
-        this.preinscripcionService = preinscripcionService;
-    }
-
-    // Corre cada hora y expira las inscripciones sin pago validado en más de 48hs
-    @Scheduled(fixedRate = 3_600_000)
-    public void expirarInscripcionesVencidas() {
-        preinscripcionService.expirarPendientes();
-    }
 }

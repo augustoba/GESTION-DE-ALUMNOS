@@ -25,7 +25,16 @@
       "Bash(Move-Item *)",
       "Bash(npx ng *)",
       "Bash(git -C \"G:/proyecto final coviello/gestion-de-alumnos\" ls-files)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "PowerShell(New-Item *)",
+      "Bash(npx tsc *)",
+      "PowerShell($frontDir = \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\"; & \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\\\\node_modules\\\\.bin\\\\tsc\" --project \"$frontDir\\\\tsconfig.json\" --noEmit 2>&1 | Select-Object -First 80)",
+      "PowerShell($tsc = \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\\\\node_modules\\\\.bin\\\\tsc.cmd\"; $tsconfig = \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\\\\tsconfig.json\"; & $tsc --project $tsconfig --noEmit 2>&1 | Select-Object -First 80)",
+      "PowerShell($tsc = \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\\\\node_modules\\\\.bin\\\\tsc.cmd\"; $tsconfig = \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\\\\tsconfig.app.json\"; & $tsc --project $tsconfig --noEmit 2>&1 | Select-Object -First 100)",
+      "PowerShell(Get-ChildItem \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\" -Name | Where-Object { $_ -match \"proxy|env\" })",
+      "Bash(npx --prefix \"G:/proyecto final coviello/gestion-alumnos-front\" tsc --project \"G:/proyecto final coviello/gestion-alumnos-front/tsconfig.app.json\" --noEmit)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(xargs grep -l \"ControllerAdvice\\\\|ExceptionHandler\\\\|ServerError\\\\|GlobalException\")"
     ]
   }
 }

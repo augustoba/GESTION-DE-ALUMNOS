@@ -14,14 +14,14 @@ public class DocentePortalService {
 
     private final DocenteRepository docenteRepository;
     private final MateriaRepository materiaRepository;
-    private final PreinscripcionRepository preinscripcionRepository;
+    private final AlumnoRepository alumnoRepository;
 
     public DocentePortalService(DocenteRepository docenteRepository,
                                 MateriaRepository materiaRepository,
-                                PreinscripcionRepository preinscripcionRepository) {
+                                AlumnoRepository alumnoRepository) {
         this.docenteRepository = docenteRepository;
         this.materiaRepository = materiaRepository;
-        this.preinscripcionRepository = preinscripcionRepository;
+        this.alumnoRepository = alumnoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -37,11 +37,7 @@ public class DocentePortalService {
                         Carrera carrera = anio.getCarrera();
                         if (carrera != null) carreraNombre = carrera.getNombre();
                     }
-                    return new MateriaDetalleDocente(
-                            m.getId(), m.getNombre(), m.getDescripcion(),
-                            carreraNombre, numeroAnio,
-                            m.getDiaSemana(), m.getHoraInicio(), m.getHoraFin(), m.getAula()
-                    );
+                    return new MateriaDetalleDocente(m.getId(), m.getNombre(), m.getDescripcion(), carreraNombre, numeroAnio);
                 })
                 .toList();
     }
@@ -58,23 +54,23 @@ public class DocentePortalService {
 
         if (carreraIds.isEmpty()) return List.of();
 
-        return preinscripcionRepository.findByCarreraIdInAndEstado(carreraIds, EstadoPreinscripcion.APROBADA)
-                .stream()
-                .map(p -> new AlumnoPortalResponse(
-                        p.getId(), p.getNombre(), p.getApellido(),
-                        p.getDni(), p.getEmail(), p.getTelefono(),
-                        p.getCarrera() != null ? p.getCarrera().getNombre() : null
+        return alumnoRepository.findAll().stream()
+                .filter(a -> a.isHabilitado() && a.getCarrera() != null && carreraIds.contains(a.getCarrera().getId()))
+                .map(a -> new AlumnoPortalResponse(
+                        a.getId(), a.getNombres(), a.getApellidos(),
+                        a.getDni(), a.getEmail(), a.getTelefono(),
+                        a.getCarrera() != null ? a.getCarrera().getNombre() : null
                 ))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public AlumnoPortalResponse getAlumno(Long id) {
-        return preinscripcionRepository.findById(id)
-                .map(p -> new AlumnoPortalResponse(
-                        p.getId(), p.getNombre(), p.getApellido(),
-                        p.getDni(), p.getEmail(), p.getTelefono(),
-                        p.getCarrera() != null ? p.getCarrera().getNombre() : null
+        return alumnoRepository.findById(id)
+                .map(a -> new AlumnoPortalResponse(
+                        a.getId(), a.getNombres(), a.getApellidos(),
+                        a.getDni(), a.getEmail(), a.getTelefono(),
+                        a.getCarrera() != null ? a.getCarrera().getNombre() : null
                 ))
                 .orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
     }

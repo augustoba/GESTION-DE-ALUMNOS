@@ -1,149 +1,113 @@
 package coviello.gestion_de_alumnos.service;
 
-import coviello.gestion_de_alumnos.dto.DocumentoResumen;
+import coviello.gestion_de_alumnos.dto.DocumentoChecklistResponse;
+import coviello.gestion_de_alumnos.dto.PagoResponse;
 import coviello.gestion_de_alumnos.dto.PreinscripcionDetalleResponse;
-import coviello.gestion_de_alumnos.dto.AprobarRequest;
-import coviello.gestion_de_alumnos.dto.RevisionDocumentosRequest;
-import coviello.gestion_de_alumnos.model.Alumno;
-import coviello.gestion_de_alumnos.model.Documento;
-import coviello.gestion_de_alumnos.model.EstadoDocumento;
-import coviello.gestion_de_alumnos.model.EstadoPreinscripcion;
-import coviello.gestion_de_alumnos.model.Preinscripcion;
-import coviello.gestion_de_alumnos.model.TipoDocumento;
-import coviello.gestion_de_alumnos.repository.AlumnoRepository;
-import coviello.gestion_de_alumnos.repository.DocumentoRepository;
-import coviello.gestion_de_alumnos.repository.PreinscripcionRepository;
-import org.springframework.transaction.annotation.Transactional;
+import coviello.gestion_de_alumnos.dto.PreinscripcionRequest;
+import coviello.gestion_de_alumnos.model.*;
+import coviello.gestion_de_alumnos.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.List;
 
 @Service
 @Slf4j
 public class PreinscripcionService {
 
-    private static final List<TipoDocumento> DOCS_OBLIGATORIOS =
-            List.of(TipoDocumento.DNI_FRENTE, TipoDocumento.DNI_DORSO,
-                    TipoDocumento.TITULO, TipoDocumento.FOTO_CARNET);
-
     private final PreinscripcionRepository preinscripcionRepository;
-    private final DocumentoRepository documentoRepository;
+    private final CarreraRepository carreraRepository;
+    private final DocumentoChecklistRepository checklistRepository;
+    private final PagoRepository pagoRepository;
     private final AlumnoRepository alumnoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
+    private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final PdfService pdfService;
 
     public PreinscripcionService(PreinscripcionRepository preinscripcionRepository,
-                                  DocumentoRepository documentoRepository,
-                                  AlumnoRepository alumnoRepository,
-                                  EmailService emailService,
-                                  PdfService pdfService) {
+                                 CarreraRepository carreraRepository,
+                                 DocumentoChecklistRepository checklistRepository,
+                                 PagoRepository pagoRepository,
+                                 AlumnoRepository alumnoRepository,
+                                 UsuarioRepository usuarioRepository,
+                                 RolRepository rolRepository,
+                                 PasswordEncoder passwordEncoder,
+                                 EmailService emailService,
+                                 PdfService pdfService) {
         this.preinscripcionRepository = preinscripcionRepository;
-        this.documentoRepository = documentoRepository;
+        this.carreraRepository = carreraRepository;
+        this.checklistRepository = checklistRepository;
+        this.pagoRepository = pagoRepository;
         this.alumnoRepository = alumnoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.rolRepository = rolRepository;
+        this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.pdfService = pdfService;
     }
 
     @Transactional
-    public Preinscripcion guardar(Preinscripcion preinscripcion) {
-        verificarCupo(preinscripcion);
-
-        preinscripcion.setFechaCreacion(LocalDateTime.now());
-        preinscripcion.setPagoValidado(false);
-        preinscripcion.setDocumentosCompletos(false);
-        preinscripcion.setEstado(EstadoPreinscripcion.ENVIADA);
-        Preinscripcion guardada = preinscripcionRepository.save(preinscripcion);
-
-        sincronizarAlumno(guardada);
-
-        try {
-            byte[] pdf = pdfService.generarFormularioPreinscripcion(guardada);
-            String nombre = guardada.getNombre() + " " + guardada.getApellido();
-            emailService.enviarFormularioPreinscripcion(guardada.getEmail(), nombre, guardada.getId(), pdf);
-        } catch (Exception e) {
-            log.error("No se pudo enviar el formulario PDF a {}: {}", guardada.getEmail(), e.getMessage());
+    public Preinscripcion crear(PreinscripcionRequest req) {
+        if (preinscripcionRepository.findByDni(req.dni()).isPresent()) {
+            throw new RuntimeException("Ya existe una preinscripción con el DNI: " + req.dni());
         }
 
-        return guardada;
-    }
+        Preinscripcion pre = new Preinscripcion();
+        pre.setNombre(req.nombre());
+        pre.setApellido(req.apellido());
+        pre.setDni(req.dni());
+        pre.setEmail(req.email());
+        pre.setTelefono(req.telefono());
+        pre.setDireccion(req.direccion());
+        pre.setLocalidad(req.localidad());
+        pre.setFechaNacimiento(req.fechaNacimiento());
+        pre.setLugarNacimiento(req.lugarNacimiento());
+        pre.setNacionalidad(req.nacionalidad());
+        pre.setFotoUrl(req.fotoUrl());
+        pre.setEstado(EstadoPreinscripcion.PENDIENTE);
+        pre.setFechaCreacion(LocalDateTime.now());
 
-    public Preinscripcion aprobar(Long id, AprobarRequest requisitos) {
-        Preinscripcion pre = obtenerPorId(id);
-        pre.setEstado(EstadoPreinscripcion.APROBADA);
-        pre.setDocumentosCompletos(true);
-
-        if (requisitos != null) {
-            pre.setReqTituloSecundario(requisitos.tituloSecundario());
-            pre.setReqConstanciaTituloTramite(requisitos.constanciaTituloTramite());
-            pre.setReqDni(requisitos.dni());
-            pre.setReqFoto(requisitos.foto());
-            pre.setReqActaNacimiento(requisitos.actaNacimiento());
-            pre.setReqPsicofisico(requisitos.psicofisico());
-            pre.setReqBuenaConducta(requisitos.buenaConducta());
+        if (req.carreraId() != null) {
+            Carrera carrera = carreraRepository.findById(req.carreraId())
+                    .orElseThrow(() -> new RuntimeException("Carrera no encontrada: " + req.carreraId()));
+            verificarCupo(carrera);
+            pre.setCarrera(carrera);
         }
 
         Preinscripcion guardada = preinscripcionRepository.save(pre);
+        guardada.setCodigoFormulario(String.valueOf(guardada.getId()));
+        guardada = preinscripcionRepository.save(guardada);
 
-        alumnoRepository.findByEmail(pre.getEmail()).ifPresent(alumno -> {
-            alumno.setStatus(true);
-            alumnoRepository.save(alumno);
-        });
+        // Crear registro de pago vacío
+        Pago pago = new Pago();
+        pago.setPreinscripcion(guardada);
+        pago.setEstado(EstadoPago.SIN_PAGO);
+        pagoRepository.save(pago);
 
-        try {
-            String nombre = pre.getNombre() + " " + pre.getApellido();
-            String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : "la carrera seleccionada";
-            emailService.enviarDocumentosAprobados(pre.getEmail(), nombre, carrera);
-        } catch (MailException e) {
-            log.error("No se pudo enviar email de aprobación a {}: {}", pre.getEmail(), e.getMessage());
+        // Enviar PDF por email si tiene email
+        if (guardada.getEmail() != null && !guardada.getEmail().isBlank()) {
+            try {
+                byte[] pdf = pdfService.generarFormularioPreinscripcion(guardada);
+                String nombre = guardada.getNombre() + " " + guardada.getApellido();
+                emailService.enviarFormularioPreinscripcion(guardada.getEmail(), nombre,
+                        guardada.getCodigoFormulario(), pdf);
+            } catch (Exception e) {
+                log.error("No se pudo enviar el formulario PDF a {}: {}", guardada.getEmail(), e.getMessage());
+            }
         }
 
         return guardada;
-    }
-
-    public List<Preinscripcion> obtenerTodas() {
-        return preinscripcionRepository.findAll();
-    }
-
-    public Page<Preinscripcion> obtenerTodasPaginadas(int page, int size) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").ascending());
-        return preinscripcionRepository.findAll(pageable);
-    }
-
-    public PreinscripcionDetalleResponse obtenerDetalle(Long id) {
-        Preinscripcion pre = obtenerPorId(id);
-
-        List<Documento> documentos = documentoRepository.findByPreinscripcionId(id);
-        List<DocumentoResumen> docsResumen = documentos.stream()
-                .map(d -> new DocumentoResumen(d.getId(), id, d.getTipo(), d.getNombreArchivo(), d.getContentType(), d.getEstado()))
-                .toList();
-
-        String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : null;
-
-        return new PreinscripcionDetalleResponse(
-                pre.getId(), pre.getNombre(), pre.getApellido(), pre.getDni(),
-                pre.getEmail(), pre.getTelefono(), pre.getDireccion(), pre.getLocalidad(),
-                pre.getFechaNacimiento(), pre.getLugarNacimiento(), pre.getNacionalidad(),
-                pre.getEgresadoDe(), pre.getTituloDe(),
-                pre.getDebeMaterias(), pre.getMateriasAdeudadas(),
-                pre.getAfeccionEspecifica(), pre.getGrupoSanguineo(),
-                carrera, pre.getFechaCreacion(), pre.getEstado(),
-                pre.getDocumentosCompletos(),
-                pre.getReqTituloSecundario(), pre.getReqConstanciaTituloTramite(),
-                pre.getReqDni(), pre.getReqFoto(), pre.getReqActaNacimiento(),
-                pre.getReqPsicofisico(), pre.getReqBuenaConducta(),
-                docsResumen
-        );
-    }
-
-    public byte[] generarPdf(Long id) {
-        Preinscripcion pre = obtenerPorId(id);
-        return pdfService.generarFormularioPreinscripcion(pre);
     }
 
     public Preinscripcion obtenerPorId(Long id) {
@@ -151,160 +115,136 @@ public class PreinscripcionService {
                 .orElseThrow(() -> new RuntimeException("Preinscripción no encontrada con ID: " + id));
     }
 
-    public Preinscripcion validarPago(Long id) {
+    public List<Preinscripcion> buscarPorCodigo(String codigo) {
+        return preinscripcionRepository.findByCodigoFormularioContaining(codigo.trim());
+    }
+
+    public Preinscripcion buscarPorDni(String dni) {
+        return preinscripcionRepository.findByDni(dni)
+                .orElseThrow(() -> new RuntimeException("Preinscripción no encontrada con DNI: " + dni));
+    }
+
+    public Page<Preinscripcion> buscarPorNombre(String apellido, String nombre, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("apellido").ascending());
+        return preinscripcionRepository.findByApellidoContainingIgnoreCaseOrNombreContainingIgnoreCase(
+                apellido, nombre, pageable);
+    }
+
+    public Page<Preinscripcion> listarTodas(int page, int size) {
+        return preinscripcionRepository.findAll(PageRequest.of(page, size, Sort.by("fechaCreacion").descending()));
+    }
+
+    public Page<Preinscripcion> listarPorEstado(EstadoPreinscripcion estado, int page, int size) {
+        return preinscripcionRepository.findByEstado(estado, PageRequest.of(page, size));
+    }
+
+    @Transactional(readOnly = true)
+    public PreinscripcionDetalleResponse obtenerDetalle(Long id) {
         Preinscripcion pre = obtenerPorId(id);
-        pre.setPagoValidado(true);
-        pre.setEstado(EstadoPreinscripcion.PAGO_VALIDADO);
-        Preinscripcion guardada = preinscripcionRepository.save(pre);
 
-        try {
-            String nombreCompleto = pre.getNombre() + " " + pre.getApellido();
-            String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : "la carrera seleccionada";
-            emailService.enviarPagoValidado(pre.getEmail(), nombreCompleto, carrera);
-        } catch (MailException e) {
-            log.error("No se pudo enviar email de pago validado a {}: {}", pre.getEmail(), e.getMessage());
-        }
+        PagoResponse pagoResponse = pagoRepository.findByPreinscripcionId(id)
+                .map(p -> new PagoResponse(p.getId(), p.getEstado(), p.getMontoTotal(),
+                        p.getMontoAbonado(), p.getFechaUltimoPago()))
+                .orElse(null);
 
-        return guardada;
-    }
-
-    public Preinscripcion rechazarPago(Long id, String motivo) {
-        Preinscripcion pre = obtenerPorId(id);
-        pre.setPagoValidado(false);
-        pre.setEstado(EstadoPreinscripcion.PENDIENTE_PAGO);
-        Preinscripcion guardada = preinscripcionRepository.save(pre);
-
-        try {
-            String nombreCompleto = pre.getNombre() + " " + pre.getApellido();
-            emailService.enviarPagoRechazado(pre.getEmail(), nombreCompleto, motivo);
-        } catch (MailException e) {
-            log.error("No se pudo enviar email de rechazo a {}: {}", pre.getEmail(), e.getMessage());
-        }
-
-        return guardada;
-    }
-
-    public List<Preinscripcion> obtenerPendientesPago() {
-        return preinscripcionRepository.findByEstado(EstadoPreinscripcion.PENDIENTE_PAGO);
-    }
-
-    public List<Preinscripcion> buscarPorEmail(String email) {
-        return preinscripcionRepository.findByEmail(email);
-    }
-
-    public List<Preinscripcion> obtenerConDocumentosPendientes() {
-        return preinscripcionRepository.findDistinctByDocumentosEstado(EstadoDocumento.PENDIENTE);
-    }
-
-    public List<Preinscripcion> obtenerConDocumentosRechazados() {
-        return preinscripcionRepository.findDistinctByDocumentosEstado(EstadoDocumento.RESUBIR);
-    }
-
-    public List<Preinscripcion> obtenerConDocumentosFaltantes() {
-        return preinscripcionRepository.findAll().stream()
-                .filter(p -> p.getEstado() != EstadoPreinscripcion.PENDIENTE_PAGO
-                          && p.getEstado() != EstadoPreinscripcion.EXPIRADA)
-                .filter(p -> documentoRepository.countByPreinscripcionIdAndTipoIn(
-                        p.getId(), DOCS_OBLIGATORIOS) < DOCS_OBLIGATORIOS.size())
+        List<DocumentoChecklistResponse> checklist = checklistRepository.findByPreinscripcionId(id).stream()
+                .map(c -> new DocumentoChecklistResponse(c.getId(), c.getTipoDocumento(),
+                        c.isPresentado(), c.getFechaPresentacion()))
                 .toList();
+
+        return new PreinscripcionDetalleResponse(
+                pre.getId(), pre.getCodigoFormulario(), pre.getNombre(), pre.getApellido(),
+                pre.getDni(), pre.getEmail(), pre.getTelefono(), pre.getDireccion(), pre.getLocalidad(),
+                pre.getFechaNacimiento(), pre.getLugarNacimiento(), pre.getNacionalidad(), pre.getFotoUrl(),
+                pre.getCarrera() != null ? pre.getCarrera().getNombre() : null,
+                pre.getCarrera() != null ? pre.getCarrera().getId() : null,
+                pre.getEstado(), pre.getFechaCreacion(),
+                pre.getAlumno() != null ? pre.getAlumno().getId() : null,
+                pagoResponse, checklist
+        );
     }
 
-    public Preinscripcion confirmarRevision(Long preinscripcionId,
-                                            RevisionDocumentosRequest request) {
-        Preinscripcion pre = obtenerPorId(preinscripcionId);
+    public byte[] generarPdf(Long id) {
+        return pdfService.generarFormularioPreinscripcion(obtenerPorId(id));
+    }
 
-        for (RevisionDocumentosRequest.DecisionDocumento decision : request.decisiones()) {
-            Documento doc = documentoRepository.findById(decision.documentoId())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Documento no encontrado con ID: " + decision.documentoId()));
-            doc.setEstado(decision.estado());
-            documentoRepository.save(doc);
-        }
+    @Transactional
+    public Preinscripcion cambiarEstado(Long id, EstadoPreinscripcion nuevoEstado) {
+        Preinscripcion pre = obtenerPorId(id);
+        pre.setEstado(nuevoEstado);
+        return preinscripcionRepository.save(pre);
+    }
 
-        long validados = documentoRepository.countByPreinscripcionIdAndTipoInAndEstado(
-                preinscripcionId, DOCS_OBLIGATORIOS, EstadoDocumento.VALIDADO);
+    @Transactional
+    public Preinscripcion habilitarComoAlumno(Long id) {
+        Preinscripcion pre = obtenerPorId(id);
 
-        String nombreCompleto = pre.getNombre() + " " + pre.getApellido();
-        String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : "la carrera seleccionada";
+        if (pre.getAlumno() == null) {
+            Rol rolAlumno = rolRepository.findByNombre("ALUMNO")
+                    .orElseThrow(() -> new RuntimeException("Rol ALUMNO no encontrado"));
 
-        if (validados >= DOCS_OBLIGATORIOS.size()) {
-            pre.setEstado(EstadoPreinscripcion.APROBADA);
-            pre.setDocumentosCompletos(true);
-            preinscripcionRepository.save(pre);
+            // Generar token de activación (válido 72 hs)
+            String token = UUID.randomUUID().toString();
 
-            alumnoRepository.findByEmail(pre.getEmail()).ifPresent(alumno -> {
-                alumno.setStatus(true);
-                alumnoRepository.save(alumno);
-            });
+            Usuario usuario = new Usuario();
+            usuario.setUsername(pre.getEmail());
+            // Contraseña inutilizable hasta que el alumno active su cuenta
+            usuario.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            usuario.setRol(rolAlumno);
+            usuario.setTokenActivacion(token);
+            usuario.setTokenActivacionExpiracion(LocalDateTime.now().plusHours(72));
+            usuario = usuarioRepository.save(usuario);
 
+            // Crear entidad Alumno a partir de los datos de la preinscripción
+            Alumno alumno = new Alumno();
+            alumno.setNombres(pre.getNombre());
+            alumno.setApellidos(pre.getApellido());
+            alumno.setDni(pre.getDni());
+            alumno.setEmail(pre.getEmail());
+            alumno.setTelefono(pre.getTelefono());
+            alumno.setDireccion(pre.getDireccion());
+            alumno.setLocalidad(pre.getLocalidad());
+            alumno.setFechaNac(pre.getFechaNacimiento());
+            alumno.setFotoUrl(pre.getFotoUrl());
+            alumno.setCarrera(pre.getCarrera());
+            alumno.setHabilitado(true);
+            alumno.setUsuario(usuario);
+            alumno = alumnoRepository.save(alumno);
+
+            pre.setAlumno(alumno);
+
+            // Enviar email con link de activación
             try {
-                emailService.enviarDocumentosAprobados(pre.getEmail(), nombreCompleto, carrera);
+                String nombre = pre.getNombre() + " " + pre.getApellido();
+                String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : "la carrera seleccionada";
+                emailService.enviarActivacionCuenta(pre.getEmail(), nombre, carrera, token);
             } catch (MailException e) {
-                log.error("No se pudo enviar email de aprobación a {}: {}", pre.getEmail(), e.getMessage());
+                log.error("No se pudo enviar email de activación a {}: {}", pre.getEmail(), e.getMessage());
             }
         } else {
-            List<Documento> rechazados = documentoRepository
-                    .findByPreinscripcionIdAndEstado(preinscripcionId, EstadoDocumento.RESUBIR);
-            List<String> tiposRechazados = rechazados.stream()
-                    .map(d -> d.getTipo().name())
-                    .toList();
-
-            try {
-                emailService.enviarDocumentosRechazados(pre.getEmail(), nombreCompleto, carrera, tiposRechazados);
-            } catch (MailException e) {
-                log.error("No se pudo enviar email de documentos rechazados a {}: {}", pre.getEmail(), e.getMessage());
-            }
+            // El alumno ya existe — solo habilitarlo
+            pre.getAlumno().setHabilitado(true);
+            alumnoRepository.save(pre.getAlumno());
         }
 
-        return pre;
+        pre.setEstado(EstadoPreinscripcion.HABILITADO);
+        return preinscripcionRepository.save(pre);
     }
 
-    public void expirarPendientes() {
-        LocalDateTime limite = LocalDateTime.now().minusHours(48);
-        List<Preinscripcion> vencidas = preinscripcionRepository
-                .findByEstadoAndFechaCreacionBefore(EstadoPreinscripcion.PENDIENTE_PAGO, limite);
-
-        for (Preinscripcion pre : vencidas) {
-            pre.setEstado(EstadoPreinscripcion.EXPIRADA);
-            preinscripcionRepository.save(pre);
-            log.info("Preinscripción {} expirada (creada: {})", pre.getId(), pre.getFechaCreacion());
-
-            try {
-                String nombreCompleto = pre.getNombre() + " " + pre.getApellido();
-                String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : "la carrera seleccionada";
-                emailService.enviarInscripcionExpirada(pre.getEmail(), nombreCompleto, carrera);
-            } catch (MailException e) {
-                log.error("No se pudo enviar email de expiración a {}: {}", pre.getEmail(), e.getMessage());
-            }
-        }
-
-        if (!vencidas.isEmpty()) {
-            log.info("Se expiraron {} preinscripciones vencidas", vencidas.size());
-        }
+    @Transactional
+    public Preinscripcion rechazar(Long id) {
+        Preinscripcion pre = obtenerPorId(id);
+        pre.setEstado(EstadoPreinscripcion.RECHAZADO);
+        return preinscripcionRepository.save(pre);
     }
 
-    private void sincronizarAlumno(Preinscripcion pre) {
-        alumnoRepository.findByEmail(pre.getEmail()).ifPresent(alumno -> {
-            if (pre.getTelefono()       != null) alumno.setTelefono(pre.getTelefono());
-            if (pre.getDireccion()      != null) alumno.setDireccion(pre.getDireccion());
-            if (pre.getFechaNacimiento()!= null) alumno.setFechaNac(pre.getFechaNacimiento());
-            if (pre.getDni()            != null) alumno.setDni(pre.getDni());
-            alumnoRepository.save(alumno);
-        });
-    }
 
-    private void verificarCupo(Preinscripcion preinscripcion) {
-        if (preinscripcion.getCarrera() == null) return;
-
-        int cupoMaximo = preinscripcion.getCarrera().getCupoMaximo();
-        if (cupoMaximo == 0) return;
-
+    private void verificarCupo(Carrera carrera) {
+        if (carrera.getCupoMaximo() == 0) return;
         long activos = preinscripcionRepository.countByCarreraIdAndEstadoNot(
-                preinscripcion.getCarrera().getId(), EstadoPreinscripcion.EXPIRADA);
-
-        if (activos >= cupoMaximo) {
-            throw new RuntimeException(
-                    "No hay cupos disponibles para la carrera: " + preinscripcion.getCarrera().getNombre());
+                carrera.getId(), EstadoPreinscripcion.RECHAZADO);
+        if (activos >= carrera.getCupoMaximo()) {
+            throw new RuntimeException("No hay cupos disponibles para la carrera: " + carrera.getNombre());
         }
     }
 }

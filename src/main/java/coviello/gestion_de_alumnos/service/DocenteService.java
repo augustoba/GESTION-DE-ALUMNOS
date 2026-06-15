@@ -17,8 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class DocenteService {
@@ -61,10 +61,13 @@ public class DocenteService {
         Rol rolDocente = rolRepository.findByNombre("DOCENTE")
                 .orElseThrow(() -> new RuntimeException("Rol DOCENTE no encontrado"));
 
+        String passwordTemporal = generarPasswordTemporal();
+
         Usuario usuario = new Usuario();
         usuario.setUsername(req.email());
-        usuario.setPassword(passwordEncoder.encode(req.dni()));
+        usuario.setPassword(passwordEncoder.encode(passwordTemporal));
         usuario.setRol(rolDocente);
+        usuario.setMustChangePassword(true);
         usuario = usuarioRepository.save(usuario);
 
         Docente docente = new Docente();
@@ -77,7 +80,7 @@ public class DocenteService {
         docente.setUsuario(usuario);
 
         DocenteResponse response = toResponse(docenteRepository.save(docente));
-        try { emailService.enviarBienvenidaDocente(req.email(), req.nombres(), req.dni()); } catch (Exception ignored) {}
+        try { emailService.enviarBienvenidaDocente(req.email(), req.nombres(), passwordTemporal); } catch (Exception ignored) {}
         return response;
     }
 
@@ -85,7 +88,6 @@ public class DocenteService {
     public DocenteResponse actualizar(Long id, DocenteRequest req) {
         Docente docente = findById(id);
 
-        // Si cambió el email, actualizar también el username del usuario
         if (!docente.getEmail().equals(req.email())) {
             if (usuarioRepository.findByUsername(req.email()).isPresent()) {
                 throw new RuntimeException("Ya existe un usuario con el email: " + req.email());
@@ -124,13 +126,17 @@ public class DocenteService {
                         Carrera carrera = anio.getCarrera();
                         if (carrera != null) carreraNombre = carrera.getNombre();
                     }
-                    return new MateriaDetalleDocente(
-                            m.getId(), m.getNombre(), m.getDescripcion(),
-                            carreraNombre, numeroAnio,
-                            m.getDiaSemana(), m.getHoraInicio(), m.getHoraFin(), m.getAula()
-                    );
+                    return new MateriaDetalleDocente(m.getId(), m.getNombre(), m.getDescripcion(), carreraNombre, numeroAnio);
                 })
                 .toList();
+    }
+
+    private String generarPasswordTemporal() {
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(12);
+        for (int i = 0; i < 12; i++) sb.append(chars.charAt(random.nextInt(chars.length())));
+        return sb.toString();
     }
 
     private Docente findById(Long id) {

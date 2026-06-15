@@ -17,7 +17,7 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Long> {
 
     List<Asistencia> findByHorarioClaseIdAndFecha(Long horarioClaseId, LocalDate fecha);
 
-    List<Asistencia> findByAlumnoIdAndHorarioClaseMateriId(Long alumnoId, Long materiaId);
+    List<Asistencia> findByAlumnoIdAndHorarioClaseMateriaId(Long alumnoId, Long materiaId);
 
     // Cuenta presentes/tardanzas/ausentes por alumno y materia
     long countByAlumnoIdAndHorarioClaseMateriaIdAndEstado(

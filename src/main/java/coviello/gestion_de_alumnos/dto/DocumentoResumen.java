@@ -5,9 +5,8 @@ import coviello.gestion_de_alumnos.model.TipoDocumento;
 
 public record DocumentoResumen(
         Long id,
-        Long preinscripcionId,
-        TipoDocumento tipo,
-        String nombreArchivo,
-        String contentType,
-        EstadoDocumento estado
+        TipoDocumento tipoDocumento,
+        String archivoUrl,
+        EstadoDocumento estado,
+        String motivoRechazo
 ) {}

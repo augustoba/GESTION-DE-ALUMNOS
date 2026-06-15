@@ -27,8 +27,7 @@ public class CarreraController {
     // ── Carreras ─────────────────────────────────────────────────
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ALUMNO', 'ADMIN')")
-    @Operation(summary = "Listar carreras activas")
+    @Operation(summary = "Listar carreras activas (público)")
     public ResponseEntity<ApiResponse> listarActivas() {
         List<Carrera> carreras = carreraService.obtenerTodas()
                 .stream()
@@ -38,29 +37,29 @@ public class CarreraController {
     }
 
     @GetMapping("/todas")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar todas las carreras (ADMIN)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Listar todas las carreras")
     public ResponseEntity<ApiResponse> listarTodas() {
         return ResponseEntity.ok(new ApiResponse("Carreras", carreraService.obtenerTodas()));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ALUMNO', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ALUMNO', 'ADMIN', 'SUPER_ADMIN')")
     @Operation(summary = "Obtener una carrera por ID")
     public ResponseEntity<ApiResponse> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(new ApiResponse("Carrera encontrada", carreraService.obtenerPorId(id)));
     }
 
     @GetMapping("/{id}/detalle")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Detalle completo con años y materias (ADMIN)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Detalle completo con años y materias")
     public ResponseEntity<ApiResponse> obtenerDetalle(@PathVariable Long id) {
         return ResponseEntity.ok(new ApiResponse("Detalle de carrera", carreraService.obtenerDetalle(id)));
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Crear nueva carrera (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Crear nueva carrera (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> crear(@RequestBody CarreraRequest req) {
         Carrera nueva = carreraService.crearCarrera(req);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -68,15 +67,15 @@ public class CarreraController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Actualizar una carrera (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Actualizar una carrera (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> actualizar(@PathVariable Long id, @RequestBody CarreraRequest req) {
         return ResponseEntity.ok(new ApiResponse("Carrera actualizada", carreraService.actualizarCarrera(id, req)));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Eliminar una carrera (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Eliminar una carrera (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> eliminar(@PathVariable Long id) {
         carreraService.eliminarCarrera(id);
         return ResponseEntity.ok(new ApiResponse("Carrera eliminada correctamente", null));
@@ -85,8 +84,8 @@ public class CarreraController {
     // ── Años ─────────────────────────────────────────────────────
 
     @PostMapping("/{carreraId}/anios")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Agregar un año a la carrera (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Agregar un año a la carrera (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> agregarAnio(
             @PathVariable Long carreraId,
             @RequestBody AnioCarreraRequest req) {
@@ -96,8 +95,8 @@ public class CarreraController {
     }
 
     @DeleteMapping("/anios/{anioId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Eliminar un año (y sus materias) (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Eliminar un año (y sus materias) (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> eliminarAnio(@PathVariable Long anioId) {
         carreraService.eliminarAnio(anioId);
         return ResponseEntity.ok(new ApiResponse("Año eliminado correctamente", null));
@@ -106,8 +105,8 @@ public class CarreraController {
     // ── Materias ──────────────────────────────────────────────────
 
     @PostMapping("/anios/{anioId}/materias")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Agregar una materia a un año (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Agregar una materia a un año (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> agregarMateria(
             @PathVariable Long anioId,
             @RequestBody MateriaRequest req) {
@@ -117,8 +116,8 @@ public class CarreraController {
     }
 
     @PutMapping("/materias/{materiaId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Actualizar una materia (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Actualizar una materia (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> actualizarMateria(
             @PathVariable Long materiaId,
             @RequestBody MateriaRequest req) {
@@ -126,8 +125,8 @@ public class CarreraController {
     }
 
     @DeleteMapping("/materias/{materiaId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Eliminar una materia (ADMIN)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Eliminar una materia (SUPER_ADMIN)")
     public ResponseEntity<ApiResponse> eliminarMateria(@PathVariable Long materiaId) {
         carreraService.eliminarMateria(materiaId);
         return ResponseEntity.ok(new ApiResponse("Materia eliminada correctamente", null));
@@ -136,8 +135,8 @@ public class CarreraController {
     // ── Docentes (para selector en frontend) ──────────────────────
 
     @GetMapping("/docentes")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar docentes disponibles (ADMIN)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Listar docentes disponibles")
     public ResponseEntity<ApiResponse> listarDocentes() {
         return ResponseEntity.ok(new ApiResponse("Docentes", carreraService.listarDocentes()));
     }

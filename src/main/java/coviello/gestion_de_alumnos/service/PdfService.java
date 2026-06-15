@@ -37,14 +37,14 @@ public class PdfService {
                 float col = MARGEN;
                 float ancho = ANCHO_PAGINA - 2 * MARGEN;
 
-                // ── N° DE FORMULARIO (arriba, grande y en negrita) ──────
-                String nroLabel = "N  de formulario:  ";
-                String nroValor = String.valueOf(pre.getId());
+                // ── N° DE FORMULARIO (arriba, grande y en negrita) ──────────
+                String nroLabel = "N° de Formulario:  ";
+                String nroValor = nvl(pre.getCodigoFormulario());
                 float nroLabelW = bold.getStringWidth(nroLabel) / 1000 * 11;
                 float nroX = ANCHO_PAGINA - MARGEN - nroLabelW
-                           - bold.getStringWidth(nroValor) / 1000 * 22 - 8;
+                           - bold.getStringWidth(nroValor) / 1000 * 16 - 8;
                 escribir(cs, bold, 11, nroLabel, nroX, y);
-                escribir(cs, bold, 22, nroValor, nroX + nroLabelW, y - 4);
+                escribir(cs, bold, 16, nroValor, nroX + nroLabelW, y - 2);
                 y -= 32;
 
                 // ── TÍTULO ──────────────────────────────────────────────
@@ -128,18 +128,15 @@ public class PdfService {
                 y -= 10;
 
                 // ── DATOS EDUCATIVOS ───────────────────────────────────────
-                y = campoLinea(cs, regular, bold, 10, "Egresado de:", nvl(pre.getEgresadoDe()), col, y, ancho);
-                y = campoLinea(cs, regular, bold, 10, "Titulo de:", nvl(pre.getTituloDe()), col, y, ancho);
+                y = campoLinea(cs, regular, bold, 10, "Egresado de:", "", col, y, ancho);
+                y = campoLinea(cs, regular, bold, 10, "Titulo de:", "", col, y, ancho);
 
-                // "Debe materias" sin renglón debajo del SI/NO
-                String siNo = Boolean.TRUE.equals(pre.getDebeMaterias()) ? "SI [X]  -  NO [ ]"
-                                                                          : "SI [ ]  -  NO [X]";
-                if (pre.getDebeMaterias() == null) siNo = "SI [ ]  -  NO [ ]";
+                String siNo = "SI [ ]  -  NO [ ]";
                 float labelDMW = bold.getStringWidth("Debe materias del Secundario?   ") / 1000 * 10;
                 escribir(cs, bold,    10, "Debe materias del Secundario?   ", col, y);
                 escribir(cs, regular, 10, siNo, col + labelDMW, y);
                 y -= 16;
-                y = campoLinea(cs, regular, bold, 10, "Indicar las materias:", nvl(pre.getMateriasAdeudadas()), col, y, ancho);
+                y = campoLinea(cs, regular, bold, 10, "Indicar las materias:", "", col, y, ancho);
                 y -= 4;
                 linea(cs, col, col + ancho, y);
                 y -= 10;
@@ -182,8 +179,8 @@ public class PdfService {
 
                 // ── SALUD ──────────────────────────────────────────────────
                 y = campoLinea(cs, regular, bold, 10, "Si padece alguna afección específica INDIQUELA:",
-                        nvl(pre.getAfeccionEspecifica()), col, y, ancho);
-                y = campoLinea(cs, regular, bold, 10, "Grupo Sanguíneo:", nvl(pre.getGrupoSanguineo()), col, y, ancho);
+                        "", col, y, ancho);
+                y = campoLinea(cs, regular, bold, 10, "Grupo Sanguíneo:", "", col, y, ancho);
                 y -= 4;
                 linea(cs, col, col + ancho, y);
                 y -= 10;

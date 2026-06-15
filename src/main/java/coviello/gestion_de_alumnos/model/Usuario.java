@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,6 +27,14 @@ public class Usuario implements UserDetails {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Rol rol;
+
+    @Column(unique = true)
+    private String tokenActivacion;
+
+    private LocalDateTime tokenActivacionExpiracion;
+
+    @Column(name = "must_change_password", nullable = false)
+    private boolean mustChangePassword = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

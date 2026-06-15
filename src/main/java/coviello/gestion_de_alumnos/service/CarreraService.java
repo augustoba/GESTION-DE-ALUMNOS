@@ -1,14 +1,8 @@
 package coviello.gestion_de_alumnos.service;
 
 import coviello.gestion_de_alumnos.dto.*;
-import coviello.gestion_de_alumnos.model.AnioCarrera;
-import coviello.gestion_de_alumnos.model.Carrera;
-import coviello.gestion_de_alumnos.model.Docente;
-import coviello.gestion_de_alumnos.model.Materia;
-import coviello.gestion_de_alumnos.repository.AnioCarreraRepository;
-import coviello.gestion_de_alumnos.repository.CarreraRepository;
-import coviello.gestion_de_alumnos.repository.DocenteRepository;
-import coviello.gestion_de_alumnos.repository.MateriaRepository;
+import coviello.gestion_de_alumnos.model.*;
+import coviello.gestion_de_alumnos.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +55,7 @@ public class CarreraService {
         c.setDescripcion(req.descripcion());
         c.setActiva(req.activa() != null ? req.activa() : true);
         c.setCupoMaximo(req.cupoMaximo());
+        c.setPrefijoTurno(req.prefijoTurno());
         return carreraRepository.save(c);
     }
 
@@ -70,6 +65,7 @@ public class CarreraService {
         c.setDescripcion(req.descripcion());
         if (req.activa() != null) c.setActiva(req.activa());
         c.setCupoMaximo(req.cupoMaximo());
+        if (req.prefijoTurno() != null) c.setPrefijoTurno(req.prefijoTurno());
         return carreraRepository.save(c);
     }
 
@@ -84,7 +80,7 @@ public class CarreraService {
         return carreraRepository.findByNombreContainingIgnoreCase(nombre);
     }
 
-    // ── Años ────────────────────────────────────────────────────
+    // ── Años ──────────────────────────────────────────────────────
 
     public AnioCarreraResponse agregarAnio(Long carreraId, AnioCarreraRequest req) {
         Carrera carrera = obtenerPorId(carreraId);
@@ -104,7 +100,7 @@ public class CarreraService {
         anioCarreraRepository.deleteById(anioId);
     }
 
-    // ── Materias ─────────────────────────────────────────────────
+    // ── Materias ──────────────────────────────────────────────────
 
     public MateriaResponse agregarMateria(Long anioId, MateriaRequest req) {
         AnioCarrera anio = anioCarreraRepository.findById(anioId)
@@ -135,15 +131,11 @@ public class CarreraService {
                 .toList();
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────
 
     private void aplicarCamposMateria(Materia m, MateriaRequest req) {
         m.setNombre(req.nombre());
         m.setDescripcion(req.descripcion());
-        m.setDiaSemana(req.diaSemana());
-        m.setHoraInicio(req.horaInicio());
-        m.setHoraFin(req.horaFin());
-        m.setAula(req.aula());
         if (req.docenteId() != null) {
             Docente docente = docenteRepository.findById(req.docenteId())
                     .orElseThrow(() -> new RuntimeException("Docente no encontrado con ID: " + req.docenteId()));
@@ -168,10 +160,6 @@ public class CarreraService {
             Docente d = m.getDocente();
             docenteResumen = new DocenteResumen(d.getId(), d.getNombres(), d.getApellidos(), d.getEmail());
         }
-        return new MateriaResponse(
-                m.getId(), m.getNombre(), m.getDescripcion(),
-                m.getDiaSemana(), m.getHoraInicio(), m.getHoraFin(),
-                m.getAula(), docenteResumen
-        );
+        return new MateriaResponse(m.getId(), m.getNombre(), m.getDescripcion(), docenteResumen);
     }
 }

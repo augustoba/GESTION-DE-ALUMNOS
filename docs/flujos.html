@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flujos del Sistema — IES Alfredo Coviello</title>
+<style>
+  /* ── Base ──────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --purple:  #6A1B9A; --purple-light:  #f3e5f5; --purple-mid: #9C27B0;
+    --blue:    #1565C0; --blue-light:    #e3f2fd; --blue-mid:   #1976D2;
+    --orange:  #E65100; --orange-light:  #fff3e0; --orange-mid: #F57C00;
+    --green:   #1B5E20; --green-light:   #e8f5e9; --green-mid:  #388E3C;
+    --grey:    #37474F; --grey-light:    #eceff1; --grey-mid:   #546E7A;
+    --red:     #B71C1C; --red-light:     #ffebee;
+    --text:    #212121; --text-secondary: #555;
+    --border:  #dee2e6;
+    --page-w:  210mm;
+  }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: var(--text);
+    background: #fff;
+  }
+
+  /* ── Print & page breaks ───────────────────────────────────── */
+  @media print {
+    @page { size: A4; margin: 15mm 20mm; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+    body { font-size: 10pt; }
+  }
+
+  /* ── Page simulation for browser preview ──────────────────── */
+  @media screen {
+    body { background: #f0f0f0; }
+    .page { background: #fff; max-width: 790px; margin: 24px auto; padding: 40px 52px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+  }
+
+  /* ── Cover ─────────────────────────────────────────────────── */
+  .cover {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 90vh; text-align: center;
+    padding: 40px 20px;
+  }
+  .cover-badge {
+    background: var(--blue); color: #fff;
+    font-size: 11pt; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    padding: 6px 20px; border-radius: 4px; margin-bottom: 32px;
+  }
+  .cover h1 { font-size: 30pt; font-weight: 800; color: var(--blue); line-height: 1.2; margin-bottom: 12px; }
+  .cover h2 { font-size: 16pt; font-weight: 400; color: var(--grey); margin-bottom: 48px; }
+  .cover-divider { width: 80px; height: 4px; background: var(--blue); border-radius: 2px; margin: 0 auto 48px; }
+  .cover-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; text-align: left; max-width: 380px; }
+  .cover-meta dt { font-weight: 700; color: var(--grey); font-size: 9pt; text-transform: uppercase; letter-spacing: 1px; }
+  .cover-meta dd { color: var(--text); margin-bottom: 8px; }
+  .cover-footer { margin-top: 48px; font-size: 9pt; color: #999; }
+
+  /* ── Headings ──────────────────────────────────────────────── */
+  h1.section-h { font-size: 20pt; font-weight: 800; margin-bottom: 8px; }
+  h2.sub-h { font-size: 14pt; font-weight: 700; margin: 28px 0 10px; }
+  h3.minor-h { font-size: 11pt; font-weight: 700; margin: 20px 0 8px; color: var(--grey); }
+
+  /* ── Section header banner ─────────────────────────────────── */
+  .role-banner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 24px; border-radius: 8px; margin-bottom: 24px;
+  }
+  .role-banner .icon { font-size: 28pt; line-height: 1; }
+  .role-banner h1 { font-size: 20pt; font-weight: 800; color: #fff; margin: 0; }
+  .role-banner p { font-size: 10pt; color: rgba(255,255,255,0.85); margin: 2px 0 0; }
+  .banner-superadmin { background: linear-gradient(135deg, var(--purple), var(--purple-mid)); }
+  .banner-admin      { background: linear-gradient(135deg, var(--blue),   var(--blue-mid)); }
+  .banner-docente    { background: linear-gradient(135deg, var(--orange), var(--orange-mid)); }
+  .banner-alumno     { background: linear-gradient(135deg, var(--green),  var(--green-mid)); }
+  .banner-general    { background: linear-gradient(135deg, var(--grey),   var(--grey-mid)); }
+
+  /* ── TOC ───────────────────────────────────────────────────── */
+  .toc { margin: 20px 0; }
+  .toc-section { margin-bottom: 6px; }
+  .toc-section > a { font-weight: 700; font-size: 11pt; color: var(--blue); text-decoration: none; }
+  .toc-sub { margin: 3px 0 3px 20px; }
+  .toc-sub a { color: var(--text-secondary); text-decoration: none; font-size: 10pt; }
+  .toc-sub a:hover { color: var(--blue); }
+  .toc-dots { border-bottom: 1px dotted #bbb; flex: 1; margin: 0 6px; }
+  .toc-line { display: flex; align-items: baseline; }
+  .toc-pg { font-size: 9pt; color: #999; }
+
+  /* ── Info box ──────────────────────────────────────────────── */
+  .info-box {
+    border-left: 4px solid; padding: 12px 16px; border-radius: 0 6px 6px 0;
+    margin: 16px 0; background: var(--blue-light); border-color: var(--blue);
+  }
+  .info-box.warn  { background: var(--orange-light); border-color: var(--orange); }
+  .info-box.ok    { background: var(--green-light);  border-color: var(--green); }
+  .info-box.note  { background: var(--grey-light);   border-color: var(--grey); }
+  .info-box strong { display: block; margin-bottom: 4px; }
+
+  /* ── Step list ─────────────────────────────────────────────── */
+  .steps { list-style: none; margin: 12px 0 16px 0; }
+  .steps li {
+    display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start;
+  }
+  .step-num {
+    width: 24px; height: 24px; min-width: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 9pt; color: #fff; flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-num.purple { background: var(--purple); }
+  .step-num.blue   { background: var(--blue); }
+  .step-num.orange { background: var(--orange); }
+  .step-num.green  { background: var(--green); }
+  .step-num.grey   { background: var(--grey); }
+  .step-content strong { display: block; margin-bottom: 2px; }
+
+  /* ── Code / endpoint ───────────────────────────────────────── */
+  .endpoint {
+    font-family: 'Courier New', monospace; font-size: 9.5pt;
+    background: #1e2a3a; color: #e8f4ff; padding: 14px 16px;
+    border-radius: 6px; margin: 10px 0; line-height: 1.65; overflow-x: auto;
+  }
+  .method { font-weight: 800; padding: 1px 6px; border-radius: 3px; margin-right: 6px; font-size: 8.5pt; }
+  .method.get    { background: #2e7d32; color: #fff; }
+  .method.post   { background: #1565C0; color: #fff; }
+  .method.put    { background: #E65100; color: #fff; }
+  .method.delete { background: #B71C1C; color: #fff; }
+  .path  { color: #90CAF9; }
+  .comment { color: #78909C; font-style: italic; }
+  .json-key   { color: #F48FB1; }
+  .json-str   { color: #A5D6A7; }
+  .json-num   { color: #FFE082; }
+  .json-bool  { color: #CE93D8; }
+
+  /* ── Tables ────────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 9.5pt; }
+  thead th {
+    padding: 8px 10px; text-align: left; font-weight: 700;
+    font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  tbody td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafafa; }
+  .th-purple { background: var(--purple); color: #fff; }
+  .th-blue   { background: var(--blue);   color: #fff; }
+  .th-orange { background: var(--orange); color: #fff; }
+  .th-green  { background: var(--green);  color: #fff; }
+  .th-grey   { background: var(--grey);   color: #fff; }
+  .badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 8pt; font-weight: 700; white-space: nowrap;
+  }
+  .badge-sa  { background: var(--purple-light); color: var(--purple); }
+  .badge-ad  { background: var(--blue-light);   color: var(--blue); }
+  .badge-do  { background: var(--orange-light); color: var(--orange); }
+  .badge-al  { background: var(--green-light);  color: var(--green); }
+  .badge-pub { background: var(--grey-light);   color: var(--grey); }
+
+  /* ── SVG wrapper ───────────────────────────────────────────── */
+  .diagram { display: flex; justify-content: center; margin: 20px 0; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption {
+    text-align: center; font-size: 9pt; color: var(--text-secondary);
+    margin-top: 6px; font-style: italic;
+  }
+
+  /* ── State chip ────────────────────────────────────────────── */
+  .state {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 2px solid; border-radius: 6px; padding: 3px 10px;
+    font-weight: 700; font-size: 9pt; white-space: nowrap;
+  }
+  .state-pending { border-color: #FFC107; color: #F57F17; background: #FFFDE7; }
+  .state-review  { border-color: #1976D2; color: #1565C0; background: var(--blue-light); }
+  .state-ok      { border-color: #388E3C; color: #1B5E20; background: var(--green-light); }
+  .state-reject  { border-color: #C62828; color: #B71C1C; background: var(--red-light); }
+  .state-arrow   { font-size: 12pt; color: var(--grey-mid); margin: 0 4px; font-weight: 400; }
+
+  /* ── Two-column grid ───────────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .card {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; background: #fff;
+  }
+  .card h4 { font-size: 10pt; font-weight: 700; margin-bottom: 6px; }
+
+  /* ── Misc ──────────────────────────────────────────────────── */
+  p { margin-bottom: 8px; }
+  ul, ol { margin: 8px 0 8px 20px; }
+  li { margin-bottom: 4px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .text-secondary { color: var(--text-secondary); }
+  .small { font-size: 9pt; }
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; }
+  .pill {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: 8.5pt; font-weight: 700;
+  }
+  .pill-ok     { background: var(--green-light); color: var(--green); }
+  .pill-warn   { background: var(--orange-light); color: var(--orange); }
+  .pill-reject { background: var(--red-light); color: var(--red); }
+  .pill-info   { background: var(--blue-light); color: var(--blue); }
+  .pill-grey   { background: var(--grey-light); color: var(--grey); }
+
+  /* ── Screen mockups ───────────────────────────────────────────── */
+  .mockup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 24px 0; }
+  .mockup-col  { display: flex; flex-direction: column; gap: 28px; }
+  .mockup-full { grid-column: 1 / -1; }
+
+  .screen-frame {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+    background: #fff;
+    break-inside: avoid;
+  }
+  .screen-chrome {
+    background: #E8EAED;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #CCC;
+  }
+  .chrome-dots { display: flex; gap: 5px; }
+  .chrome-dot  { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red   { background: #FF5F57; }
+  .dot-yellow{ background: #FEBC2E; }
+  .dot-green { background: #28C840; }
+  .chrome-url {
+    flex: 1;
+    background: #fff;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 8pt;
+    color: #444;
+    border: 1px solid #DDD;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .screen-body { display: flex; min-height: 220px; background: #F5F5F5; }
+  .screen-body.centered {
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #005f7a 0%, #003d52 100%);
+    padding: 20px;
+  }
+
+  /* Sidebar */
+  .mock-sidebar {
+    width: 80px;
+    background: linear-gradient(180deg, #005f7a 0%, #003d52 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 6px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .mock-logo {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .mock-nav { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+  .mock-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 4px; border-radius: 6px;
+    font-size: 6pt; color: rgba(255,255,255,0.55); cursor: pointer;
+    text-align: center;
+  }
+  .mock-nav-item .mock-icon { font-size: 13px; margin-bottom: 1px; }
+  .mock-nav-item.active { background: rgba(255,255,255,0.15); color: #fff; }
+  .mock-nav-item.active .mock-icon { color: #F79420; }
+
+  /* Main area */
+  .mock-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .mock-toolbar {
+    height: 36px;
+    background: #fff;
+    border-bottom: 1px solid #E0E0E0;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .mock-toolbar-title { font-weight: 700; font-size: 8.5pt; color: #005f7a; }
+  .mock-spacer { flex: 1; }
+  .mock-search {
+    background: #F5F5F5;
+    border: 1px solid #DDD;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 7.5pt;
+    color: #777;
+    width: 110px;
+  }
+  .mock-icon-btn {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #F0F0F0; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #666; cursor: pointer;
+  }
+  .mock-content { padding: 12px 14px; flex: 1; overflow: hidden; }
+
+  /* Login / Register card */
+  .mock-login-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 22px;
+    width: 200px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  }
+  .mock-login-logo {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #005f7a, #009DC9);
+    margin: 0 auto 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .mock-login-title { font-weight: 700; font-size: 9pt; text-align: center; color: #003d52; margin-bottom: 4px; }
+  .mock-login-sub   { font-size: 6.5pt; color: #777; text-align: center; margin-bottom: 12px; }
+  .mock-field {
+    height: 22px; border-radius: 5px; border: 1px solid #DDD;
+    background: #FAFAFA; margin-bottom: 7px;
+    padding: 0 8px; display: flex; align-items: center;
+    font-size: 7pt; color: #999;
+  }
+  .mock-btn {
+    height: 26px; border-radius: 5px;
+    background: linear-gradient(90deg, #005f7a, #009DC9);
+    color: #fff; font-size: 7.5pt; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 4px; letter-spacing: 0.02em;
+  }
+  .mock-link { font-size: 6.5pt; color: #009DC9; text-align: center; margin-top: 8px; }
+
+  /* Table rows */
+  .mock-table { width: 100%; border-collapse: collapse; font-size: 7pt; }
+  .mock-table th { background: #E3F2FD; color: #1565C0; font-weight: 700; padding: 4px 6px; text-align: left; }
+  .mock-table td { border-bottom: 1px solid #F0F0F0; padding: 4px 6px; color: #555; }
+  .mock-table tr:hover td { background: #FAFAFA; }
+  .mock-chip {
+    display: inline-block; padding: 1px 6px; border-radius: 10px;
+    font-size: 6pt; font-weight: 700;
+  }
+  .chip-pend  { background: #FEF3C7; color: #92400E; }
+  .chip-rev   { background: #DBEAFE; color: #1D4ED8; }
+  .chip-hab   { background: #DCFCE7; color: #15803D; }
+  .chip-rech  { background: #FEE2E2; color: #991B1B; }
+
+  /* Stat cards */
+  .mock-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; margin-bottom: 10px; }
+  .mock-stat-card {
+    background: #fff; border-radius: 6px; padding: 7px 9px;
+    border-left: 3px solid var(--blue);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .mock-stat-num  { font-weight: 700; font-size: 12pt; color: #212121; }
+  .mock-stat-label{ font-size: 6pt; color: #888; margin-top: 1px; }
+
+  /* Checklist grid */
+  .mock-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .mock-check-item {
+    border: 1.5px solid #E0E0E0; border-radius: 5px; padding: 5px 7px;
+    font-size: 6pt; color: #666; display: flex; align-items: center; gap: 5px;
+  }
+  .mock-check-item.done { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.05); color: #15803D; }
+  .check-icon { font-size: 9px; }
+
+  /* Card sections */
+  .mock-section-card {
+    background: #fff; border-radius: 7px; padding: 9px 11px;
+    border-top: 3px solid #009DC9; margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .mock-section-card.orange { border-top-color: #F7941D; }
+  .mock-section-card.green  { border-top-color: #22C55E; }
+  .mock-card-title { font-weight: 700; font-size: 7.5pt; color: #212121; margin-bottom: 5px; }
+  .mock-progress-wrap { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
+  .mock-progress-bar { flex:1; height: 5px; background: #EEE; border-radius: 10px; overflow: hidden; }
+  .mock-progress-fill { height: 100%; border-radius: 10px; }
+  .fill-orange { background: linear-gradient(90deg, #F7941D, #FFB347); }
+  .fill-blue   { background: linear-gradient(90deg, #009DC9, #22D3EE); }
+  .fill-green  { background: linear-gradient(90deg, #22C55E, #4ADE80); }
+  .mock-progress-pct { font-size: 6.5pt; font-weight: 700; color: #777; white-space: nowrap; }
+
+  /* Docente portal */
+  .mock-materia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .mock-materia-card {
+    background: #fff; border-radius: 6px; padding: 7px 9px;
+    border-left: 3px solid #1565C0; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    font-size: 6.5pt;
+  }
+  .mock-materia-name { font-weight: 700; color: #003d52; margin-bottom: 2px; }
+  .mock-materia-info { color: #888; }
+
+  .screen-caption {
+    text-align: center; font-size: 8.5pt; color: #555; margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PORTADA
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+<div class="cover">
+  <div class="cover-badge">Documentación Técnica</div>
+
+  <!-- Logo placeholder con SVG -->
+  <svg width="96" height="96" viewBox="0 0 96 96" style="margin-bottom:24px">
+    <circle cx="48" cy="48" r="48" fill="#1565C0"/>
+    <text x="48" y="56" text-anchor="middle" font-family="Arial" font-weight="800"
+          font-size="32" fill="white">IES</text>
+  </svg>
+
+  <h1>Sistema de Gestión<br/>de Alumnos</h1>
+  <h2>Instituto de Enseñanza Superior Alfredo Coviello</h2>
+  <div class="cover-divider"></div>
+  <div style="font-size:18pt;font-weight:300;color:#1565C0;margin-bottom:32px;letter-spacing:2px;">
+    FLUJOS Y ENDPOINTS POR ROL
+  </div>
+
+  <dl class="cover-meta">
+    <dt>Institución</dt>
+    <dd>IES Alfredo Coviello</dd>
+    <dt>Versión</dt>
+    <dd>1.0 — Junio 2026</dd>
+    <dt>Stack Backend</dt>
+    <dd>Spring Boot 4.0.5 · Java 21</dd>
+    <dt>Stack Frontend</dt>
+    <dd>Angular 21 · Material Design</dd>
+    <dt>Base de datos</dt>
+    <dd>MySQL 8</dd>
+    <dt>Autenticación</dt>
+    <dd>JWT · Spring Security</dd>
+  </dl>
+
+  <div class="cover-footer">Confidencial — uso interno</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ÍNDICE
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+<div class="role-banner banner-general">
+  <div class="icon">📋</div>
+  <div><h1>Índice</h1><p>Tabla de contenidos del documento</p></div>
+</div>
+
+<div class="toc">
+  <div class="toc-section"><a href="#overview">1. Descripción General del Sistema</a>
+    <div class="toc-sub"><a href="#roles-tabla">Tabla de roles</a></div>
+    <div class="toc-sub"><a href="#diagrama-roles">Diagrama de roles y relaciones</a></div>
+  </div>
+  <div class="toc-section mt-8"><a href="#superadmin">2. SUPER_ADMIN — Camino Feliz</a>
+    <div class="toc-sub"><a href="#sa-usuarios">Crear administradores y docentes</a></div>
+    <div class="toc-sub"><a href="#sa-permisos">Gestión de permisos</a></div>
+    <div class="toc-sub"><a href="#sa-carreras">Configurar carreras y períodos</a></div>
+    <div class="toc-sub"><a href="#sa-calendario">Calendario académico</a></div>
+  </div>
+  <div class="toc-section mt-8"><a href="#admin">3. ADMIN — Camino Feliz</a>
+    <div class="toc-sub"><a href="#ad-preinscripciones">Gestión de preinscripciones</a></div>
+    <div class="toc-sub"><a href="#ad-pago">Registro de pago en efectivo</a></div>
+    <div class="toc-sub"><a href="#ad-checklist">Checklist de documentación física</a></div>
+    <div class="toc-sub"><a href="#ad-habilitar">Habilitación del alumno</a></div>
+    <div class="toc-sub"><a href="#ad-turnos">Asignación de turnos</a></div>
+  </div>
+  <div class="toc-section mt-8"><a href="#docente">4. DOCENTE — Camino Feliz</a>
+    <div class="toc-sub"><a href="#do-materias">Ver mis materias y alumnos</a></div>
+    <div class="toc-sub"><a href="#do-asistencia">Gestión de asistencia</a></div>
+  </div>
+  <div class="toc-section mt-8"><a href="#alumno">5. ALUMNO — Camino Feliz</a>
+    <div class="toc-sub"><a href="#al-registro">Registro en el sistema</a></div>
+    <div class="toc-sub"><a href="#al-preinscripcion">Preinscripción (acceso público)</a></div>
+    <div class="toc-sub"><a href="#al-turno">Confirmación de turno</a></div>
+    <div class="toc-sub"><a href="#al-activar">Activar cuenta (primer acceso)</a></div>
+    <div class="toc-sub"><a href="#al-recuperar">Recuperar contraseña</a></div>
+    <div class="toc-sub"><a href="#al-portal">Portal del alumno</a></div>
+  </div>
+  <div class="toc-section mt-8"><a href="#flujo-completo">6. Flujo Completo End-to-End</a></div>
+  <div class="toc-section mt-8"><a href="#arduino">7. Flujo de Asistencia (Arduino)</a></div>
+  <div class="toc-section mt-8"><a href="#estados">8. Máquinas de Estado</a></div>
+  <div class="toc-section mt-8"><a href="#endpoints">9. Referencia Completa de Endpoints</a></div>
+  <div class="toc-section mt-8"><a href="#pantallas">10. Pantallas del Sistema</a></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     1. DESCRIPCIÓN GENERAL
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="overview">
+<div class="role-banner banner-general">
+  <div class="icon">🏫</div>
+  <div><h1>1. Descripción General del Sistema</h1>
+    <p>Qué es, para qué sirve y cómo se organiza</p></div>
+</div>
+
+<p>
+  El <strong>Sistema de Gestión de Alumnos del IES Alfredo Coviello</strong> es una aplicación
+  web que digitaliza y centraliza todos los procesos académicos de la institución: desde la
+  primera preinscripción de un aspirante hasta el seguimiento diario de asistencia durante el
+  año cursado.
+</p>
+
+<div class="info-box ok" style="margin-top:16px">
+  <strong>¿Qué problema resuelve?</strong>
+  El proceso de ingreso era 100% en papel. El sistema permite registrar formularios,
+  realizar el seguimiento presencial, gestionar pagos en efectivo, verificar documentación física,
+  asignar turnos de atención y habilitar alumnos, todo desde una interfaz unificada.
+</div>
+
+<h2 class="sub-h" id="roles-tabla">Roles del sistema</h2>
+<p>El sistema tiene 4 roles, cada uno con acceso y responsabilidades diferentes:</p>
+
+<table>
+  <thead><tr class="th-grey">
+    <th>Rol</th><th>Quién es</th><th>Qué puede hacer</th><th>Cómo accede</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="badge badge-sa">SUPER_ADMIN</span></td>
+      <td>Director / TI</td>
+      <td>Crea admins y docentes, configura carreras, períodos, calendario, permisos</td>
+      <td>Cuenta creada en el DataInitializer</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-ad">ADMIN</span></td>
+      <td>Personal administrativo</td>
+      <td>Gestiona preinscripciones, pagos, documentación, turnos, alumnos</td>
+      <td>Creado por SUPER_ADMIN vía sistema</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-do">DOCENTE</span></td>
+      <td>Profesor</td>
+      <td>Ve sus materias, lista de alumnos, corrige asistencias, gestiona reinscripciones</td>
+      <td>Creado por SUPER_ADMIN vía sistema</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-al">ALUMNO</span></td>
+      <td>Estudiante habilitado</td>
+      <td>Ve su perfil, materias, asistencia, documentos digitales</td>
+      <td>Se crea automáticamente al habilitar preinscripción</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h" id="diagrama-roles">Diagrama de roles y relaciones</h2>
+<div class="diagram">
+<svg width="680" height="340" viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',Arial,sans-serif">
+
+  <!-- SUPER_ADMIN box -->
+  <rect x="240" y="10" width="200" height="70" rx="10" fill="#6A1B9A" />
+  <text x="340" y="40" text-anchor="middle" fill="white" font-weight="800" font-size="14">SUPER_ADMIN</text>
+  <text x="340" y="60" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Director / Administrador TI</text>
+
+  <!-- Arrow SA → ADMIN -->
+  <line x1="290" y1="80" x2="150" y2="150" stroke="#999" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <text x="200" y="120" text-anchor="middle" fill="#6A1B9A" font-size="9" font-weight="700">crea</text>
+
+  <!-- Arrow SA → DOCENTE -->
+  <line x1="390" y1="80" x2="530" y2="150" stroke="#999" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <text x="470" y="120" text-anchor="middle" fill="#6A1B9A" font-size="9" font-weight="700">crea</text>
+
+  <!-- ADMIN box -->
+  <rect x="40" y="150" width="200" height="70" rx="10" fill="#1565C0" />
+  <text x="140" y="180" text-anchor="middle" fill="white" font-weight="800" font-size="14">ADMIN</text>
+  <text x="140" y="198" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Personal administrativo</text>
+
+  <!-- DOCENTE box -->
+  <rect x="440" y="150" width="200" height="70" rx="10" fill="#E65100" />
+  <text x="540" y="180" text-anchor="middle" fill="white" font-weight="800" font-size="14">DOCENTE</text>
+  <text x="540" y="198" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Profesor a cargo de materia</text>
+
+  <!-- Arrow ADMIN habilita ALUMNO -->
+  <line x1="140" y1="220" x2="260" y2="280" stroke="#999" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <text x="175" y="258" text-anchor="middle" fill="#1565C0" font-size="9" font-weight="700">habilita</text>
+
+  <!-- ALUMNO box -->
+  <rect x="240" y="270" width="200" height="60" rx="10" fill="#1B5E20" />
+  <text x="340" y="297" text-anchor="middle" fill="white" font-weight="800" font-size="14">ALUMNO</text>
+  <text x="340" y="315" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Estudiante habilitado</text>
+
+  <!-- ASPIRANTE box -->
+  <rect x="440" y="260" width="200" height="70" rx="10" fill="#eceff1" stroke="#90A4AE" stroke-width="1.5" />
+  <text x="540" y="288" text-anchor="middle" fill="#455A64" font-weight="700" font-size="12">ASPIRANTE</text>
+  <text x="540" y="305" text-anchor="middle" fill="#78909C" font-size="9">(sin cuenta — solo acceso</text>
+  <text x="540" y="319" text-anchor="middle" fill="#78909C" font-size="9">al formulario público)</text>
+
+  <!-- Arrow ASPIRANTE → ALUMNO -->
+  <line x1="440" y1="295" x2="440" y2="220" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <line x1="440" y1="220" x2="220" y2="220" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <line x1="220" y1="220" x2="220" y2="280" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+  <text x="340" y="215" text-anchor="middle" fill="#78909C" font-size="8">preinscripción → habilitación</text>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#999"/>
+    </marker>
+  </defs>
+</svg>
+</div>
+<p class="diagram-caption">Diagrama 1 — Roles del sistema y cómo se relacionan entre sí</p>
+
+<div class="grid-2 mt-16">
+  <div class="card">
+    <h4>🔐 Autenticación</h4>
+    <p>Todos los usuarios (excepto aspirantes) acceden con <strong>email + contraseña</strong>.
+    El sistema devuelve un <strong>JWT</strong> que debe enviarse en cada petición posterior
+    como <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+  </div>
+  <div class="card">
+    <h4>🌐 URLs del sistema</h4>
+    <p><strong>Backend API:</strong> <code>http://localhost:8080</code><br/>
+    <strong>Frontend:</strong> <code>http://localhost:4200</code><br/>
+    El frontend ya tiene configurado el proxy para redirigir las llamadas al backend.</p>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     2. SUPER_ADMIN
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="superadmin">
+<div class="role-banner banner-superadmin">
+  <div class="icon">👑</div>
+  <div>
+    <h1>2. SUPER_ADMIN — Camino Feliz</h1>
+    <p>El administrador raíz. Configura la institución y gestiona el acceso del personal.</p>
+  </div>
+</div>
+
+<div class="info-box">
+  <strong>Credenciales iniciales</strong>
+  Email: <code>superadmin@coviello.com</code> &nbsp;|&nbsp; Contraseña: <code>Admin1234</code><br/>
+  Estas credenciales se crean automáticamente al iniciar el backend por primera vez.
+</div>
+
+<h2 class="sub-h" id="sa-usuarios">2.1 — Crear un ADMIN o DOCENTE</h2>
+<p>El SUPER_ADMIN es el único que puede crear cuentas para el personal del instituto.
+El nuevo usuario recibe un email con sus credenciales temporales.</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-num purple">1</span>
+    <div class="step-content">
+      <strong>Login del SUPER_ADMIN</strong>
+      Ingresar a <code>http://localhost:4200</code> con el email y contraseña del super admin.
+      El sistema redirige automáticamente a <code>/admin/lista</code>.
+    </div>
+  </li>
+  <li>
+    <span class="step-num purple">2</span>
+    <div class="step-content">
+      <strong>Ir a Usuarios desde el menú lateral</strong>
+      En la barra lateral izquierda aparece el ítem <em>"Usuarios"</em> (solo visible para SUPER_ADMIN).
+    </div>
+  </li>
+  <li>
+    <span class="step-num purple">3</span>
+    <div class="step-content">
+      <strong>Completar el formulario de creación</strong>
+      Ingresar email (será el nombre de usuario), contraseña temporal y seleccionar el rol
+      (<code>ADMIN</code> o <code>DOCENTE</code>).
+    </div>
+  </li>
+  <li>
+    <span class="step-num purple">4</span>
+    <div class="step-content">
+      <strong>El sistema envía un email de bienvenida</strong>
+      El nuevo usuario recibe sus credenciales por email y puede ingresar al sistema.
+    </div>
+  </li>
+</ol>
+
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/admin/usuarios</span>  <span class="comment">// Solo SUPER_ADMIN</span>
+{
+  <span class="json-key">"username"</span>: <span class="json-str">"lgomez@coviello.edu.ar"</span>,
+  <span class="json-key">"password"</span>: <span class="json-str">"PasswordTemporal123"</span>,
+  <span class="json-key">"rol"</span>:      <span class="json-str">"ADMIN"</span>  <span class="comment">// o "DOCENTE"</span>
+}
+
+<span class="method get">GET</span> <span class="path">/api/admin/usuarios</span>           <span class="comment">// Listar admins y docentes</span>
+<span class="method delete">DEL</span> <span class="path">/api/admin/usuarios/{id}</span>      <span class="comment">// Desactivar (no puede desactivar SUPER_ADMIN)</span>
+</div>
+
+<h2 class="sub-h" id="sa-permisos">2.2 — Otorgar permisos granulares a un ADMIN</h2>
+<p>El SUPER_ADMIN puede otorgar permisos específicos a cada ADMIN, con fecha de vencimiento opcional.</p>
+
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/permisos</span>
+{
+  <span class="json-key">"usuarioId"</span>:    <span class="json-num">5</span>,
+  <span class="json-key">"codigoPermiso"</span>: <span class="json-str">"GESTIONAR_CARRERAS"</span>,
+  <span class="json-key">"fechaHasta"</span>:   <span class="json-str">"2026-12-31T23:59:59"</span>  <span class="comment">// null = sin vencimiento</span>
+}
+
+<span class="method get">GET</span>    <span class="path">/api/permisos/usuario/{usuarioId}</span>  <span class="comment">// Ver permisos activos de un admin</span>
+<span class="method delete">DEL</span>    <span class="path">/api/permisos/{permisoId}</span>          <span class="comment">// Revocar permiso</span>
+</div>
+
+<h2 class="sub-h" id="sa-carreras">2.3 — Configurar carreras y períodos</h2>
+<div class="grid-2">
+  <div>
+    <h3 class="minor-h">Crear una carrera</h3>
+    <div class="endpoint" style="margin-top:6px">
+<span class="method post">POST</span><span class="path">/api/carreras</span>
+{
+  <span class="json-key">"nombre"</span>:       <span class="json-str">"Tecnicatura en Informática"</span>,
+  <span class="json-key">"descripcion"</span>:  <span class="json-str">"Carrera de 3 años"</span>,
+  <span class="json-key">"activa"</span>:       <span class="json-bool">true</span>,
+  <span class="json-key">"cupoMaximo"</span>:   <span class="json-num">40</span>,
+  <span class="json-key">"prefijoTurno"</span>: <span class="json-str">"A"</span>
+}
+    </div>
+    <p class="small text-secondary">El <code>prefijoTurno</code> genera los números de turno: A1, A2, A3...</p>
+  </div>
+  <div>
+    <h3 class="minor-h">Crear un período de inscripción</h3>
+    <div class="endpoint" style="margin-top:6px">
+<span class="method post">POST</span><span class="path">/api/periodos-inscripcion</span>
+{
+  <span class="json-key">"nombre"</span>:      <span class="json-str">"Preinscripción 2026"</span>,
+  <span class="json-key">"fechaInicio"</span>: <span class="json-str">"2026-11-01"</span>,
+  <span class="json-key">"fechaFin"</span>:    <span class="json-str">"2026-12-15"</span>,
+  <span class="json-key">"tipo"</span>:        <span class="json-str">"PREINSCRIPCION"</span>
+}
+    </div>
+    <p class="small text-secondary">Tipos: <code>PREINSCRIPCION</code>, <code>REINSCRIPCION</code>. Solo uno activo por tipo.</p>
+  </div>
+</div>
+
+<h2 class="sub-h" id="sa-calendario">2.4 — Calendario académico y emails masivos</h2>
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/calendario</span>      <span class="comment">// Agregar feriado o evento</span>
+{ <span class="json-key">"fecha"</span>: <span class="json-str">"2026-07-09"</span>, <span class="json-key">"tipo"</span>: <span class="json-str">"FERIADO_NACIONAL"</span>, <span class="json-key">"descripcion"</span>: <span class="json-str">"Independencia"</span> }
+
+<span class="method post">POST</span><span class="path">/api/mails/enviar</span>      <span class="comment">// Email masivo</span>
+{ <span class="json-key">"asunto"</span>: <span class="json-str">"Inicio de clases"</span>, <span class="json-key">"cuerpo"</span>: <span class="json-str">"..."</span>, <span class="json-key">"destinatarioTipo"</span>: <span class="json-str">"TODOS"</span> }
+<span class="comment">// destinatarioTipo: TODOS | POR_CARRERA | POR_ANIO | DOCS_FALTANTES</span>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     3. ADMIN
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="admin">
+<div class="role-banner banner-admin">
+  <div class="icon">🖥️</div>
+  <div>
+    <h1>3. ADMIN — Camino Feliz</h1>
+    <p>El personal administrativo. Gestiona el proceso diario de preinscripciones y alumnos.</p>
+  </div>
+</div>
+
+<div class="info-box">
+  <strong>Credenciales iniciales</strong>
+  Email: <code>admin@coviello.com</code> &nbsp;|&nbsp; Contraseña: <code>Admin1234</code>
+</div>
+
+<h2 class="sub-h" id="ad-preinscripciones">3.1 — Ver y buscar preinscripciones</h2>
+<p>Cuando un aspirante llega a la institución, el ADMIN lo ubica en el sistema por código, DNI o nombre.</p>
+
+<div class="endpoint">
+<span class="method get">GET</span>  <span class="path">/api/preinscripciones?page=0&amp;size=20</span>
+<span class="method get">GET</span>  <span class="path">/api/preinscripciones/estado/PENDIENTE?page=0&amp;size=20</span>
+<span class="method get">GET</span>  <span class="path">/api/preinscripciones/buscar/codigo?codigo=PRE-2026-00042</span>
+<span class="method get">GET</span>  <span class="path">/api/preinscripciones/buscar/dni?dni=30123456</span>
+<span class="method get">GET</span>  <span class="path">/api/preinscripciones/buscar/nombre?nombre=Juan&amp;apellido=Pérez&amp;page=0</span>
+<span class="method get">GET</span>  <span class="path">/api/preinscripciones/{id}</span>    <span class="comment">// Detalle completo con pago y checklist</span>
+</div>
+
+<h2 class="sub-h" id="ad-pago">3.2 — Registrar pago en efectivo</h2>
+<p>Los pagos son acumulativos. Se puede registrar en cuotas; el sistema calcula el estado automáticamente.</p>
+
+<div class="diagram">
+<svg width="600" height="90" viewBox="0 0 600 90" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',Arial,sans-serif" font-size="11">
+  <rect x="10" y="20" width="120" height="50" rx="8" fill="#ECEFF1" stroke="#90A4AE"/>
+  <text x="70" y="40" text-anchor="middle" font-weight="700" fill="#455A64">SIN_PAGO</text>
+  <text x="70" y="58" text-anchor="middle" fill="#78909C" font-size="9">$0 abonado</text>
+
+  <line x1="130" y1="45" x2="215" y2="45" stroke="#90A4AE" stroke-width="2" marker-end="url(#a2)"/>
+  <text x="172" y="38" text-anchor="middle" fill="#78909C" font-size="9">+ pago parcial</text>
+
+  <rect x="215" y="20" width="140" height="50" rx="8" fill="#FFF3E0" stroke="#E65100"/>
+  <text x="285" y="40" text-anchor="middle" font-weight="700" fill="#E65100">PARCIAL</text>
+  <text x="285" y="58" text-anchor="middle" fill="#E65100" font-size="9">0 &lt; abonado &lt; total</text>
+
+  <line x1="355" y1="45" x2="440" y2="45" stroke="#90A4AE" stroke-width="2" marker-end="url(#a2)"/>
+  <text x="397" y="38" text-anchor="middle" fill="#78909C" font-size="9">+ pago final</text>
+
+  <rect x="440" y="20" width="140" height="50" rx="8" fill="#E8F5E9" stroke="#388E3C"/>
+  <text x="510" y="40" text-anchor="middle" font-weight="700" fill="#1B5E20">COMPLETO</text>
+  <text x="510" y="58" text-anchor="middle" fill="#1B5E20" font-size="9">abonado ≥ total</text>
+
+  <defs><marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#90A4AE"/></marker></defs>
+</svg>
+</div>
+<p class="diagram-caption">Diagrama 2 — Estados del pago (acumulativo en efectivo)</p>
+
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/preinscripciones/{id}/pago</span>
+{
+  <span class="json-key">"monto"</span>:      <span class="json-num">2500.00</span>,      <span class="comment">// monto a acumular esta vez</span>
+  <span class="json-key">"montoTotal"</span>: <span class="json-num">5000.00</span>       <span class="comment">// monto total de matrícula (opcional)</span>
+}
+<span class="comment">// Respuesta incluye: estado (SIN_PAGO|PARCIAL|COMPLETO), montoAbonado, montoTotal</span>
+</div>
+
+<h2 class="sub-h" id="ad-checklist">3.3 — Checklist de documentación física</h2>
+<p>El aspirante trae documentos físicos. El ADMIN marca en el sistema cuáles presentó.
+No se suben archivos — es solo un registro de presencia física.</p>
+
+<table>
+  <thead><tr class="th-blue"><th>Tipo</th><th>Descripción</th><th>Endpoint (marcar)</th></tr></thead>
+  <tbody>
+    <tr><td><code>DNI_FRENTE</code></td><td>DNI frente (original)</td><td><code>POST .../checklist/DNI_FRENTE</code></td></tr>
+    <tr><td><code>DNI_DORSO</code></td><td>DNI dorso (original)</td><td><code>POST .../checklist/DNI_DORSO</code></td></tr>
+    <tr><td><code>TITULO_SECUNDARIO</code></td><td>Título o constancia de título en trámite</td><td><code>POST .../checklist/TITULO_SECUNDARIO</code></td></tr>
+    <tr><td><code>ACTA_NACIMIENTO</code></td><td>Acta de nacimiento</td><td><code>POST .../checklist/ACTA_NACIMIENTO</code></td></tr>
+    <tr><td><code>PSICOFISICO</code></td><td>Certificado psicofísico</td><td><code>POST .../checklist/PSICOFISICO</code></td></tr>
+    <tr><td><code>BUENA_CONDUCTA</code></td><td>Certificado de buena conducta</td><td><code>POST .../checklist/BUENA_CONDUCTA</code></td></tr>
+    <tr><td><code>FOTO</code></td><td>Foto carnet 4×4</td><td><code>POST .../checklist/FOTO</code></td></tr>
+  </tbody>
+</table>
+
+<div class="endpoint">
+<span class="method post">POST</span>   <span class="path">/api/preinscripciones/{id}/checklist/{tipo}</span>  <span class="comment">// Marcar como presentado</span>
+<span class="method delete">DEL</span>    <span class="path">/api/preinscripciones/{id}/checklist/{tipo}</span>  <span class="comment">// Desmarcar</span>
+<span class="method get">GET</span>    <span class="path">/api/preinscripciones/{id}/checklist</span>          <span class="comment">// Ver todos</span>
+</div>
+
+<h2 class="sub-h" id="ad-habilitar">3.4 — Proceso de revisión y habilitación</h2>
+<p>El ADMIN sigue un flujo de 3 estados para aprobar o rechazar una preinscripción:</p>
+
+<div class="diagram" style="margin:20px 0">
+<svg width="640" height="100" viewBox="0 0 640 100" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',Arial,sans-serif" font-size="11">
+  <rect x="10" y="25" width="130" height="50" rx="8" fill="#FFFDE7" stroke="#FFC107" stroke-width="2"/>
+  <text x="75" y="47" text-anchor="middle" font-weight="700" fill="#F57F17">PENDIENTE</text>
+  <text x="75" y="64" text-anchor="middle" fill="#F57F17" font-size="9">Esperando revisión</text>
+
+  <polygon points="140,50 160,42 160,58" fill="#90A4AE"/>
+  <line x1="140" y1="50" x2="170" y2="50" stroke="#90A4AE" stroke-width="2"/>
+  <text x="155" y="38" text-anchor="middle" fill="#78909C" font-size="8.5">en-revision</text>
+
+  <rect x="170" y="25" width="160" height="50" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+  <text x="250" y="47" text-anchor="middle" font-weight="700" fill="#1565C0">EN_REVISION</text>
+  <text x="250" y="64" text-anchor="middle" fill="#1565C0" font-size="9">ADMIN revisando docs</text>
+
+  <polygon points="330,50 350,42 350,58" fill="#90A4AE"/>
+  <line x1="330" y1="50" x2="360" y2="50" stroke="#90A4AE" stroke-width="2"/>
+  <text x="345" y="38" text-anchor="middle" fill="#78909C" font-size="8.5">habilitar</text>
+
+  <rect x="360" y="10" width="130" height="50" rx="8" fill="#E8F5E9" stroke="#388E3C" stroke-width="2"/>
+  <text x="425" y="33" text-anchor="middle" font-weight="700" fill="#1B5E20">HABILITADO</text>
+  <text x="425" y="50" text-anchor="middle" fill="#1B5E20" font-size="9">Alumno creado ✓</text>
+
+  <line x1="250" y1="75" x2="250" y2="90" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="250" y1="90" x2="510" y2="90" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="510,85 510,95 518,90" fill="#C62828"/>
+  <line x1="510" y1="90" x2="518" y2="90" stroke="#C62828" stroke-width="1.5"/>
+  <text x="380" y="84" text-anchor="middle" fill="#C62828" font-size="8.5">rechazar</text>
+
+  <rect x="500" y="60" width="130" height="40" rx="8" fill="#FFEBEE" stroke="#C62828" stroke-width="2"/>
+  <text x="565" y="80" text-anchor="middle" font-weight="700" fill="#B71C1C">RECHAZADO</text>
+  <text x="565" y="95" text-anchor="middle" fill="#B71C1C" font-size="9">Notificación por email</text>
+</svg>
+</div>
+<p class="diagram-caption">Diagrama 3 — Máquina de estados de la preinscripción</p>
+
+<div class="endpoint">
+<span class="method put">PUT</span> <span class="path">/api/preinscripciones/{id}/en-revision</span>  <span class="comment">// PENDIENTE → EN_REVISION</span>
+<span class="method put">PUT</span> <span class="path">/api/preinscripciones/{id}/habilitar</span>     <span class="comment">// → HABILITADO (crea Alumno + Usuario)</span>
+<span class="method put">PUT</span> <span class="path">/api/preinscripciones/{id}/rechazar</span>      <span class="comment">// → RECHAZADO</span>
+</div>
+
+<div class="info-box ok">
+  <strong>¿Qué ocurre al habilitar?</strong>
+  El sistema crea automáticamente: (1) un registro <code>Usuario</code> con rol <code>ALUMNO</code>
+  (con contraseña bloqueada hasta la activación), (2) un registro <code>Alumno</code> con todos los datos de la preinscripción,
+  y (3) envía al aspirante un email con un <strong>enlace de activación</strong> (válido 72 hs) que lo lleva a
+  <code>/auth/activar?token=UUID</code> para elegir su propia contraseña la primera vez.
+</div>
+
+<h2 class="sub-h" id="ad-turnos">3.5 — Asignar turno de atención presencial</h2>
+
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/turnos/configuracion</span>    <span class="comment">// Primero configurar el turno (SUPER_ADMIN)</span>
+{
+  <span class="json-key">"nombre"</span>:            <span class="json-str">"Turnos Diciembre 2026"</span>,
+  <span class="json-key">"fecha"</span>:             <span class="json-str">"2026-12-10"</span>,
+  <span class="json-key">"horarioInicio"</span>:    <span class="json-str">"08:00"</span>,
+  <span class="json-key">"horarioFin"</span>:       <span class="json-str">"13:00"</span>,
+  <span class="json-key">"intervaloMinutos"</span>: <span class="json-num">15</span>
+}
+
+<span class="method post">POST</span><span class="path">/api/turnos/asignar/{preinscripcionId}</span>   <span class="comment">// ADMIN asigna el turno</span>
+<span class="comment">// Sistema genera: numeroTurno = "A42", horaAsignada = "08:45", token UUID</span>
+<span class="comment">// El alumno recibe email con turno y link de confirmación</span>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     4. DOCENTE
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="docente">
+<div class="role-banner banner-docente">
+  <div class="icon">🎓</div>
+  <div>
+    <h1>4. DOCENTE — Camino Feliz</h1>
+    <p>El profesor gestiona sus materias, alumnos y asistencias desde su portal.</p>
+  </div>
+</div>
+
+<div class="info-box warn">
+  <strong>¿Cómo obtiene su cuenta?</strong>
+  El SUPER_ADMIN crea la cuenta del docente desde <code>/admin/usuarios</code>.
+  El docente recibe sus credenciales por email y puede hacer login inmediatamente.
+</div>
+
+<h2 class="sub-h" id="do-materias">4.1 — Ver mis materias y alumnos</h2>
+
+<ol class="steps">
+  <li>
+    <span class="step-num orange">1</span>
+    <div class="step-content">
+      <strong>Login en el sistema</strong>
+      El sistema redirige automáticamente a <code>/docente/portal</code>.
+    </div>
+  </li>
+  <li>
+    <span class="step-num orange">2</span>
+    <div class="step-content">
+      <strong>Ver mis materias asignadas</strong>
+      El portal muestra las materias donde el docente tiene horarios de clase asignados.
+    </div>
+  </li>
+  <li>
+    <span class="step-num orange">3</span>
+    <div class="step-content">
+      <strong>Ver alumnos de una materia</strong>
+      Al seleccionar una materia, ver la lista de alumnos con inscripción confirmada.
+    </div>
+  </li>
+</ol>
+
+<div class="endpoint">
+<span class="method get">GET</span>  <span class="path">/api/docente-portal/mis-materias</span>
+<span class="comment">// Devuelve: lista de materias con nombre, carrera, año</span>
+
+<span class="method get">GET</span>  <span class="path">/api/docente-portal/mis-alumnos/{materiaId}</span>
+<span class="comment">// Devuelve: alumnos habilitados con inscripción CONFIRMADA</span>
+
+<span class="method get">GET</span>  <span class="path">/api/docente-portal/alumno/{alumnoId}</span>
+<span class="comment">// Detalle completo del alumno (datos personales, asistencia, etc.)</span>
+</div>
+
+<h2 class="sub-h" id="do-asistencia">4.2 — Gestión de asistencia</h2>
+<p>El docente puede ver la asistencia registrada automáticamente por el Arduino, corregir errores manualmente y consultar resúmenes de regularidad.</p>
+
+<div class="endpoint">
+<span class="method get">GET</span>  <span class="path">/api/asistencias/horario/{horarioClaseId}?fecha=2026-04-15</span>
+<span class="comment">// Lista de registros de asistencia para esa clase en esa fecha</span>
+
+<span class="method get">GET</span>  <span class="path">/api/asistencias/resumen/{alumnoId}/{materiaId}?desde=2026-03-01&amp;hasta=2026-06-30</span>
+<span class="comment">// Devuelve: total clases, presentes, tardanzas, ausentes, % asistencia, riesgo libre</span>
+
+<span class="method get">GET</span>  <span class="path">/api/asistencias/calendario/{materiaId}?desde=2026-03-01&amp;hasta=2026-06-30</span>
+<span class="comment">// Mapa fecha → [asistencias] para vista calendario</span>
+
+<span class="method put">PUT</span>  <span class="path">/api/asistencias/{asistenciaId}</span>
+{
+  <span class="json-key">"estado"</span>:        <span class="json-str">"AUSENTE"</span>,     <span class="comment">// PRESENTE | AUSENTE</span>
+  <span class="json-key">"justificacion"</span>: <span class="json-str">"No se presentó ese día"</span>
+}
+</div>
+
+<h2 class="sub-h">4.3 — Gestionar solicitudes de reinscripción</h2>
+
+<div class="endpoint">
+<span class="method get">GET</span>  <span class="path">/api/inscripciones-materia/materia/{materiaId}?estado=PENDIENTE</span>
+<span class="comment">// Ver solicitudes pendientes en esta materia</span>
+
+<span class="method put">PUT</span>  <span class="path">/api/inscripciones-materia/{inscripcionId}/resolver</span>
+{ <span class="json-key">"estado"</span>: <span class="json-str">"CONFIRMADA"</span> }   <span class="comment">// o "RECHAZADA"</span>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     5. ALUMNO
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="alumno">
+<div class="role-banner banner-alumno">
+  <div class="icon">📚</div>
+  <div>
+    <h1>5. ALUMNO — Camino Feliz</h1>
+    <p>El estudiante. Puede registrarse directamente en el sistema o iniciar el proceso con una preinscripción pública.</p>
+  </div>
+</div>
+
+<div class="info-box ok">
+  <strong>Dos puntos de entrada:</strong><br/>
+  <strong>(A) Registro directo</strong> → el aspirante completa el formulario en <code>/registro</code> y recibe un email de bienvenida.<br/>
+  <strong>(B) Preinscripción pública</strong> → llena el formulario en <code>/preinscripcion</code>, concurre al instituto y el ADMIN lo habilita.
+  En ambos casos, las credenciales de acceso llegan por email.
+</div>
+
+<h2 class="sub-h" id="al-registro">5.1 — Registro en el sistema</h2>
+<p>El aspirante puede crear su propia cuenta desde la pantalla de <strong>Registro</strong>, sin necesidad de que el ADMIN lo cree previamente.</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-num green">1</span>
+    <div class="step-content">
+      <strong>Acceder a la pantalla de Registro</strong>
+      Desde el login, hacer clic en <em>"¿No tenés cuenta? Registrate"</em>.
+      La URL es <code>http://localhost:4200/registro</code> (ruta pública, no requiere login).
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">2</span>
+    <div class="step-content">
+      <strong>Completar el formulario</strong>
+      Nombre, apellido, DNI, email, contraseña y confirmación de contraseña.
+      La contraseña debe tener al menos 8 caracteres.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">3</span>
+    <div class="step-content">
+      <strong>El sistema crea la cuenta</strong>
+      Se crea el usuario con rol <code>ALUMNO</code> y se envía un email de bienvenida con las credenciales confirmadas.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">4</span>
+    <div class="step-content">
+      <strong>Redirigir al login</strong>
+      Tras 3 segundos de mostrar el mensaje de éxito, la pantalla redirige automáticamente a <code>/login</code>.
+    </div>
+  </li>
+</ol>
+
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/auth/registro</span>   <span class="comment">// Sin autenticación (ruta pública)</span>
+{
+  <span class="json-key">"nombres"</span>:         <span class="json-str">"Juan"</span>,
+  <span class="json-key">"apellidos"</span>:       <span class="json-str">"Pérez"</span>,
+  <span class="json-key">"dni"</span>:             <span class="json-str">"30123456"</span>,
+  <span class="json-key">"email"</span>:           <span class="json-str">"juan.perez@gmail.com"</span>,
+  <span class="json-key">"password"</span>:        <span class="json-str">"MiPassword123"</span>
+}
+<span class="comment">// Respuesta: 201 Created + email de bienvenida enviado al email indicado</span>
+</div>
+
+<h2 class="sub-h" id="al-preinscripcion">5.2 — Preinscripción (sin cuenta — acceso público)</h2>
+<p>El formulario de preinscripción es <strong>público</strong>. El aspirante accede a
+<code>http://localhost:4200/preinscripcion</code> sin necesidad de registrarse ni iniciar sesión.</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-num green">1</span>
+    <div class="step-content">
+      <strong>Completar el formulario web</strong>
+      Nombre, apellido, DNI, email, datos personales y carrera de interés.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">2</span>
+    <div class="step-content">
+      <strong>Enviar el formulario</strong>
+      Al enviar, el sistema genera un código único <code>PRE-2026-00042</code> y lo muestra en pantalla.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">3</span>
+    <div class="step-content">
+      <strong>Recibir el PDF por email</strong>
+      El sistema envía automáticamente un PDF con el formulario completo y el código.
+      El aspirante debe <strong>imprimirlo y llevarlo</strong> el día de la inscripción presencial.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">4</span>
+    <div class="step-content">
+      <strong>Presentarse con la documentación</strong>
+      El aspirante concurre con el formulario impreso y los documentos requeridos.
+      El ADMIN lo atiende y gestiona todo en el sistema.
+    </div>
+  </li>
+</ol>
+
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/preinscripciones</span>   <span class="comment">// Sin autenticación (ruta pública)</span>
+{
+  <span class="json-key">"nombre"</span>:          <span class="json-str">"Juan"</span>,
+  <span class="json-key">"apellido"</span>:        <span class="json-str">"Pérez"</span>,
+  <span class="json-key">"dni"</span>:             <span class="json-str">"30123456"</span>,
+  <span class="json-key">"email"</span>:           <span class="json-str">"juan.perez@gmail.com"</span>,
+  <span class="json-key">"fechaNacimiento"</span>: <span class="json-str">"2000-05-14"</span>,
+  <span class="json-key">"direccion"</span>:       <span class="json-str">"Av. Colón 1234"</span>,
+  <span class="json-key">"telefono"</span>:        <span class="json-str">"3512345678"</span>,
+  <span class="json-key">"carreraId"</span>:       <span class="json-num">1</span>
+}
+<span class="comment">// Respuesta: 201 Created + codigoFormulario: "PRE-2026-00042" + PDF enviado al email</span>
+</div>
+
+<h2 class="sub-h" id="al-turno">5.3 — Confirmar turno por email</h2>
+<p>Cuando el ADMIN asigna un turno, el aspirante recibe un email con un link de confirmación.
+No requiere login.</p>
+
+<div class="endpoint">
+<span class="method get">GET</span>  <span class="path">/api/turnos/confirmar?token=3f8a2c1d-...</span>  <span class="comment">// Sin autenticación</span>
+<span class="comment">// El sistema marca el turno como confirmado</span>
+<span class="comment">// Respuesta: 200 OK con el número de turno y hora asignada</span>
+</div>
+
+<h2 class="sub-h" id="al-activar">5.4 — Activar cuenta (primer acceso vía preinscripción)</h2>
+<p>Cuando el ADMIN hace clic en <strong>"Habilitar alumno"</strong>, el sistema <em>no</em> asigna una contraseña temporal: en su lugar genera un <strong>token UUID</strong> de activación (válido 72 horas) y envía un email al aspirante.</p>
+
+<div class="info-box warn">
+  Este flujo aplica <strong>solo al Path B</strong> (preinscripción → habilitación por ADMIN).<br/>
+  El Path A (<code>/registro</code>) no pasa por aquí: el alumno ya eligió su contraseña al registrarse.
+</div>
+
+<ol class="steps">
+  <li>
+    <span class="step-num green">1</span>
+    <div class="step-content">
+      <strong>El aspirante recibe el email de activación</strong>
+      El asunto dice <em>"Activá tu cuenta — IES Alfredo Coviello"</em>.
+      Contiene un link de la forma <code>http://localhost:4200/auth/activar?token=&lt;UUID&gt;</code>.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">2</span>
+    <div class="step-content">
+      <strong>El sistema valida el token</strong>
+      Al entrar al link, el frontend llama a <code>GET /api/auth/validar-token?token=...</code>.
+      Si el token es inválido o expiró, muestra un mensaje de error con instrucciones.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">3</span>
+    <div class="step-content">
+      <strong>El alumno elige su contraseña</strong>
+      La pantalla muestra dos campos: <em>Nueva contraseña</em> (mínimo 8 caracteres) y <em>Confirmar contraseña</em>.
+      Ambos deben coincidir. Incluye botón de "ver/ocultar" para cada campo.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">4</span>
+    <div class="step-content">
+      <strong>El sistema activa la cuenta</strong>
+      <code>POST /api/auth/activar</code> guarda la contraseña en la DB (hash bcrypt) y elimina el token.
+      Muestra mensaje de éxito y redirige al login automáticamente a los 4 segundos.
+    </div>
+  </li>
+</ol>
+
+<div class="endpoint">
+<span class="method get">GET</span>   <span class="path">/api/auth/validar-token?token=3f8a2c1d-...</span>  <span class="comment">// Sin autenticación</span>
+<span class="comment">// 200 OK → { email: "juan@...", nombres: "Juan" }</span>
+<span class="comment">// 400 BAD REQUEST → token inválido o expirado</span>
+
+<span class="method post">POST</span>  <span class="path">/api/auth/activar</span>                               <span class="comment">// Sin autenticación</span>
+{
+  <span class="json-key">"token"</span>:    <span class="json-str">"3f8a2c1d-..."</span>,
+  <span class="json-key">"password"</span>: <span class="json-str">"MiNuevaContrasena123"</span>
+}
+<span class="comment">// 200 OK → cuenta activada, token eliminado de la DB</span>
+<span class="comment">// 400 BAD REQUEST → token inválido/expirado o password &lt; 8 caracteres</span>
+</div>
+
+<h2 class="sub-h" id="al-recuperar">5.5 — Recuperar contraseña</h2>
+<p>Si el alumno (o cualquier usuario) olvidó su contraseña, puede solicitar el restablecimiento desde la pantalla de login.</p>
+
+<ol class="steps">
+  <li>
+    <span class="step-num green">1</span>
+    <div class="step-content">
+      <strong>Hacer clic en "¿Olvidaste tu contraseña?"</strong>
+      En la pantalla de login, debajo del botón de ingreso, aparece el enlace para recuperar acceso.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">2</span>
+    <div class="step-content">
+      <strong>Ingresar el email registrado</strong>
+      Se muestra un formulario donde el usuario escribe el email con el que se registró.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">3</span>
+    <div class="step-content">
+      <strong>El sistema envía una nueva contraseña</strong>
+      Si el email existe en el sistema, se genera una contraseña temporal y se envía al correo indicado.
+    </div>
+  </li>
+  <li>
+    <span class="step-num green">4</span>
+    <div class="step-content">
+      <strong>Ingresar con la contraseña recibida</strong>
+      El usuario inicia sesión con la contraseña temporal y puede cambiarla desde su perfil.
+    </div>
+  </li>
+</ol>
+
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/auth/recuperar-password</span>   <span class="comment">// Sin autenticación (ruta pública)</span>
+{
+  <span class="json-key">"email"</span>: <span class="json-str">"juan.perez@gmail.com"</span>
+}
+<span class="comment">// Si el email existe → genera contraseña temporal y la envía por correo</span>
+<span class="comment">// Respuesta: 200 OK (siempre, para no revelar si el email existe)</span>
+</div>
+
+<h2 class="sub-h" id="al-portal">5.6 — Portal del alumno (una vez activada la cuenta)</h2>
+<p>Con la cuenta activada, el alumno ingresa con su email y la contraseña que eligió en el paso anterior.</p>
+
+<div class="endpoint">
+<span class="method post">POST</span> <span class="path">/api/auth/login</span>
+{ <span class="json-key">"username"</span>: <span class="json-str">"juan.perez@gmail.com"</span>, <span class="json-key">"password"</span>: <span class="json-str">"MiNuevaContrasena123"</span> }
+
+<span class="method get">GET</span>   <span class="path">/api/perfil</span>                                   <span class="comment">// Ver mis datos</span>
+<span class="method get">GET</span>   <span class="path">/api/perfil/documentos</span>                        <span class="comment">// Ver mis documentos digitales</span>
+<span class="method get">GET</span>   <span class="path">/api/inscripciones-materia/mis-inscripciones</span>   <span class="comment">// Mis materias</span>
+<span class="method get">GET</span>   <span class="path">/api/asistencias/resumen/{miId}/{materiaId}</span>   <span class="comment">// Mi asistencia</span>
+</div>
+
+<div class="grid-2 mt-16">
+  <div class="card">
+    <h4>📄 Reinscripción a materias</h4>
+    <p>Durante el período <code>REINSCRIPCION</code>, el alumno solicita las materias que cursará:</p>
+    <div class="endpoint" style="font-size:8.5pt;margin-top:6px">
+<span class="method post">POST</span><span class="path">/api/inscripciones-materia</span>
+{ <span class="json-key">"materiaIds"</span>: [<span class="json-num">3</span>, <span class="json-num">7</span>, <span class="json-num">12</span>] }
+    </div>
+    <p class="small text-secondary">Estado inicial: PENDIENTE hasta que el ADMIN/DOCENTE confirme.</p>
+  </div>
+  <div class="card">
+    <h4>📁 Documentos digitales</h4>
+    <p>Durante el año, puede subir documentos para su legajo (URL de archivo ya alojado):</p>
+    <div class="endpoint" style="font-size:8.5pt;margin-top:6px">
+<span class="method post">POST</span><span class="path">/api/documentos-digitales/alumno/{id}</span>
+?tipoDocumento=TITULO_SECUNDARIO
+&amp;archivoUrl=https://...
+    </div>
+    <p class="small text-secondary">El ADMIN lo revisa: PENDIENTE → VALIDADO / RECHAZADO.</p>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     6. FLUJO COMPLETO
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="flujo-completo">
+<div class="role-banner banner-general">
+  <div class="icon">🔄</div>
+  <div>
+    <h1>6. Flujo Completo End-to-End</h1>
+    <p>Desde que el aspirante llena el formulario hasta que queda habilitado como alumno.</p>
+  </div>
+</div>
+
+<p>El siguiente diagrama muestra la secuencia completa de eventos entre el aspirante, el ADMIN y el sistema:</p>
+
+<div class="diagram">
+<svg width="680" height="580" viewBox="0 0 680 580" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',Arial,sans-serif" font-size="10">
+
+  <!-- Swimlane headers -->
+  <rect x="0" y="0" width="200" height="40" fill="#1B5E20" rx="4"/>
+  <text x="100" y="25" text-anchor="middle" fill="white" font-weight="700" font-size="12">ASPIRANTE / ALUMNO</text>
+
+  <rect x="240" y="0" width="200" height="40" fill="#1565C0" rx="4"/>
+  <text x="340" y="25" text-anchor="middle" fill="white" font-weight="700" font-size="12">ADMIN</text>
+
+  <rect x="480" y="0" width="200" height="40" fill="#37474F" rx="4"/>
+  <text x="580" y="25" text-anchor="middle" fill="white" font-weight="700" font-size="12">SISTEMA</text>
+
+  <!-- Lane backgrounds -->
+  <rect x="0" y="40" width="200" height="540" fill="#f9fbe7" opacity="0.5"/>
+  <rect x="240" y="40" width="200" height="540" fill="#e3f2fd" opacity="0.5"/>
+  <rect x="480" y="40" width="200" height="540" fill="#eceff1" opacity="0.5"/>
+
+  <!-- Vertical lane lines -->
+  <line x1="200" y1="40" x2="200" y2="580" stroke="#ccc" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="440" y1="40" x2="440" y2="580" stroke="#ccc" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Swimlane center lines -->
+  <line x1="100" y1="40" x2="100" y2="580" stroke="#a5d6a7" stroke-width="1" stroke-dasharray="2,4" opacity="0.4"/>
+  <line x1="340" y1="40" x2="340" y2="580" stroke="#90CAF9" stroke-width="1" stroke-dasharray="2,4" opacity="0.4"/>
+  <line x1="580" y1="40" x2="580" y2="580" stroke="#b0bec5" stroke-width="1" stroke-dasharray="2,4" opacity="0.4"/>
+
+  <!-- Step 1: Aspirante llena el formulario -->
+  <rect x="10" y="60" width="180" height="44" rx="6" fill="#C8E6C9" stroke="#388E3C" stroke-width="1.5"/>
+  <text x="100" y="78" text-anchor="middle" fill="#1B5E20" font-weight="700">1. Llena el formulario</text>
+  <text x="100" y="94" text-anchor="middle" fill="#2E7D32" font-size="9">POST /api/preinscripciones</text>
+  <!-- Arrow to sistema -->
+  <line x1="190" y1="82" x2="490" y2="82" stroke="#388E3C" stroke-width="1.5" marker-end="url(#gr)"/>
+
+  <!-- Step 2: Sistema genera codigo y PDF -->
+  <rect x="490" y="60" width="180" height="55" rx="6" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/>
+  <text x="580" y="78" text-anchor="middle" fill="#37474F" font-weight="700">2. Genera código</text>
+  <text x="580" y="92" text-anchor="middle" fill="#546E7A" font-size="9">PRE-2026-00042</text>
+  <text x="580" y="106" text-anchor="middle" fill="#546E7A" font-size="9">Envía PDF al email 📧</text>
+
+  <!-- Arrow back: email recibido -->
+  <line x1="490" y1="95" x2="190" y2="140" stroke="#546E7A" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gy)"/>
+  <text x="330" y="128" text-anchor="middle" fill="#546E7A" font-size="8.5">📧 PDF por email</text>
+
+  <!-- Step 3: Aspirante se presenta -->
+  <rect x="10" y="150" width="180" height="44" rx="6" fill="#C8E6C9" stroke="#388E3C" stroke-width="1.5"/>
+  <text x="100" y="168" text-anchor="middle" fill="#1B5E20" font-weight="700">3. Se presenta</text>
+  <text x="100" y="184" text-anchor="middle" fill="#2E7D32" font-size="9">Con formulario + documentos</text>
+
+  <!-- Arrow to admin -->
+  <line x1="190" y1="172" x2="250" y2="172" stroke="#388E3C" stroke-width="1.5" marker-end="url(#bl)"/>
+
+  <!-- Step 4: Admin busca y revisa -->
+  <rect x="250" y="150" width="180" height="55" rx="6" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="340" y="168" text-anchor="middle" fill="#1565C0" font-weight="700">4. Busca y revisa</text>
+  <text x="340" y="182" text-anchor="middle" fill="#1565C0" font-size="9">Busca por código o DNI</text>
+  <text x="340" y="196" text-anchor="middle" fill="#1565C0" font-size="9">GET /preinscripciones/{id}</text>
+
+  <!-- Step 5: Admin registra pago -->
+  <rect x="250" y="225" width="180" height="44" rx="6" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="340" y="243" text-anchor="middle" fill="#1565C0" font-weight="700">5. Registra pago</text>
+  <text x="340" y="259" text-anchor="middle" fill="#1565C0" font-size="9">POST .../pago { monto }</text>
+  <line x1="340" y1="205" x2="340" y2="225" stroke="#1565C0" stroke-width="1.5" marker-end="url(#bl)"/>
+
+  <!-- Step 6: Admin marca checklist -->
+  <rect x="250" y="290" width="180" height="55" rx="6" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="340" y="308" text-anchor="middle" fill="#1565C0" font-weight="700">6. Marca checklist docs</text>
+  <text x="340" y="322" text-anchor="middle" fill="#1565C0" font-size="9">POST .../checklist/DNI_FRENTE</text>
+  <text x="340" y="336" text-anchor="middle" fill="#1565C0" font-size="9">POST .../checklist/FOTO ...</text>
+  <line x1="340" y1="269" x2="340" y2="290" stroke="#1565C0" stroke-width="1.5" marker-end="url(#bl)"/>
+
+  <!-- Step 7: Admin habilita -->
+  <rect x="250" y="365" width="180" height="44" rx="6" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="340" y="383" text-anchor="middle" fill="#1565C0" font-weight="700">7. Habilita al alumno</text>
+  <text x="340" y="399" text-anchor="middle" fill="#1565C0" font-size="9">PUT .../habilitar</text>
+  <line x1="340" y1="345" x2="340" y2="365" stroke="#1565C0" stroke-width="1.5" marker-end="url(#bl)"/>
+
+  <!-- Arrow to sistema: crea alumno -->
+  <line x1="430" y1="387" x2="490" y2="387" stroke="#1565C0" stroke-width="1.5" marker-end="url(#gy)"/>
+  <rect x="490" y="367" width="180" height="55" rx="6" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/>
+  <text x="580" y="385" text-anchor="middle" fill="#37474F" font-weight="700">8. Crea Alumno+Usuario</text>
+  <text x="580" y="399" text-anchor="middle" fill="#546E7A" font-size="9">rol: ALUMNO</text>
+  <text x="580" y="413" text-anchor="middle" fill="#546E7A" font-size="9">contraseña temporal generada</text>
+
+  <!-- Email al alumno -->
+  <line x1="490" y1="398" x2="190" y2="460" stroke="#546E7A" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gr)"/>
+  <text x="300" y="448" text-anchor="middle" fill="#546E7A" font-size="8.5">📧 Email con credenciales</text>
+
+  <!-- Step 9: Alumno hace login -->
+  <rect x="10" y="470" width="180" height="44" rx="6" fill="#C8E6C9" stroke="#388E3C" stroke-width="1.5"/>
+  <text x="100" y="488" text-anchor="middle" fill="#1B5E20" font-weight="700">9. Hace login al portal</text>
+  <text x="100" y="504" text-anchor="middle" fill="#2E7D32" font-size="9">http://localhost:4200</text>
+
+  <!-- Admin asigna turno -->
+  <rect x="250" y="450" width="180" height="44" rx="6" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="340" y="468" text-anchor="middle" fill="#1565C0" font-weight="700">Asigna turno</text>
+  <text x="340" y="484" text-anchor="middle" fill="#1565C0" font-size="9">POST /turnos/asignar/{id}</text>
+  <line x1="430" y1="472" x2="490" y2="472" stroke="#1565C0" stroke-width="1.5" marker-end="url(#gy)"/>
+  <rect x="490" y="452" width="180" height="44" rx="6" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/>
+  <text x="580" y="470" text-anchor="middle" fill="#37474F" font-weight="700">Genera turno A42</text>
+  <text x="580" y="486" text-anchor="middle" fill="#546E7A" font-size="9">📧 Email con link confirmar</text>
+
+  <defs>
+    <marker id="gr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#388E3C"/></marker>
+    <marker id="bl" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1565C0"/></marker>
+    <marker id="gy" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#546E7A"/></marker>
+  </defs>
+</svg>
+</div>
+<p class="diagram-caption">Diagrama 4 — Flujo completo de preinscripción hasta habilitación del alumno</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     7. ARDUINO
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="arduino">
+<div class="role-banner banner-general">
+  <div class="icon">🔌</div>
+  <div>
+    <h1>7. Flujo de Asistencia (Arduino)</h1>
+    <p>Cómo el hardware de la institución registra la asistencia automáticamente.</p>
+  </div>
+</div>
+
+<p>Cada aula tiene un dispositivo Arduino con lector de huella dactilar. Cuando el alumno coloca
+el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que registra la asistencia.</p>
+
+<div class="diagram">
+<svg width="680" height="420" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',Arial,sans-serif" font-size="10">
+
+  <!-- Headers -->
+  <rect x="0" y="0" width="160" height="40" fill="#4CAF50" rx="4"/>
+  <text x="80" y="25" text-anchor="middle" fill="white" font-weight="700" font-size="11">ARDUINO (aula)</text>
+
+  <rect x="200" y="0" width="160" height="40" fill="#37474F" rx="4"/>
+  <text x="280" y="25" text-anchor="middle" fill="white" font-weight="700" font-size="11">BACKEND API</text>
+
+  <rect x="400" y="0" width="280" height="40" fill="#1565C0" rx="4"/>
+  <text x="540" y="25" text-anchor="middle" fill="white" font-weight="700" font-size="11">LÓGICA DE VALIDACIÓN</text>
+
+  <!-- Lane backgrounds -->
+  <rect x="0" y="40" width="160" height="380" fill="#f9fbe7" opacity="0.4"/>
+  <rect x="200" y="40" width="160" height="380" fill="#eceff1" opacity="0.4"/>
+  <rect x="400" y="40" width="280" height="380" fill="#e3f2fd" opacity="0.4"/>
+
+  <!-- HUELLA flow -->
+  <rect x="10" y="60" width="140" height="40" rx="5" fill="#C8E6C9" stroke="#388E3C"/>
+  <text x="80" y="76" text-anchor="middle" fill="#1B5E20" font-weight="700">Alumno pone</text>
+  <text x="80" y="92" text-anchor="middle" fill="#1B5E20">el dedo</text>
+
+  <line x1="150" y1="80" x2="200" y2="80" stroke="#388E3C" stroke-width="2" marker-end="url(#ag)"/>
+
+  <rect x="200" y="60" width="160" height="55" rx="5" fill="#ECEFF1" stroke="#546E7A"/>
+  <text x="280" y="77" text-anchor="middle" fill="#37474F" font-weight="700" font-size="9.5">POST /api/asistencias/arduino</text>
+  <text x="280" y="91" text-anchor="middle" fill="#78909C" font-size="8.5">identificadorArduino: "ARD-003"</text>
+  <text x="280" y="104" text-anchor="middle" fill="#78909C" font-size="8.5">alumnoId: 15, metodo: "HUELLA"</text>
+
+  <line x1="360" y1="87" x2="400" y2="87" stroke="#546E7A" stroke-width="2" marker-end="url(#ag)"/>
+
+  <!-- Validation steps -->
+  <rect x="410" y="60" width="260" height="32" rx="5" fill="#fff" stroke="#90A4AE"/>
+  <text x="540" y="80" text-anchor="middle" fill="#37474F">1. Busca Arduino por identificador</text>
+
+  <rect x="410" y="100" width="260" height="32" rx="5" fill="#fff" stroke="#90A4AE"/>
+  <text x="540" y="120" text-anchor="middle" fill="#37474F">2. Verifica que tiene aula asignada</text>
+
+  <rect x="410" y="140" width="260" height="32" rx="5" fill="#fff" stroke="#90A4AE"/>
+  <text x="540" y="160" text-anchor="middle" fill="#37474F">3. Busca HorarioClase activo ahora</text>
+
+  <rect x="410" y="180" width="260" height="32" rx="5" fill="#fff" stroke="#90A4AE"/>
+  <text x="540" y="200" text-anchor="middle" fill="#37474F">4. Verifica inscripción CONFIRMADA</text>
+
+  <rect x="410" y="220" width="260" height="32" rx="5" fill="#fff" stroke="#90A4AE"/>
+  <text x="540" y="240" text-anchor="middle" fill="#37474F">5. Verifica que no marcó asistencia hoy</text>
+
+  <rect x="410" y="260" width="260" height="55" rx="5" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="540" y="278" text-anchor="middle" fill="#1565C0" font-weight="700">6. Registra asistencia en clase activa</text>
+  <text x="540" y="294" text-anchor="middle" fill="#78909C" font-size="8.5">Alumno pasa → PRESENTE</text>
+  <text x="540" y="308" text-anchor="middle" fill="#78909C" font-size="8.5">Sin registro en la clase → AUSENTE</text>
+
+  <!-- Vertical arrows in validation -->
+  <line x1="540" y1="92" x2="540" y2="100" stroke="#90A4AE" stroke-width="1.5" marker-end="url(#ag)"/>
+  <line x1="540" y1="132" x2="540" y2="140" stroke="#90A4AE" stroke-width="1.5" marker-end="url(#ag)"/>
+  <line x1="540" y1="172" x2="540" y2="180" stroke="#90A4AE" stroke-width="1.5" marker-end="url(#ag)"/>
+  <line x1="540" y1="212" x2="540" y2="220" stroke="#90A4AE" stroke-width="1.5" marker-end="url(#ag)"/>
+  <line x1="540" y1="252" x2="540" y2="260" stroke="#90A4AE" stroke-width="1.5" marker-end="url(#ag)"/>
+
+  <!-- Responses -->
+  <line x1="400" y1="287" x2="360" y2="287" stroke="#1565C0" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#ab)"/>
+  <rect x="200" y="340" width="160" height="44" rx="5" fill="#ECEFF1" stroke="#546E7A"/>
+  <text x="280" y="358" text-anchor="middle" fill="#37474F" font-weight="700">Respuesta</text>
+  <text x="280" y="374" text-anchor="middle" fill="#78909C" font-size="8.5">{ estado: "PRESENTE" }</text>
+  <line x1="280" y1="287" x2="280" y2="340" stroke="#546E7A" stroke-width="1.5"/>
+
+  <line x1="200" y1="362" x2="150" y2="362" stroke="#388E3C" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#ab)"/>
+  <rect x="10" y="342" width="140" height="40" rx="5" fill="#C8E6C9" stroke="#388E3C"/>
+  <text x="80" y="359" text-anchor="middle" fill="#1B5E20" font-weight="700">✓ Asistencia</text>
+  <text x="80" y="374" text-anchor="middle" fill="#1B5E20">registrada</text>
+
+  <!-- PIN note -->
+  <rect x="10" y="160" width="340" height="45" rx="5" fill="#FFF3E0" stroke="#E65100" stroke-width="1.5"/>
+  <text x="175" y="178" text-anchor="middle" fill="#E65100" font-weight="700">Variante con PIN:</text>
+  <text x="175" y="194" text-anchor="middle" fill="#78909C" font-size="8.5">Se envía "pin": "4829", "metodo": "PIN" — el backend resuelve el alumno por su PIN</text>
+
+  <!-- Config note -->
+  <rect x="410" y="330" width="260" height="55" rx="5" fill="#F3E5F5" stroke="#7B1FA2" stroke-width="1.5"/>
+  <text x="540" y="348" text-anchor="middle" fill="#6A1B9A" font-weight="700">Validación de horario</text>
+  <text x="540" y="362" text-anchor="middle" fill="#78909C" font-size="8.5">Debe haber HorarioClase activo</text>
+  <text x="540" y="376" text-anchor="middle" fill="#78909C" font-size="8.5">La clase debe estar en curso ahora</text>
+
+  <defs>
+    <marker id="ag" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#546E7A"/></marker>
+    <marker id="ab" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#1565C0"/></marker>
+  </defs>
+</svg>
+</div>
+<p class="diagram-caption">Diagrama 5 — Flujo de registro de asistencia vía Arduino</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     8. MÁQUINAS DE ESTADO
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="estados">
+<div class="role-banner banner-general">
+  <div class="icon">🔀</div>
+  <div>
+    <h1>8. Máquinas de Estado</h1>
+    <p>Todos los estados posibles de cada entidad y cómo se transicionan.</p>
+  </div>
+</div>
+
+<h2 class="sub-h">8.1 — EstadoPreinscripcion</h2>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 20px">
+  <span class="state state-pending">● PENDIENTE</span>
+  <span class="state-arrow">→</span>
+  <span class="state state-review">● EN_REVISION</span>
+  <span class="state-arrow">→</span>
+  <span class="state state-ok">● HABILITADO</span>
+  <br/><div style="width:100%;margin:8px 0 0 150px;display:flex;align-items:center;gap:8px">
+    <span class="state-arrow">↘</span>
+    <span class="state state-reject">● RECHAZADO</span>
+  </div>
+</div>
+
+<table>
+  <thead><tr class="th-grey"><th>Estado</th><th>¿Quién lo produce?</th><th>¿Qué significa?</th></tr></thead>
+  <tbody>
+    <tr><td><span class="pill pill-warn">PENDIENTE</span></td><td>Sistema (al crear)</td><td>Formulario recibido, esperando atención</td></tr>
+    <tr><td><span class="pill pill-info">EN_REVISION</span></td><td>ADMIN (botón "En Revisión")</td><td>ADMIN está procesando presencialmente</td></tr>
+    <tr><td><span class="pill pill-ok">HABILITADO</span></td><td>ADMIN (botón "Habilitar")</td><td>Alumno dado de alta, cuenta creada</td></tr>
+    <tr><td><span class="pill pill-reject">RECHAZADO</span></td><td>ADMIN (botón "Rechazar")</td><td>Documentación incompleta u otro motivo</td></tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h">8.2 — EstadoPago</h2>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 20px">
+  <span class="state state-pending">● SIN_PAGO</span>
+  <span class="state-arrow">→</span>
+  <span class="state state-review">● PARCIAL</span>
+  <span class="state-arrow">→</span>
+  <span class="state state-ok">● COMPLETO</span>
+</div>
+
+<table>
+  <thead><tr class="th-grey"><th>Estado</th><th>Condición</th><th>¿Quién lo produce?</th></tr></thead>
+  <tbody>
+    <tr><td><span class="pill pill-grey">SIN_PAGO</span></td><td>montoAbonado == 0</td><td>Sistema (al crear preinscripción)</td></tr>
+    <tr><td><span class="pill pill-warn">PARCIAL</span></td><td>0 &lt; montoAbonado &lt; montoTotal</td><td>Sistema (al registrar pago parcial)</td></tr>
+    <tr><td><span class="pill pill-ok">COMPLETO</span></td><td>montoAbonado ≥ montoTotal</td><td>Sistema (al registrar pago final)</td></tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h">8.3 — EstadoDocumento (digital)</h2>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 20px">
+  <span class="state state-pending">● PENDIENTE</span>
+  <span class="state-arrow">→</span>
+  <span class="state state-review">● SUBIDO</span>
+  <span class="state-arrow">→</span>
+  <span class="state state-ok">● VALIDADO</span>
+  <br/><div style="width:100%;margin:8px 0 0 220px;display:flex;align-items:center;gap:8px">
+    <span class="state-arrow">↘</span>
+    <span class="state state-reject">● RECHAZADO</span>
+  </div>
+</div>
+
+<table>
+  <thead><tr class="th-grey"><th>Estado</th><th>¿Quién lo produce?</th></tr></thead>
+  <tbody>
+    <tr><td><span class="pill pill-warn">PENDIENTE</span></td><td>Estado inicial al solicitar documento</td></tr>
+    <tr><td><span class="pill pill-info">SUBIDO</span></td><td>ALUMNO sube la URL del archivo</td></tr>
+    <tr><td><span class="pill pill-ok">VALIDADO</span></td><td>ADMIN aprueba el documento</td></tr>
+    <tr><td><span class="pill pill-reject">RECHAZADO</span></td><td>ADMIN rechaza (incluye motivo)</td></tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h">8.4 — EstadoInscripcionMateria</h2>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 20px">
+  <span class="state state-pending">● PENDIENTE</span>
+  <span class="state-arrow">→</span>
+  <span class="state state-ok">● CONFIRMADA</span>
+  <br/><div style="width:100%;margin:8px 0 0 110px;display:flex;align-items:center;gap:8px">
+    <span class="state-arrow">↘</span>
+    <span class="state state-reject">● RECHAZADA</span>
+  </div>
+</div>
+
+<h2 class="sub-h">8.5 — EstadoAsistencia</h2>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0">
+  <span class="state state-ok">● PRESENTE</span>
+  <span class="state state-reject">● AUSENTE</span>
+</div>
+<p class="small text-secondary">El Arduino registra <strong>PRESENTE</strong> al pasar por el lector durante la clase activa. Si el alumno no pasa, queda como <strong>AUSENTE</strong>. El ADMIN o DOCENTE puede corregir el estado manualmente desde el sistema.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     9. REFERENCIA DE ENDPOINTS
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="endpoints">
+<div class="role-banner banner-general">
+  <div class="icon">📡</div>
+  <div>
+    <h1>9. Referencia Completa de Endpoints</h1>
+    <p>Todas las rutas del backend agrupadas por módulo.</p>
+  </div>
+</div>
+
+<h2 class="sub-h">Autenticación</h2>
+<table>
+  <thead><tr class="th-grey"><th>Método</th><th>Ruta</th><th>Roles</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/auth/registro</code></td><td><span class="badge badge-pub">Público</span></td><td>Registro directo con contraseña propia (Path A)</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/auth/login</code></td><td><span class="badge badge-pub">Público</span></td><td>Login, devuelve JWT</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/auth/validar-token?token=UUID</code></td><td><span class="badge badge-pub">Público</span></td><td>Valida token de activación (devuelve email y nombre)</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/auth/activar</code></td><td><span class="badge badge-pub">Público</span></td><td>Activa cuenta: guarda contraseña elegida y borra token</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/auth/recuperar-password</code></td><td><span class="badge badge-pub">Público</span></td><td>Envía nueva contraseña temporal al email</td></tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h">Preinscripciones</h2>
+<table>
+  <thead><tr class="th-blue"><th>Método</th><th>Ruta</th><th>Roles</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/preinscripciones</code></td><td><span class="badge badge-pub">Público</span></td><td>Crear formulario de preinscripción</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Listar todas (paginado)</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones/estado/{estado}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Filtrar por estado</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones/{id}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Detalle con pago y checklist</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones/{id}/pdf</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Descargar formulario en PDF</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones/buscar/codigo</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Buscar por código PRE-YYYY-NNNNN</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones/buscar/dni</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Buscar por DNI</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones/buscar/nombre</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Buscar por nombre (paginado)</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/preinscripciones/{id}/pago</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Registrar pago en efectivo</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/preinscripciones/{id}/pago</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Ver estado de pago</td></tr>
+    <tr><td><span class="method delete" style="font-size:8pt;padding:1px 5px">DEL</span></td><td><code>/api/preinscripciones/{id}/pago</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Anular pago</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/preinscripciones/{id}/checklist/{tipo}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Marcar documento físico presentado</td></tr>
+    <tr><td><span class="method delete" style="font-size:8pt;padding:1px 5px">DEL</span></td><td><code>/api/preinscripciones/{id}/checklist/{tipo}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Desmarcar documento</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/preinscripciones/{id}/en-revision</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Cambiar a EN_REVISION</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/preinscripciones/{id}/habilitar</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Habilitar → crea Alumno + Usuario + envía email con token de activación (72 hs)</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/preinscripciones/{id}/rechazar</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Rechazar preinscripción</td></tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h">Alumnos · Carreras · Docentes</h2>
+<table>
+  <thead><tr class="th-blue"><th>Método</th><th>Ruta</th><th>Roles</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/alumnos</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Listar alumnos (paginado)</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/alumnos/{id}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Detalle de alumno</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/alumnos/{id}/habilitar</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Habilitar alumno</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/alumnos/{id}/deshabilitar</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Deshabilitar alumno</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/carreras</code></td><td><span class="badge badge-pub">Público</span></td><td>Listar carreras activas</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/carreras</code></td><td><span class="badge badge-sa">SUPER_ADMIN</span></td><td>Crear carrera</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/docentes</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Listar docentes</td></tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h">Asistencia · Inscripciones · Documentos Digitales</h2>
+<table>
+  <thead><tr class="th-grey"><th>Método</th><th>Ruta</th><th>Roles</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/asistencias/arduino</code></td><td><span class="badge badge-pub">Sistema</span></td><td>Arduino registra asistencia</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/asistencias/resumen/{alumnoId}/{materiaId}</code></td><td><span class="badge badge-ad">ADMIN</span> <span class="badge badge-do">DOCENTE</span> <span class="badge badge-al">ALUMNO</span></td><td>Resumen de regularidad</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/asistencias/{id}</code></td><td><span class="badge badge-ad">ADMIN</span> <span class="badge badge-do">DOCENTE</span></td><td>Corregir asistencia manualmente</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/inscripciones-materia/alumno/{alumnoId}</code></td><td><span class="badge badge-al">ALUMNO</span></td><td>Solicitar inscripción a materias</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/inscripciones-materia/{id}/resolver</code></td><td><span class="badge badge-ad">ADMIN</span> <span class="badge badge-do">DOCENTE</span></td><td>Confirmar o rechazar inscripción</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/documentos-digitales/alumno/{id}</code></td><td><span class="badge badge-al">ALUMNO</span></td><td>Subir documento digital (URL)</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/documentos-digitales/{id}/aprobar</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Validar documento</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/documentos-digitales/{id}/rechazar</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Rechazar con motivo</td></tr>
+  </tbody>
+</table>
+
+<h2 class="sub-h">SUPER_ADMIN — Configuración general</h2>
+<table>
+  <thead><tr class="th-purple"><th>Método</th><th>Ruta</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/admin/usuarios</code></td><td>Crear ADMIN o DOCENTE</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/admin/usuarios</code></td><td>Listar usuarios administrativos</td></tr>
+    <tr><td><span class="method delete" style="font-size:8pt;padding:1px 5px">DEL</span></td><td><code>/api/admin/usuarios/{id}</code></td><td>Desactivar usuario</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/permisos</code></td><td>Otorgar permiso a ADMIN</td></tr>
+    <tr><td><span class="method delete" style="font-size:8pt;padding:1px 5px">DEL</span></td><td><code>/api/permisos/{id}</code></td><td>Revocar permiso</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/periodos-inscripcion</code></td><td>Crear período de inscripción</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/periodos-inscripcion/{id}/cerrar</code></td><td>Cerrar período</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/turnos/configuracion</code></td><td>Configurar slot de turnos</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/calendario</code></td><td>Agregar evento al calendario</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/mails/enviar</code></td><td>Email masivo (TODOS / POR_CARRERA / etc.)</td></tr>
+  </tbody>
+</table>
+
+<div class="info-box note mt-24">
+  <strong>Nota sobre autenticación</strong>
+  Todos los endpoints marcados con rol requieren el header: <br/>
+  <code>Authorization: Bearer &lt;token_jwt&gt;</code><br/>
+  El token se obtiene del endpoint <code>POST /api/auth/login</code> y tiene una validez de 15 minutos por defecto.
+</div>
+
+</div><!-- fin .page -->
+
+<!-- ══════════════════════════════════════════════════════════════
+     10. PANTALLAS DEL SISTEMA
+══════════════════════════════════════════════════════════════ -->
+<div class="page page-break" id="pantallas">
+<div class="role-banner banner-general">
+  <div class="icon">🖥️</div>
+  <div>
+    <h1>10. Pantallas del Sistema</h1>
+    <p>Capturas representativas de cada sección del frontend Angular del sistema de gestión.</p>
+  </div>
+</div>
+
+<!-- ── Login y Registro ─────────────────────────────────────── -->
+<h2 class="sub-h">10.1 — Acceso al sistema: Login, Registro y Activación</h2>
+<p class="small text-secondary">Pantallas públicas. El Login permite ingresar con email + contraseña o recuperar acceso. El Registro crea una cuenta nueva directamente.</p>
+
+<div class="mockup-grid">
+  <!-- LOGIN -->
+  <div>
+    <div class="screen-frame">
+      <div class="screen-chrome">
+        <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+        <div class="chrome-url">localhost:4200/login</div>
+      </div>
+      <div class="screen-body centered">
+        <div class="mock-login-card">
+          <div class="mock-login-logo">🎓</div>
+          <div class="mock-login-title">IES Alfredo Coviello</div>
+          <div class="mock-login-sub">Sistema de Gestión Académica</div>
+          <div class="mock-field">📧 Email institucional</div>
+          <div class="mock-field">🔒 Contraseña</div>
+          <div class="mock-btn">INGRESAR</div>
+          <div class="mock-link">¿Olvidaste tu contraseña?</div>
+          <div class="mock-link" style="margin-top:4px">¿No tenés cuenta? Registrate</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-caption">Pantalla de Login — acceso para todos los roles</div>
+  </div>
+
+  <!-- REGISTRO -->
+  <div>
+    <div class="screen-frame">
+      <div class="screen-chrome">
+        <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+        <div class="chrome-url">localhost:4200/registro</div>
+      </div>
+      <div class="screen-body centered">
+        <div class="mock-login-card" style="width:210px">
+          <div class="mock-login-logo">✏️</div>
+          <div class="mock-login-title">Crear cuenta</div>
+          <div class="mock-login-sub">Completá tus datos para registrarte</div>
+          <div class="mock-field">👤 Nombres</div>
+          <div class="mock-field">👤 Apellidos</div>
+          <div class="mock-field">🪪 DNI</div>
+          <div class="mock-field">📧 Email</div>
+          <div class="mock-field">🔒 Contraseña</div>
+          <div class="mock-field">🔒 Confirmar contraseña</div>
+          <div class="mock-btn">REGISTRARME</div>
+          <div class="mock-link" style="margin-top:6px">¿Ya tenés cuenta? Ingresá</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-caption">Pantalla de Registro — el aspirante crea su propia cuenta</div>
+  </div>
+</div>
+
+<!-- ── ACTIVAR CUENTA ─────────────────────────────────────────── -->
+<h2 class="sub-h" style="margin-top:28px">10.2 — Activar cuenta (primer acceso)</h2>
+<p class="small text-secondary">Pantalla pública <code>/auth/activar?token=UUID</code>. El alumno llega desde el email de habilitación. Primero se valida el token; si es válido se muestra el formulario de contraseña.</p>
+
+<div class="mockup-grid">
+  <!-- Estado: validando -->
+  <div>
+    <div class="screen-frame">
+      <div class="screen-chrome">
+        <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+        <div class="chrome-url">localhost:4200/auth/activar?token=3f8a...</div>
+      </div>
+      <div class="screen-body centered" style="min-height:180px">
+        <div class="mock-login-card" style="width:200px;text-align:center">
+          <div class="mock-login-logo">🎓</div>
+          <div class="mock-login-title">IES Alfredo Coviello</div>
+          <div style="margin:18px auto;width:32px;height:32px;border:3px solid #009DC9;border-top-color:transparent;border-radius:50%;animation:none;opacity:0.7"></div>
+          <div style="font-size:7pt;color:#888">Verificando enlace de activación…</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-caption">Estado 1 — Validando token (spinner mientras llama al backend)</div>
+  </div>
+
+  <!-- Estado: formulario -->
+  <div>
+    <div class="screen-frame">
+      <div class="screen-chrome">
+        <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+        <div class="chrome-url">localhost:4200/auth/activar?token=3f8a...</div>
+      </div>
+      <div class="screen-body centered" style="min-height:280px">
+        <div class="mock-login-card" style="width:210px">
+          <div class="mock-login-logo">🔐</div>
+          <div class="mock-login-title">IES Alfredo Coviello</div>
+          <div style="font-size:8pt;font-weight:700;color:#003d52;margin:10px 0 4px;text-align:left">Activá tu cuenta</div>
+          <div style="font-size:6.5pt;color:#666;margin-bottom:10px">Hola <strong>Juan</strong>, elegí una contraseña para ingresar al sistema.</div>
+          <div class="mock-field">🔒 Nueva contraseña &nbsp; <span style="font-size:9px;color:#999">👁</span></div>
+          <div class="mock-field">🔒 Confirmar contraseña &nbsp; <span style="font-size:9px;color:#999">👁</span></div>
+          <div class="mock-btn" style="margin-top:8px">✓ ACTIVAR CUENTA</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-caption">Estado 2 — Formulario activo con el nombre del alumno</div>
+  </div>
+
+  <!-- Estado: éxito -->
+  <div>
+    <div class="screen-frame">
+      <div class="screen-chrome">
+        <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+        <div class="chrome-url">localhost:4200/auth/activar?token=3f8a...</div>
+      </div>
+      <div class="screen-body centered" style="min-height:200px">
+        <div class="mock-login-card" style="width:200px;text-align:center">
+          <div class="mock-login-logo" style="background:rgba(34,197,94,0.15)">✅</div>
+          <div class="mock-login-title" style="color:#15803D">¡Cuenta activada!</div>
+          <div style="font-size:6.5pt;color:#666;margin:8px 0">Tu contraseña fue configurada.<br/>Serás redirigido al login en unos segundos…</div>
+          <div class="mock-btn" style="background:linear-gradient(90deg,#16A34A,#22C55E)">Ir al login ahora</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-caption">Estado 3 — Éxito, redirige al login en 4 segundos</div>
+  </div>
+
+  <!-- Estado: error (token expirado) -->
+  <div>
+    <div class="screen-frame">
+      <div class="screen-chrome">
+        <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+        <div class="chrome-url">localhost:4200/auth/activar?token=expirado</div>
+      </div>
+      <div class="screen-body centered" style="min-height:200px">
+        <div class="mock-login-card" style="width:200px;text-align:center">
+          <div class="mock-login-logo" style="background:rgba(239,68,68,0.12)">🔗</div>
+          <div class="mock-login-title" style="color:#B91C1C">Enlace no válido</div>
+          <div style="font-size:6.5pt;color:#666;margin:8px 0">El enlace de activación expiró.<br/>Contactá a la administración.</div>
+          <div class="mock-btn" style="background:linear-gradient(90deg,#005f7a,#009DC9)">Ir al inicio de sesión</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-caption">Estado 4 — Token inválido o expirado (72 hs)</div>
+  </div>
+</div>
+
+<!-- ── RECUPERAR CONTRASEÑA ──────────────────────────────────── -->
+<h2 class="sub-h" style="margin-top:28px">10.4 — Recuperar contraseña</h2>
+<p class="small text-secondary">Se activa al hacer clic en "¿Olvidaste tu contraseña?" desde el login. No requiere estar logueado.</p>
+
+<div style="max-width:320px; margin: 16px auto 4px">
+  <div class="screen-frame">
+    <div class="screen-chrome">
+      <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+      <div class="chrome-url">localhost:4200/login → recuperar</div>
+    </div>
+    <div class="screen-body centered" style="min-height:160px">
+      <div class="mock-login-card" style="width:200px">
+        <div class="mock-login-logo">🔑</div>
+        <div class="mock-login-title">Recuperar contraseña</div>
+        <div class="mock-login-sub">Ingresá tu email y te enviaremos acceso</div>
+        <div class="mock-field">📧 Email registrado</div>
+        <div class="mock-btn">ENVIAR NUEVA CONTRASEÑA</div>
+        <div class="mock-link" style="margin-top:8px">← Volver al Login</div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-caption">Formulario de recuperación de contraseña (modal dentro del login)</div>
+</div>
+</div><!-- fin page 10.1 -->
+
+<div class="page page-break">
+<!-- ── ADMIN LISTA ────────────────────────────────────────────── -->
+<h2 class="sub-h" id="pantalla-admin-lista">10.5 — Panel ADMIN: Lista de Preinscripciones</h2>
+<p class="small text-secondary">Pantalla principal del ADMIN. Muestra todas las preinscripciones con filtro por estado y buscador por nombre/DNI/código.</p>
+
+<div class="screen-frame mockup-full" style="margin-bottom:6px">
+  <div class="screen-chrome">
+    <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+    <div class="chrome-url">localhost:4200/admin/lista</div>
+  </div>
+  <div class="screen-body" style="min-height:280px">
+    <!-- Sidebar -->
+    <div class="mock-sidebar">
+      <div class="mock-logo">🎓</div>
+      <div class="mock-nav">
+        <div class="mock-nav-item active">
+          <div class="mock-icon">📋</div>
+          <span>Preinsc.</span>
+        </div>
+        <div class="mock-nav-item">
+          <div class="mock-icon">🎓</div>
+          <span>Carreras</span>
+        </div>
+        <div class="mock-nav-item">
+          <div class="mock-icon">👥</div>
+          <span>Docentes</span>
+        </div>
+        <div class="mock-nav-item">
+          <div class="mock-icon">👑</div>
+          <span>Usuarios</span>
+        </div>
+      </div>
+    </div>
+    <!-- Main -->
+    <div class="mock-main">
+      <div class="mock-toolbar">
+        <span class="mock-toolbar-title">Preinscripciones</span>
+        <span class="mock-spacer"></span>
+        <div class="mock-search">🔍 Buscar por nombre, DNI...</div>
+        <div class="mock-icon-btn">🌙</div>
+      </div>
+      <div class="mock-content">
+        <!-- Filter chips -->
+        <div style="display:flex;gap:5px;margin-bottom:9px;flex-wrap:wrap">
+          <span style="font-size:6.5pt;background:#E3F2FD;color:#1565C0;padding:2px 9px;border-radius:12px;font-weight:700">Todos</span>
+          <span style="font-size:6.5pt;background:#FEF3C7;color:#92400E;padding:2px 9px;border-radius:12px">Pendiente</span>
+          <span style="font-size:6.5pt;background:#DBEAFE;color:#1D4ED8;padding:2px 9px;border-radius:12px">En Revisión</span>
+          <span style="font-size:6.5pt;background:#DCFCE7;color:#15803D;padding:2px 9px;border-radius:12px">Habilitado</span>
+          <span style="font-size:6.5pt;background:#F1F5F9;color:#64748B;padding:2px 9px;border-radius:12px">Rechazado</span>
+        </div>
+        <table class="mock-table">
+          <thead>
+            <tr><th>Código</th><th>Apellido y Nombre</th><th>Carrera</th><th>Inscripto</th><th>Estado</th><th>Acción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code style="font-size:6pt">PRE-2026-0001</code></td><td>García, María</td><td>Tec. en Informática</td><td>10/06/2026</td><td><span class="mock-chip chip-rev">EN REVISIÓN</span></td><td><span style="font-size:6.5pt;color:#009DC9;font-weight:600">Revisar →</span></td></tr>
+            <tr><td><code style="font-size:6pt">PRE-2026-0002</code></td><td>López, Carlos</td><td>Tec. en Informática</td><td>11/06/2026</td><td><span class="mock-chip chip-pend">PENDIENTE</span></td><td><span style="font-size:6.5pt;color:#009DC9;font-weight:600">Revisar →</span></td></tr>
+            <tr><td><code style="font-size:6pt">PRE-2026-0003</code></td><td>Martínez, Ana</td><td>Administración</td><td>11/06/2026</td><td><span class="mock-chip chip-hab">HABILITADO</span></td><td><span style="font-size:6.5pt;color:#009DC9;font-weight:600">Revisar →</span></td></tr>
+            <tr><td><code style="font-size:6pt">PRE-2026-0004</code></td><td>Rodríguez, Julián</td><td>Tec. en Informática</td><td>12/06/2026</td><td><span class="mock-chip chip-pend">PENDIENTE</span></td><td><span style="font-size:6.5pt;color:#009DC9;font-weight:600">Revisar →</span></td></tr>
+            <tr><td><code style="font-size:6pt">PRE-2026-0005</code></td><td>Fernández, Lucía</td><td>Administración</td><td>13/06/2026</td><td><span class="mock-chip chip-rech">RECHAZADO</span></td><td><span style="font-size:6.5pt;color:#009DC9;font-weight:600">Revisar →</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="screen-caption">Panel principal del ADMIN — Lista de preinscripciones con filtros y acceso a revisión individual</div>
+
+<!-- ── ADMIN REVISION ─────────────────────────────────────────── -->
+<h2 class="sub-h" style="margin-top:28px" id="pantalla-admin-revision">10.6 — Panel ADMIN: Revisión de Preinscripción</h2>
+<p class="small text-secondary">Al hacer clic en "Revisar" se abre la pantalla de detalle. El ADMIN puede registrar pagos, marcar documentos recibidos y habilitar o rechazar al aspirante.</p>
+
+<div class="screen-frame mockup-full" style="margin-bottom:6px">
+  <div class="screen-chrome">
+    <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+    <div class="chrome-url">localhost:4200/admin/revision/1</div>
+  </div>
+  <div class="screen-body" style="min-height:310px">
+    <div class="mock-sidebar">
+      <div class="mock-logo">🎓</div>
+      <div class="mock-nav">
+        <div class="mock-nav-item active"><div class="mock-icon">📋</div><span>Preinsc.</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">🎓</div><span>Carreras</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">👥</div><span>Docentes</span></div>
+      </div>
+    </div>
+    <div class="mock-main">
+      <div class="mock-toolbar">
+        <span style="font-size:10px;cursor:pointer;color:#005f7a">← </span>
+        <span class="mock-toolbar-title">Revisión</span>
+        <span style="font-size:6pt;font-family:monospace;background:#E3F2FD;color:#1565C0;padding:2px 7px;border-radius:4px;margin-left:4px">PRE-2026-0001</span>
+        <span class="mock-spacer"></span>
+        <span class="mock-chip chip-rev" style="font-size:6.5pt;padding:3px 9px">👁 EN REVISIÓN</span>
+        <div class="mock-icon-btn" style="margin-left:6px">🌙</div>
+      </div>
+      <div class="mock-content" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start">
+        <!-- Datos personales -->
+        <div class="mock-section-card" style="grid-column:1/-1">
+          <div class="mock-card-title">👤 García, María · Tec. en Informática</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:6pt;color:#666">
+            <div><div style="font-size:5.5pt;color:#999;text-transform:uppercase">DNI</div>30123456</div>
+            <div><div style="font-size:5.5pt;color:#999;text-transform:uppercase">Email</div>mgarcia@gmail.com</div>
+            <div><div style="font-size:5.5pt;color:#999;text-transform:uppercase">Teléfono</div>3812 000000</div>
+          </div>
+        </div>
+        <!-- Pago -->
+        <div class="mock-section-card orange">
+          <div class="mock-card-title">💳 Pago · <span style="font-size:6pt;font-weight:400;color:#92400E;background:#FEF3C7;padding:1px 6px;border-radius:10px">PARCIAL</span></div>
+          <div class="mock-progress-wrap">
+            <div class="mock-progress-bar"><div class="mock-progress-fill fill-orange" style="width:50%"></div></div>
+            <div class="mock-progress-pct">50% abonado</div>
+          </div>
+          <div style="font-size:6pt;color:#888">$ 2.500 de $ 5.000</div>
+          <div style="display:flex;gap:5px;margin-top:7px;align-items:center">
+            <div style="flex:1;height:18px;border:1px solid #DDD;border-radius:4px;font-size:6pt;color:#AAA;display:flex;align-items:center;padding:0 6px">$ Monto a registrar</div>
+            <div style="background:#005f7a;color:#fff;font-size:6pt;padding:3px 8px;border-radius:4px;white-space:nowrap">+ Registrar</div>
+          </div>
+        </div>
+        <!-- Checklist -->
+        <div class="mock-section-card green">
+          <div class="mock-card-title">✅ Documentación · 4/7 recibidos</div>
+          <div class="mock-checklist">
+            <div class="mock-check-item done"><span class="check-icon">✅</span> DNI Frente</div>
+            <div class="mock-check-item done"><span class="check-icon">✅</span> DNI Dorso</div>
+            <div class="mock-check-item done"><span class="check-icon">✅</span> Título Sec.</div>
+            <div class="mock-check-item done"><span class="check-icon">✅</span> Acta Nac.</div>
+            <div class="mock-check-item"><span class="check-icon">⭕</span> Psicofísico</div>
+            <div class="mock-check-item"><span class="check-icon">⭕</span> Buena Cond.</div>
+            <div class="mock-check-item"><span class="check-icon">⭕</span> Foto Carnet</div>
+          </div>
+        </div>
+        <!-- Acciones -->
+        <div style="grid-column:1/-1;display:flex;gap:7px;align-items:center;padding:8px 0">
+          <div style="background:#005f7a;color:#fff;font-size:7pt;padding:5px 12px;border-radius:5px;font-weight:700">👤 Habilitar alumno</div>
+          <div style="border:1.5px solid #EEE;color:#555;font-size:7pt;padding:5px 12px;border-radius:5px">📋 Pasar a En Revisión</div>
+          <div style="border:1.5px solid #F87171;color:#B91C1C;font-size:7pt;padding:5px 12px;border-radius:5px">✕ Rechazar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="screen-caption">Pantalla de revisión — el ADMIN gestiona pago, checklist de documentos y habilita o rechaza al aspirante</div>
+</div><!-- fin page 10.3-4 -->
+
+<div class="page page-break">
+<!-- ── DASHBOARD ALUMNO ──────────────────────────────────────── -->
+<h2 class="sub-h" id="pantalla-dashboard">10.7 — Portal del Alumno: Dashboard</h2>
+<p class="small text-secondary">Una vez habilitado, el alumno accede a su portal con resumen de materias, documentos y asistencia promedio.</p>
+
+<div class="screen-frame mockup-full" style="margin-bottom:6px">
+  <div class="screen-chrome">
+    <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+    <div class="chrome-url">localhost:4200/dashboard</div>
+  </div>
+  <div class="screen-body" style="min-height:300px">
+    <div class="mock-sidebar">
+      <div class="mock-logo">🎓</div>
+      <div class="mock-nav">
+        <div class="mock-nav-item active"><div class="mock-icon">🏠</div><span>Inicio</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">📚</div><span>Materias</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">📁</div><span>Docs</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">👤</div><span>Perfil</span></div>
+      </div>
+    </div>
+    <div class="mock-main">
+      <div class="mock-toolbar">
+        <span class="mock-toolbar-title">Inicio</span>
+        <span class="mock-spacer"></span>
+        <div class="mock-icon-btn">🌙</div>
+      </div>
+      <div class="mock-content">
+        <div style="font-size:9.5pt;font-weight:700;color:#003d52;margin-bottom:10px">¡Bienvenida, María!</div>
+        <div class="mock-stats">
+          <div class="mock-stat-card" style="border-left-color:#009DC9">
+            <div class="mock-stat-num">5</div>
+            <div class="mock-stat-label">Materias regulares</div>
+          </div>
+          <div class="mock-stat-card" style="border-left-color:#EF4444">
+            <div class="mock-stat-num">1</div>
+            <div class="mock-stat-label">Materias libres</div>
+          </div>
+          <div class="mock-stat-card" style="border-left-color:#22C55E">
+            <div class="mock-stat-num">84%</div>
+            <div class="mock-stat-label">Asistencia promedio</div>
+          </div>
+          <div class="mock-stat-card" style="border-left-color:#A855F7">
+            <div class="mock-stat-num">5/7</div>
+            <div class="mock-stat-label">Docs validados</div>
+          </div>
+        </div>
+        <div style="font-size:7pt;font-weight:700;color:#555;margin-bottom:6px">Accesos rápidos</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+          <div style="background:#fff;border-radius:7px;padding:8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-size:6.5pt;color:#005f7a;font-weight:600">📚<br/>Mis Materias</div>
+          <div style="background:#fff;border-radius:7px;padding:8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-size:6.5pt;color:#005f7a;font-weight:600">📁<br/>Documentos</div>
+          <div style="background:#fff;border-radius:7px;padding:8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-size:6.5pt;color:#005f7a;font-weight:600">👤<br/>Mi Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="screen-caption">Dashboard del alumno — resumen de estado académico y accesos rápidos</div>
+
+<!-- ── PORTAL DOCENTE ─────────────────────────────────────────── -->
+<h2 class="sub-h" style="margin-top:28px" id="pantalla-docente">10.8 — Portal del Docente</h2>
+<p class="small text-secondary">El docente ve sus materias asignadas, los alumnos inscriptos y gestiona la asistencia de cada clase.</p>
+
+<div class="screen-frame mockup-full" style="margin-bottom:6px">
+  <div class="screen-chrome">
+    <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+    <div class="chrome-url">localhost:4200/docente/portal</div>
+  </div>
+  <div class="screen-body" style="min-height:270px">
+    <div class="mock-sidebar">
+      <div class="mock-logo">🎓</div>
+      <div class="mock-nav">
+        <div class="mock-nav-item active"><div class="mock-icon">📚</div><span>Materias</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">👥</div><span>Alumnos</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">📋</div><span>Asist.</span></div>
+      </div>
+    </div>
+    <div class="mock-main">
+      <div class="mock-toolbar">
+        <span class="mock-toolbar-title">Mis Materias</span>
+        <span class="mock-spacer"></span>
+        <div style="font-size:6.5pt;background:#E3F2FD;color:#1565C0;padding:2px 8px;border-radius:10px">Prof. López</div>
+        <div class="mock-icon-btn" style="margin-left:6px">🌙</div>
+      </div>
+      <div class="mock-content">
+        <div class="mock-materia-grid">
+          <div class="mock-materia-card">
+            <div class="mock-materia-name">Programación I</div>
+            <div class="mock-materia-info">1° año · Informática</div>
+            <div style="margin-top:5px;display:flex;gap:6px">
+              <span style="font-size:5.5pt;background:#E3F2FD;color:#1565C0;padding:1px 5px;border-radius:8px">32 alumnos</span>
+              <span style="font-size:5.5pt;background:#F3E5F5;color:#6A1B9A;padding:1px 5px;border-radius:8px">Lun 08:00</span>
+            </div>
+          </div>
+          <div class="mock-materia-card">
+            <div class="mock-materia-name">Base de Datos I</div>
+            <div class="mock-materia-info">2° año · Informática</div>
+            <div style="margin-top:5px;display:flex;gap:6px">
+              <span style="font-size:5.5pt;background:#E3F2FD;color:#1565C0;padding:1px 5px;border-radius:8px">28 alumnos</span>
+              <span style="font-size:5.5pt;background:#F3E5F5;color:#6A1B9A;padding:1px 5px;border-radius:8px">Mié 10:00</span>
+            </div>
+          </div>
+          <div class="mock-materia-card">
+            <div class="mock-materia-name">Algoritmos</div>
+            <div class="mock-materia-info">1° año · Informática</div>
+            <div style="margin-top:5px;display:flex;gap:6px">
+              <span style="font-size:5.5pt;background:#E3F2FD;color:#1565C0;padding:1px 5px;border-radius:8px">35 alumnos</span>
+              <span style="font-size:5.5pt;background:#F3E5F5;color:#6A1B9A;padding:1px 5px;border-radius:8px">Vie 08:00</span>
+            </div>
+          </div>
+          <div class="mock-materia-card" style="border-left-color:#EEE;background:#FAFAFA;display:flex;align-items:center;justify-content:center">
+            <span style="font-size:8pt;color:#CCC">+ Ver todas</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#E3F2FD;border-radius:6px;padding:8px 10px;font-size:6.5pt;color:#1565C0;border-left:3px solid #1565C0">
+          💡 Seleccioná una materia para ver la lista de alumnos y gestionar la asistencia del día.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="screen-caption">Portal del docente — materias asignadas con cantidad de alumnos y horarios</div>
+
+<!-- ── Preinscripcion publica ─────────────────────────────────── -->
+<h2 class="sub-h" style="margin-top:28px" id="pantalla-preinscripcion">10.9 — Formulario de Preinscripción (Público)</h2>
+<p class="small text-secondary">Ruta pública accesible sin login. El aspirante completa sus datos para iniciar el proceso de inscripción presencial.</p>
+
+<div style="max-width:380px;margin:16px auto 4px">
+  <div class="screen-frame">
+    <div class="screen-chrome">
+      <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+      <div class="chrome-url">localhost:4200/preinscripcion</div>
+    </div>
+    <div class="screen-body" style="min-height:220px;background:#F8FAFC;flex-direction:column;padding:16px">
+      <div style="text-align:center;margin-bottom:12px">
+        <div style="font-size:11pt;font-weight:700;color:#003d52">Formulario de Preinscripción</div>
+        <div style="font-size:7pt;color:#888">IES Alfredo Coviello · Ciclo 2026</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:6.5pt">
+        <div class="mock-field">👤 Nombre</div>
+        <div class="mock-field">👤 Apellido</div>
+        <div class="mock-field">🪪 DNI</div>
+        <div class="mock-field">📧 Email</div>
+        <div class="mock-field">📅 Fecha de nacimiento</div>
+        <div class="mock-field">📍 Dirección</div>
+        <div class="mock-field" style="grid-column:1/-1">🎓 Carrera de interés</div>
+      </div>
+      <div class="mock-btn" style="margin-top:10px">ENVIAR PREINSCRIPCIÓN</div>
+      <div style="font-size:6pt;color:#888;text-align:center;margin-top:7px">Al enviar, recibirás un PDF con tu código de seguimiento en tu email.</div>
+    </div>
+  </div>
+  <div class="screen-caption">Formulario público de preinscripción — sin necesidad de cuenta previa</div>
+</div>
+
+</div><!-- fin .page pantallas 2 -->
+
+</body>
+</html>

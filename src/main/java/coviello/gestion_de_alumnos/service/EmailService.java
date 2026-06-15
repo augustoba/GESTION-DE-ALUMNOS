@@ -22,34 +22,37 @@ public class EmailService {
     @Value("${mail.institucion}")
     private String institucion;
 
+    @Value("${frontend.url:http://localhost:4200}")
+    private String frontendUrl;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    public void enviarFormularioPreinscripcion(String destinatario, String nombre, Long id, byte[] pdf) {
+    public void enviarFormularioPreinscripcion(String destinatario, String nombre, String codigo, byte[] pdf) {
         try {
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
             helper.setFrom(from);
             helper.setTo(destinatario);
-            helper.setSubject("Formulario de Preinscripción N° " + id + " - " + institucion);
+            helper.setSubject("Formulario de Preinscripción " + codigo + " - " + institucion);
             helper.setText("""
                     Hola %s,
 
                     Recibimos tu formulario de preinscripción correctamente.
 
-                    Tu número de formulario es: %d
+                    Tu código de formulario es: %s
 
                     Adjunto encontrás el formulario en formato PDF. Por favor imprimilo y
                     presentalo el día de tu inscripción presencial junto con la documentación
-                    requerida: DNI (original y copia frente y dorso), título secundario
-                    (original y copia) y foto carné 4x4.
+                    requerida: DNI (original y copia), título secundario (original y copia),
+                    foto carné 4x4, acta de nacimiento, psicofísico y certificado de buena conducta.
 
                     Saludos,
                     Administración - %s
-                    """.formatted(nombre, id, institucion));
+                    """.formatted(nombre, codigo, institucion));
             helper.addAttachment(
-                    "formulario-preinscripcion-" + id + ".pdf",
+                    "formulario-preinscripcion-" + codigo + ".pdf",
                     new ByteArrayResource(pdf),
                     "application/pdf");
             mailSender.send(mensaje);
@@ -59,8 +62,9 @@ public class EmailService {
     }
 
     public void enviarBienvenida(String destinatario, String nombre) {
-        String asunto = "Bienvenido/a al sistema de inscripciones - " + institucion;
-        String cuerpo = """
+        enviar(destinatario,
+                "Bienvenido/a al sistema de inscripciones - " + institucion,
+                """
                 Hola %s,
 
                 Tu cuenta fue creada exitosamente en el sistema de inscripciones de %s.
@@ -69,117 +73,77 @@ public class EmailService {
 
                 Saludos,
                 Administración - %s
-                """.formatted(nombre, institucion, institucion);
-
-        enviar(destinatario, asunto, cuerpo);
+                """.formatted(nombre, institucion, institucion));
     }
 
-    public void enviarPagoValidado(String destinatario, String nombre, String carrera) {
-        String asunto = "Pago de matrícula validado - " + carrera;
-        String cuerpo = """
+    public void enviarActivacionCuenta(String destinatario, String nombre, String carrera, String token) {
+        String urlActivacion = frontendUrl + "/activar-cuenta?token=" + token;
+        enviar(destinatario,
+                "Activá tu cuenta — " + institucion,
+                """
                 Hola %s,
 
-                Tu comprobante de pago para la carrera "%s" fue validado correctamente.
+                ¡Tu inscripción para "%s" fue aprobada! Tu cuenta fue creada en el sistema de %s.
 
-                Para completar tu inscripción debés subir los siguientes documentos:
-                  - DNI (frente)
-                  - DNI (dorso)
-                  - Título secundario
-
-                Accedé al sistema para cargarlos.
-
-                Saludos,
-                Administración - %s
-                """.formatted(nombre, carrera, institucion);
-
-        enviar(destinatario, asunto, cuerpo);
-    }
-
-    public void enviarPagoRechazado(String destinatario, String nombre, String motivo) {
-        String asunto = "Problema con tu comprobante de pago - " + institucion;
-        String cuerpo = """
-                Hola %s,
-
-                Encontramos un problema con tu comprobante de pago:
+                Para ingresar al sistema por primera vez, necesitás elegir una contraseña.
+                Hacé click en el siguiente enlace (válido por 72 horas):
 
                   %s
 
-                Por favor, volvé a subir el comprobante corregido desde el sistema.
+                Si no solicitaste esta cuenta o el enlace ya no funciona, contactá a la administración.
 
                 Saludos,
                 Administración - %s
-                """.formatted(nombre, motivo, institucion);
-
-        enviar(destinatario, asunto, cuerpo);
+                """.formatted(nombre, carrera, institucion, urlActivacion, institucion));
     }
 
-    public void enviarInscripcionExpirada(String destinatario, String nombre, String carrera) {
-        String asunto = "Tu inscripción venció - " + institucion;
-        String cuerpo = """
+    public void enviarAlumnoHabilitado(String destinatario, String nombre, String carrera) {
+        enviar(destinatario,
+                "Tu inscripción fue aprobada - " + institucion,
+                """
                 Hola %s,
 
-                Tu inscripción para la carrera "%s" fue dada de baja porque no se completó
-                la validación del pago dentro de las 48 horas reglamentarias.
+                ¡Felicitaciones! Tu inscripción para la carrera "%s" fue procesada
+                y tu cuenta de alumno fue habilitada correctamente.
 
-                Si todavía deseás inscribirte, podés volver a iniciar el proceso cuando
-                haya cupos disponibles.
+                Ya podés iniciar sesión con tu email y contraseña habituales para acceder
+                al sistema del instituto.
+
+                Bienvenido/a.
 
                 Saludos,
                 Administración - %s
-                """.formatted(nombre, carrera, institucion);
-
-        enviar(destinatario, asunto, cuerpo);
+                """.formatted(nombre, carrera, institucion));
     }
 
-    public void enviarDocumentosAprobados(String destinatario, String nombre, String carrera) {
-        String asunto = "Inscripción aprobada - " + carrera;
-        String cuerpo = """
+    public void enviarTurnoAsignado(String destinatario, String nombre, String numeroTurno,
+                                    String fecha, String hora, String urlConfirmacion) {
+        enviar(destinatario,
+                "Tu turno de inscripción: " + numeroTurno + " - " + institucion,
+                """
                 Hola %s,
 
-                ¡Felicitaciones! Todos tus documentos para la carrera "%s" fueron revisados
-                y aprobados por la administración.
+                Se te asignó el siguiente turno para la inscripción presencial:
 
-                Ya tenés acceso completo al sistema. Podés iniciar sesión con tu email
-                y contraseña habituales.
+                  Turno: %s
+                  Fecha: %s
+                  Hora: %s
 
-                Bienvenido/a al instituto.
+                Para confirmar tu asistencia hacé click en el siguiente enlace:
+
+                  %s
+
+                Si no confirmás tu turno, podría ser reasignado.
 
                 Saludos,
                 Administración - %s
-                """.formatted(nombre, carrera, institucion);
-
-        enviar(destinatario, asunto, cuerpo);
-    }
-
-    public void enviarDocumentosRechazados(String destinatario, String nombre, String carrera,
-                                           List<String> tiposRechazados) {
-        String listaDocumentos = tiposRechazados.stream()
-                .map(this::nombreLegibleDocumento)
-                .map(d -> "  - " + d)
-                .collect(java.util.stream.Collectors.joining("\n"));
-
-        String asunto = "Documentos pendientes de corrección - " + carrera;
-        String cuerpo = """
-                Hola %s,
-
-                Revisamos tu documentación para la carrera "%s" y encontramos que los
-                siguientes documentos deben ser corregidos o vueltos a subir:
-
-                %s
-
-                Por favor, ingresá al sistema y subí nuevamente los archivos indicados.
-                Una vez resubidos, el equipo de administración los revisará nuevamente.
-
-                Saludos,
-                Administración - %s
-                """.formatted(nombre, carrera, listaDocumentos, institucion);
-
-        enviar(destinatario, asunto, cuerpo);
+                """.formatted(nombre, numeroTurno, fecha, hora, urlConfirmacion, institucion));
     }
 
     public void enviarNuevaContrasena(String destinatario, String nombre, String nuevaContrasena) {
-        String asunto = "Recuperación de contraseña - " + institucion;
-        String cuerpo = """
+        enviar(destinatario,
+                "Recuperación de contraseña - " + institucion,
+                """
                 Hola %s,
 
                 Recibiste este email porque solicitaste recuperar tu contraseña en el sistema de %s.
@@ -194,39 +158,104 @@ public class EmailService {
 
                 Saludos,
                 Administración - %s
-                """.formatted(nombre, institucion, nuevaContrasena, institucion);
-
-        enviar(destinatario, asunto, cuerpo);
+                """.formatted(nombre, institucion, nuevaContrasena, institucion));
     }
 
-    public void enviarBienvenidaDocente(String destinatario, String nombres, String dni) {
-        String asunto = "Bienvenido/a al sistema docente - " + institucion;
-        String cuerpo = """
+    public void enviarBienvenidaDocente(String destinatario, String nombres, String passwordTemporal) {
+        enviar(destinatario,
+                "Bienvenido/a al sistema docente - " + institucion,
+                """
                 Hola %s,
 
                 Tu cuenta docente fue creada exitosamente en el sistema de %s.
 
-                Podés iniciar sesión con tu email y la siguiente contraseña inicial:
+                Podés iniciar sesión con tu email y la siguiente contraseña temporal:
 
-                  Contraseña: %s (tu número de DNI)
+                  Contraseña temporal: %s
 
-                Por seguridad, te recomendamos cambiar tu contraseña una vez que ingreses al sistema.
+                Al ingresar por primera vez el sistema te pedirá que establezcas una nueva contraseña.
 
                 Saludos,
                 Administración - %s
-                """.formatted(nombres, institucion, dni, institucion);
+                """.formatted(nombres, institucion, passwordTemporal, institucion));
+    }
 
+    public void enviarBienvenidaAdmin(String destinatario, String nombres, String passwordTemporal) {
+        enviar(destinatario,
+                "Cuenta de administrador creada - " + institucion,
+                """
+                Hola %s,
+
+                Se creó tu cuenta de administrador en el sistema de %s.
+
+                Podés iniciar sesión con tu email y la siguiente contraseña temporal:
+
+                  Contraseña: %s
+
+                Por seguridad, te recomendamos cambiarla al ingresar por primera vez.
+
+                Saludos,
+                Super Administración - %s
+                """.formatted(nombres, institucion, passwordTemporal, institucion));
+    }
+
+    public void enviarSolicitudDocumentos(String destinatario, String nombre, List<String> tiposFaltantes) {
+        String lista = tiposFaltantes.stream()
+                .map(t -> "  - " + nombreLegibleDocumento(t))
+                .collect(java.util.stream.Collectors.joining("\n"));
+
+        enviar(destinatario,
+                "Documentos pendientes de entrega - " + institucion,
+                """
+                Hola %s,
+
+                Desde administración te informamos que tenés los siguientes documentos pendientes:
+
+                %s
+
+                Te pedimos que los presentes a la brevedad en la administración del instituto.
+
+                Saludos,
+                Administración - %s
+                """.formatted(nombre, lista, institucion));
+    }
+
+    public void enviarAperturaTurnos(String destinatario, String nombre, String mensajeExtra) {
+        enviar(destinatario,
+                "Apertura de turnos para inscripción presencial - " + institucion,
+                """
+                Hola %s,
+
+                Te informamos que ya podés solicitar tu turno para la inscripción presencial en %s.
+
+                %s
+
+                Ingresá al siguiente enlace para solicitar tu turno:
+
+                  %s/solicitar-turno
+
+                Recordá que los turnos tienen cupo limitado por día, así que te recomendamos
+                solicitarlo lo antes posible.
+
+                Saludos,
+                Administración - %s
+                """.formatted(nombre, institucion, mensajeExtra, frontendUrl, institucion));
+    }
+
+    public void enviarMasivo(String destinatario, String asunto, String cuerpo) {
         enviar(destinatario, asunto, cuerpo);
     }
 
     private String nombreLegibleDocumento(String tipo) {
         return switch (tipo) {
-            case "DNI_FRENTE"       -> "DNI (frente)";
-            case "DNI_DORSO"        -> "DNI (dorso)";
-            case "TITULO"           -> "Título secundario";
-            case "FOTO_CARNET"      -> "Foto carnet";
-            case "COMPROBANTE_PAGO" -> "Comprobante de pago";
-            default                 -> tipo;
+            case "DNI_FRENTE"    -> "DNI (frente)";
+            case "DNI_DORSO"     -> "DNI (dorso)";
+            case "TITULO"        -> "Título secundario";
+            case "FOTO_CARNET"   -> "Foto carnet";
+            case "ACTA_NACIMIENTO" -> "Acta de nacimiento";
+            case "PSICOFISICO"   -> "Psicofísico";
+            case "BUENA_CONDUCTA" -> "Certificado de buena conducta";
+            default              -> tipo;
         };
     }
 

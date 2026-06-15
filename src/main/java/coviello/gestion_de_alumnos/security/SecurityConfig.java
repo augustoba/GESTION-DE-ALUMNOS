@@ -2,6 +2,7 @@ package coviello.gestion_de_alumnos.security;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,6 +61,15 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api/configuracion/preinscripcion").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/configuracion/turnos").permitAll()
+                .requestMatchers("/api/carreras").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/preinscripciones").permitAll()
+                .requestMatchers("/api/turnos/dias-disponibles").permitAll()
+                .requestMatchers("/api/turnos/buscar").permitAll()
+                .requestMatchers("/api/turnos/solicitar").permitAll()
+                .requestMatchers("/api/turnos/confirmar").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/perfil/documentos/archivo/**").permitAll()
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/v3/api-docs/**",

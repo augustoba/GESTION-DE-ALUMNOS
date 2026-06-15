@@ -1,11 +1,15 @@
 package coviello.gestion_de_alumnos.controller;
 
 import coviello.gestion_de_alumnos.Util.ApiResponse;
+import coviello.gestion_de_alumnos.dto.ActivarCuentaRequest;
+import coviello.gestion_de_alumnos.dto.CambiarPasswordRequest;
 import coviello.gestion_de_alumnos.dto.LoginRequest;
 import coviello.gestion_de_alumnos.dto.LoginResponse;
 import coviello.gestion_de_alumnos.dto.RecuperarPasswordRequest;
 import coviello.gestion_de_alumnos.dto.RegistroRequest;
+import coviello.gestion_de_alumnos.dto.ValidarTokenResponse;
 import coviello.gestion_de_alumnos.service.AuthService;
+import org.springframework.security.core.Authentication;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -81,6 +85,67 @@ public class AuthController {
             return ResponseEntity.ok(new ApiResponse(
                     "Se envió una nueva contraseña a " + request.email(), null
             ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/validar-token")
+    @Operation(
+        summary = "Validar token de activación",
+        description = "Verifica que el token de activación sea válido y no haya expirado. Devuelve el email del usuario."
+    )
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Token válido."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Token inválido o expirado.")
+    })
+    public ResponseEntity<ApiResponse> validarToken(@RequestParam String token) {
+        try {
+            ValidarTokenResponse response = authService.validarToken(token);
+            return ResponseEntity.ok(new ApiResponse("Token válido", response));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/activar")
+    @Operation(
+        summary = "Activar cuenta con token",
+        description = "Establece la contraseña definitiva del alumno usando el token recibido por email al ser habilitado."
+    )
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cuenta activada. Ya puede iniciar sesión."),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Token inválido, expirado o contraseña inválida.")
+    })
+    public ResponseEntity<ApiResponse> activarCuenta(@Valid @RequestBody ActivarCuentaRequest request) {
+        try {
+            authService.activarCuenta(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    "¡Cuenta activada! Ya podés iniciar sesión con tu email y nueva contraseña.", null
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/cambiar-password")
+    @Operation(summary = "Cambiar contraseña (primer login obligatorio)")
+    public ResponseEntity<ApiResponse> cambiarPassword(@RequestBody CambiarPasswordRequest request,
+                                                       Authentication auth) {
+        try {
+            authService.cambiarPassword(auth.getName(), request.passwordActual(), request.passwordNueva());
+            return ResponseEntity.ok(new ApiResponse("Contraseña actualizada correctamente", null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refrescar token JWT activo")
+    public ResponseEntity<ApiResponse> refreshToken(@RequestHeader("Authorization") String authHeader) {
+        try {
+            LoginResponse response = authService.refreshToken(authHeader);
+            return ResponseEntity.ok(new ApiResponse("Token renovado", response));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new ApiResponse(e.getMessage(), null));
         }

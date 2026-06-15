@@ -8,6 +8,7 @@ import java.util.List;
 
 public record PreinscripcionDetalleResponse(
         Long id,
+        String codigoFormulario,
         String nombre,
         String apellido,
         String dni,
@@ -18,22 +19,12 @@ public record PreinscripcionDetalleResponse(
         LocalDate fechaNacimiento,
         String lugarNacimiento,
         String nacionalidad,
-        String egresadoDe,
-        String tituloDe,
-        Boolean debeMaterias,
-        String materiasAdeudadas,
-        String afeccionEspecifica,
-        String grupoSanguineo,
-        String carrera,
-        LocalDateTime fechaCreacion,
+        String fotoUrl,
+        String carreraNombre,
+        Long carreraId,
         EstadoPreinscripcion estado,
-        Boolean documentosCompletos,
-        Boolean reqTituloSecundario,
-        Boolean reqConstanciaTituloTramite,
-        Boolean reqDni,
-        Boolean reqFoto,
-        Boolean reqActaNacimiento,
-        Boolean reqPsicofisico,
-        Boolean reqBuenaConducta,
-        List<DocumentoResumen> documentos
+        LocalDateTime fechaCreacion,
+        Long alumnoId,
+        PagoResponse pago,
+        List<DocumentoChecklistResponse> checklist
 ) {}

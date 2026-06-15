@@ -7,21 +7,16 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public record PreinscripcionRequest(
-        @NotBlank String nombres,
-        @NotBlank String apellidos,
+        @NotBlank String nombre,
+        @NotBlank String apellido,
         @NotBlank String dni,
         @NotNull  LocalDate fechaNacimiento,
         String lugarNacimiento,
         String nacionalidad,
-        String domicilio,
+        String direccion,
         String localidad,
         String telefono,
-        @NotBlank @Email String email,
-        String egresadoDe,
-        String tituloDe,
-        Boolean debeMaterias,
-        String materiasAdeudadas,
-        String afeccionEspecifica,
-        String grupoSanguineo,
+        @Email String email,
+        String fotoUrl,
         Long carreraId
 ) {}

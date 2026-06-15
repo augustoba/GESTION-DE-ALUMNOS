@@ -4,5 +4,6 @@ public record CarreraRequest(
     String nombre,
     String descripcion,
     Boolean activa,
-    int cupoMaximo
+    int cupoMaximo,
+    String prefijoTurno
 ) {}

@@ -38,4 +38,7 @@ public class DocumentoDigital {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "validado_por")
     private Usuario validadoPor;
+
+    @Column(name = "motivo_rechazo", length = 500)
+    private String motivoRechazo;
 }
