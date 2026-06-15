@@ -1,120 +1,38 @@
 package coviello.gestion_de_alumnos.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Data
+@NoArgsConstructor
 public class Carrera {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nombre", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "descripcion", length = 500)
+    @Column(length = 500)
     private String descripcion;
 
-    @Column(name = "activa")
     private Boolean activa = true;
 
-    // 0 = sin límite
     @Column(name = "cupo_maximo")
     private int cupoMaximo = 0;
 
-    @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-            name = "carrera_docente",
-            joinColumns = @JoinColumn(name = "carrera_id"),
-            inverseJoinColumns = @JoinColumn(name = "docente_id")
-    )
-    private List<Docente> docentes = new ArrayList<>();
+    @Column(name = "prefijo_turno", length = 5)
+    private String prefijoTurno;
 
     @JsonIgnore
     @OneToMany(mappedBy = "carrera", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("numeroAnio ASC")
     private List<AnioCarrera> anios = new ArrayList<>();
-
-
-    public Carrera() {
-    }
-
-    public Carrera(Long id, String nombre, String descripcion, Boolean activa) {
-        this.id = id;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.activa = activa;
-    }
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public Boolean getActiva() {
-        return activa;
-    }
-
-    public void setActiva(Boolean activa) {
-        this.activa = activa;
-    }
-
-    public List<Docente> getDocentes() {
-        return docentes;
-    }
-
-    public void setDocentes(List<Docente> docentes) {
-        this.docentes = docentes;
-    }
-
-    public List<AnioCarrera> getAnios() {
-        return anios;
-    }
-
-    public void setAnios(List<AnioCarrera> anios) {
-        this.anios = anios;
-    }
-
-    public int getCupoMaximo() {
-        return cupoMaximo;
-    }
-
-    public void setCupoMaximo(int cupoMaximo) {
-        this.cupoMaximo = cupoMaximo;
-    }
-
-    @Override
-    public String toString() {
-        return "Carrera{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", descripcion='" + descripcion + '\'' +
-                ", activa=" + activa +
-                '}';
-    }
 }

@@ -5,5 +5,7 @@ public enum TipoDocumento {
     DNI_DORSO,
     TITULO,
     FOTO_CARNET,
-    COMPROBANTE_PAGO
+    ACTA_NACIMIENTO,
+    PSICOFISICO,
+    BUENA_CONDUCTA
 }

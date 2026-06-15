@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Data
@@ -12,23 +11,45 @@ public class Alumno {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id = null;
-    private String nombres = null;
-    private String apellidos= null;
-    private String dni = null;
-    private String direccion = null;
-    private String email = null;
-    private String cuil= null;
-    private String telefono = null;
-    private LocalDate fechaNac= null;
-    private Boolean status= null;
+    private Long id;
 
-   // @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
-    //private List<Documento> documentos;
+    @Column(nullable = false)
+    private String nombres;
+
+    @Column(nullable = false)
+    private String apellidos;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String dni;
+
+    @Column(length = 20)
+    private String cuil;
+
+    @Column(unique = true)
+    private String email;
+
+    @Column(length = 50)
+    private String telefono;
+
+    private String direccion;
+
+    @Column(length = 100)
+    private String localidad;
+
+    @Column(name = "fecha_nac")
+    private LocalDate fechaNac;
+
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
+
+    @Column(nullable = false)
+    private boolean habilitado = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "carrera_id")
+    private Carrera carrera;
 
     @OneToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", unique = true)
     private Usuario usuario;
-
-
 }

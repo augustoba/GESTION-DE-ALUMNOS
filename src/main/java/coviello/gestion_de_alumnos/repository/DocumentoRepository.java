@@ -1,22 +1,11 @@
 package coviello.gestion_de_alumnos.repository;
 
 import coviello.gestion_de_alumnos.model.Documento;
-import coviello.gestion_de_alumnos.model.EstadoDocumento;
-import coviello.gestion_de_alumnos.model.TipoDocumento;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-import java.util.Optional;
-
+/**
+ * @deprecated Usar DocumentoChecklistRepository o DocumentoDigitalRepository.
+ */
+@Deprecated
 public interface DocumentoRepository extends JpaRepository<Documento, Long> {
-
-    List<Documento> findByPreinscripcionId(Long preinscripcionId);
-
-    Optional<Documento> findByPreinscripcionIdAndTipo(Long preinscripcionId, TipoDocumento tipo);
-
-    long countByPreinscripcionIdAndTipoInAndEstado(Long preinscripcionId, List<TipoDocumento> tipos, EstadoDocumento estado);
-
-    List<Documento> findByPreinscripcionIdAndEstado(Long preinscripcionId, EstadoDocumento estado);
-
-    long countByPreinscripcionIdAndTipoIn(Long preinscripcionId, List<TipoDocumento> tipos);
 }

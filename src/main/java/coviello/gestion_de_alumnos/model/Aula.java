@@ -2,17 +2,19 @@ package coviello.gestion_de_alumnos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@NoArgsConstructor
-public class Rol {
+public class Aula {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String nombre; // SUPER_ADMIN | ADMIN | DOCENTE | ALUMNO
+    @Column(nullable = false, length = 100)
+    private String nombre;
+
+    private Integer capacidad;
+
+    private String descripcion;
 }

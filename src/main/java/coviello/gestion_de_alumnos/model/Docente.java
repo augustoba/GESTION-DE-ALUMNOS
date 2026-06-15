@@ -3,35 +3,33 @@ package coviello.gestion_de_alumnos.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
-
 @Entity
 @Data
 public class Docente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nombres;
+
+    @Column(nullable = false)
     private String apellidos;
+
+    @Column(unique = true, length = 20)
     private String dni;
+
+    @Column(unique = true)
     private String email;
+
+    @Column(length = 50)
     private String telefono;
 
     @Column(nullable = false)
     private boolean activo = true;
-    @ManyToMany
-    @JoinTable(
-            name = "docente_materia",
-            joinColumns = @JoinColumn(name = "docente_id"),
-            inverseJoinColumns = @JoinColumn(name = "materia_id")
-    )
-    private List<Materia> materias;
+
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")
     private Usuario usuario;
-
-
 }

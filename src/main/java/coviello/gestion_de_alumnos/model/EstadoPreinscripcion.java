@@ -1,10 +1,8 @@
 package coviello.gestion_de_alumnos.model;
 
 public enum EstadoPreinscripcion {
-    ENVIADA,
-    PENDIENTE_PAGO,
-    PAGO_VALIDADO,
-    DOCUMENTOS_COMPLETOS,
-    APROBADA,
-    EXPIRADA
+    PENDIENTE,
+    EN_REVISION,
+    HABILITADO,
+    RECHAZADO
 }

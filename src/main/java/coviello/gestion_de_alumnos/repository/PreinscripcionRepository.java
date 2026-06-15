@@ -1,32 +1,28 @@
 package coviello.gestion_de_alumnos.repository;
 
-import coviello.gestion_de_alumnos.model.EstadoDocumento;
 import coviello.gestion_de_alumnos.model.EstadoPreinscripcion;
 import coviello.gestion_de_alumnos.model.Preinscripcion;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PreinscripcionRepository extends JpaRepository<Preinscripcion, Long> {
 
-    List<Preinscripcion> findByEmail(String email);
+    Optional<Preinscripcion> findByCodigoFormulario(String codigoFormulario);
 
-    List<Preinscripcion> findByDni(String dni);
+    Optional<Preinscripcion> findByDni(String dni);
 
     List<Preinscripcion> findByEstado(EstadoPreinscripcion estado);
 
-    List<Preinscripcion> findByEstadoAndFechaCreacionBefore(
-            EstadoPreinscripcion estado, LocalDateTime fechaLimite);
+    Page<Preinscripcion> findByEstado(EstadoPreinscripcion estado, Pageable pageable);
+
+    Page<Preinscripcion> findByApellidoContainingIgnoreCaseOrNombreContainingIgnoreCase(
+            String apellido, String nombre, Pageable pageable);
 
     long countByCarreraIdAndEstadoNot(Long carreraId, EstadoPreinscripcion estadoExcluido);
-
-    @Query("SELECT DISTINCT p FROM Preinscripcion p JOIN p.documentos d WHERE d.estado = :estado")
-    List<Preinscripcion> findDistinctByDocumentosEstado(@Param("estado") EstadoDocumento estado);
-
-    List<Preinscripcion> findByCarreraIdInAndEstado(List<Long> carreraIds, EstadoPreinscripcion estado);
 }
