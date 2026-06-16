@@ -1,7 +1,8 @@
 package coviello.gestion_de_alumnos.dto;
 
-public record CarreraRequest(
+public record ComisionRequest(
     String nombre,
-    String descripcion,
+    int cupoMaximo,
+    String prefijoTurno,
     Boolean activa
 ) {}

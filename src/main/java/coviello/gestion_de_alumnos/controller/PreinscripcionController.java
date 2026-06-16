@@ -144,10 +144,11 @@ public class PreinscripcionController {
     @PutMapping("/{id}/habilitar")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @Operation(summary = "Habilitar como alumno (ADMIN)",
-               description = "Crea el usuario alumno, lo habilita y envía email de bienvenida.")
-    public ResponseEntity<ApiResponse> habilitar(@PathVariable Long id) {
+               description = "Crea el usuario alumno, lo asigna a la comisión indicada y envía email de bienvenida.")
+    public ResponseEntity<ApiResponse> habilitar(@PathVariable Long id,
+                                                  @RequestBody HabilitarAlumnoRequest req) {
         return ResponseEntity.ok(new ApiResponse("Alumno habilitado. Se envió email de bienvenida.",
-                preinscripcionService.habilitarComoAlumno(id)));
+                preinscripcionService.habilitarComoAlumno(id, req.comisionId())));
     }
 
     @PutMapping("/{id}/rechazar")

@@ -235,8 +235,8 @@ public class TurnoService {
     }
 
     private TurnoResponse crearTurno(Preinscripcion pre, ConfiguracionTurno config) {
-        String prefijo = pre.getCarrera() != null && pre.getCarrera().getPrefijoTurno() != null
-                ? pre.getCarrera().getPrefijoTurno() : "T";
+        String prefijo = (pre.getCarrera() != null && pre.getCarrera().getNombre() != null)
+                ? pre.getCarrera().getNombre().substring(0, 1).toUpperCase() : "T";
         long siguiente = pre.getCarrera() != null
                 ? turnoRepository.countByConfiguracionTurnoIdAndCarreraId(config.getId(), pre.getCarrera().getId()) + 1
                 : turnoRepository.countByConfiguracionTurnoId(config.getId()) + 1;
@@ -255,7 +255,7 @@ public class TurnoService {
         turno.setCarrera(pre.getCarrera());
         turno.setNumeroTurno(numeroTurno);
         turno.setHoraAsignada(horaAsignada);
-        turno.setConfirmado(false);
+        turno.setConfirmado(true);
         turno.setTokenConfirmacion(UUID.randomUUID().toString());
 
         TurnoAsignado guardado = turnoRepository.save(turno);
@@ -265,8 +265,7 @@ public class TurnoService {
                 String nombre = pre.getNombre() + " " + pre.getApellido();
                 String fecha = config.getFecha().toString();
                 String hora = horaAsignada.toString();
-                String urlConfirmacion = "/turnos/confirmar/" + guardado.getTokenConfirmacion();
-                emailService.enviarTurnoAsignado(pre.getEmail(), nombre, numeroTurno, fecha, hora, urlConfirmacion);
+                emailService.enviarTurnoAsignado(pre.getEmail(), nombre, numeroTurno, fecha, hora);
             } catch (MailException e) {
                 log.error("No se pudo enviar email de turno a {}: {}", pre.getEmail(), e.getMessage());
             }

@@ -6,6 +6,7 @@ import coviello.gestion_de_alumnos.dto.PreinscripcionDetalleResponse;
 import coviello.gestion_de_alumnos.dto.PreinscripcionRequest;
 import coviello.gestion_de_alumnos.model.*;
 import coviello.gestion_de_alumnos.repository.*;
+import coviello.gestion_de_alumnos.repository.ComisionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ public class PreinscripcionService {
 
     private final PreinscripcionRepository preinscripcionRepository;
     private final CarreraRepository carreraRepository;
+    private final ComisionRepository comisionRepository;
     private final DocumentoChecklistRepository checklistRepository;
     private final PagoRepository pagoRepository;
     private final AlumnoRepository alumnoRepository;
@@ -37,6 +39,7 @@ public class PreinscripcionService {
 
     public PreinscripcionService(PreinscripcionRepository preinscripcionRepository,
                                  CarreraRepository carreraRepository,
+                                 ComisionRepository comisionRepository,
                                  DocumentoChecklistRepository checklistRepository,
                                  PagoRepository pagoRepository,
                                  AlumnoRepository alumnoRepository,
@@ -47,6 +50,7 @@ public class PreinscripcionService {
                                  PdfService pdfService) {
         this.preinscripcionRepository = preinscripcionRepository;
         this.carreraRepository = carreraRepository;
+        this.comisionRepository = comisionRepository;
         this.checklistRepository = checklistRepository;
         this.pagoRepository = pagoRepository;
         this.alumnoRepository = alumnoRepository;
@@ -81,7 +85,6 @@ public class PreinscripcionService {
         if (req.carreraId() != null) {
             Carrera carrera = carreraRepository.findById(req.carreraId())
                     .orElseThrow(() -> new RuntimeException("Carrera no encontrada: " + req.carreraId()));
-            verificarCupo(carrera);
             pre.setCarrera(carrera);
         }
 
@@ -176,26 +179,28 @@ public class PreinscripcionService {
     }
 
     @Transactional
-    public Preinscripcion habilitarComoAlumno(Long id) {
+    public Preinscripcion habilitarComoAlumno(Long id, Long comisionId) {
         Preinscripcion pre = obtenerPorId(id);
+
+        Comision comision = comisionRepository.findById(comisionId)
+                .orElseThrow(() -> new RuntimeException("Comisión no encontrada con ID: " + comisionId));
+
+        verificarCupoComision(comision);
 
         if (pre.getAlumno() == null) {
             Rol rolAlumno = rolRepository.findByNombre("ALUMNO")
                     .orElseThrow(() -> new RuntimeException("Rol ALUMNO no encontrado"));
 
-            // Generar token de activación (válido 72 hs)
             String token = UUID.randomUUID().toString();
 
             Usuario usuario = new Usuario();
             usuario.setUsername(pre.getEmail());
-            // Contraseña inutilizable hasta que el alumno active su cuenta
             usuario.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             usuario.setRol(rolAlumno);
             usuario.setTokenActivacion(token);
             usuario.setTokenActivacionExpiracion(LocalDateTime.now().plusHours(72));
             usuario = usuarioRepository.save(usuario);
 
-            // Crear entidad Alumno a partir de los datos de la preinscripción
             Alumno alumno = new Alumno();
             alumno.setNombres(pre.getNombre());
             alumno.setApellidos(pre.getApellido());
@@ -206,25 +211,28 @@ public class PreinscripcionService {
             alumno.setLocalidad(pre.getLocalidad());
             alumno.setFechaNac(pre.getFechaNacimiento());
             alumno.setFotoUrl(pre.getFotoUrl());
-            alumno.setCarrera(pre.getCarrera());
+            alumno.setComision(comision);
             alumno.setHabilitado(true);
             alumno.setUsuario(usuario);
             alumno = alumnoRepository.save(alumno);
 
             pre.setAlumno(alumno);
 
-            // Enviar email con link de activación
             try {
                 String nombre = pre.getNombre() + " " + pre.getApellido();
-                String carrera = pre.getCarrera() != null ? pre.getCarrera().getNombre() : "la carrera seleccionada";
-                emailService.enviarActivacionCuenta(pre.getEmail(), nombre, carrera, token);
+                String carreraNombre = comision.getAnioCarrera() != null
+                        && comision.getAnioCarrera().getCarrera() != null
+                        ? comision.getAnioCarrera().getCarrera().getNombre()
+                        : "la carrera seleccionada";
+                emailService.enviarActivacionCuenta(pre.getEmail(), nombre, carreraNombre, token);
             } catch (MailException e) {
                 log.error("No se pudo enviar email de activación a {}: {}", pre.getEmail(), e.getMessage());
             }
         } else {
-            // El alumno ya existe — solo habilitarlo
-            pre.getAlumno().setHabilitado(true);
-            alumnoRepository.save(pre.getAlumno());
+            Alumno alumno = pre.getAlumno();
+            alumno.setHabilitado(true);
+            alumno.setComision(comision);
+            alumnoRepository.save(alumno);
         }
 
         pre.setEstado(EstadoPreinscripcion.HABILITADO);
@@ -239,12 +247,14 @@ public class PreinscripcionService {
     }
 
 
-    private void verificarCupo(Carrera carrera) {
-        if (carrera.getCupoMaximo() == 0) return;
-        long activos = preinscripcionRepository.countByCarreraIdAndEstadoNot(
-                carrera.getId(), EstadoPreinscripcion.RECHAZADO);
-        if (activos >= carrera.getCupoMaximo()) {
-            throw new RuntimeException("No hay cupos disponibles para la carrera: " + carrera.getNombre());
+    private void verificarCupoComision(Comision comision) {
+        if (comision.getCupoMaximo() == 0) return;
+        long ocupado = alumnoRepository.countByComisionId(comision.getId());
+        if (ocupado >= comision.getCupoMaximo()) {
+            throw new RuntimeException(
+                "No hay cupos disponibles en la comisión \"" + comision.getNombre() + "\". "
+                + "Capacidad máxima: " + comision.getCupoMaximo() + ", alumnos actuales: " + ocupado
+            );
         }
     }
 }

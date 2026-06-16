@@ -25,12 +25,6 @@ public class Carrera {
 
     private Boolean activa = true;
 
-    @Column(name = "cupo_maximo")
-    private int cupoMaximo = 0;
-
-    @Column(name = "prefijo_turno", length = 5)
-    private String prefijoTurno;
-
     @JsonIgnore
     @OneToMany(mappedBy = "carrera", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("numeroAnio ASC")

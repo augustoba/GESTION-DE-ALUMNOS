@@ -15,15 +15,21 @@ public class CarreraService {
     private final AnioCarreraRepository anioCarreraRepository;
     private final MateriaRepository materiaRepository;
     private final DocenteRepository docenteRepository;
+    private final ComisionRepository comisionRepository;
+    private final AlumnoRepository alumnoRepository;
 
     public CarreraService(CarreraRepository carreraRepository,
                           AnioCarreraRepository anioCarreraRepository,
                           MateriaRepository materiaRepository,
-                          DocenteRepository docenteRepository) {
+                          DocenteRepository docenteRepository,
+                          ComisionRepository comisionRepository,
+                          AlumnoRepository alumnoRepository) {
         this.carreraRepository = carreraRepository;
         this.anioCarreraRepository = anioCarreraRepository;
         this.materiaRepository = materiaRepository;
         this.docenteRepository = docenteRepository;
+        this.comisionRepository = comisionRepository;
+        this.alumnoRepository = alumnoRepository;
     }
 
     public List<Carrera> obtenerTodas() {
@@ -45,7 +51,7 @@ public class CarreraService {
                 .toList();
         return new CarreraDetalleResponse(
                 carrera.getId(), carrera.getNombre(), carrera.getDescripcion(),
-                carrera.getActiva(), carrera.getCupoMaximo(), anios
+                carrera.getActiva(), anios
         );
     }
 
@@ -54,8 +60,6 @@ public class CarreraService {
         c.setNombre(req.nombre());
         c.setDescripcion(req.descripcion());
         c.setActiva(req.activa() != null ? req.activa() : true);
-        c.setCupoMaximo(req.cupoMaximo());
-        c.setPrefijoTurno(req.prefijoTurno());
         return carreraRepository.save(c);
     }
 
@@ -64,9 +68,41 @@ public class CarreraService {
         c.setNombre(req.nombre());
         c.setDescripcion(req.descripcion());
         if (req.activa() != null) c.setActiva(req.activa());
-        c.setCupoMaximo(req.cupoMaximo());
-        if (req.prefijoTurno() != null) c.setPrefijoTurno(req.prefijoTurno());
         return carreraRepository.save(c);
+    }
+
+    // ── Comisiones ────────────────────────────────────────────────
+
+    @Transactional
+    public ComisionResponse agregarComision(Long anioId, ComisionRequest req) {
+        AnioCarrera anio = anioCarreraRepository.findById(anioId)
+                .orElseThrow(() -> new RuntimeException("Año no encontrado con ID: " + anioId));
+        Comision c = new Comision();
+        c.setAnioCarrera(anio);
+        c.setNombre(req.nombre());
+        c.setCupoMaximo(req.cupoMaximo());
+        c.setPrefijoTurno(req.prefijoTurno());
+        c.setActiva(req.activa() != null ? req.activa() : true);
+        return toComisionResponse(comisionRepository.save(c));
+    }
+
+    @Transactional
+    public ComisionResponse actualizarComision(Long comisionId, ComisionRequest req) {
+        Comision c = comisionRepository.findById(comisionId)
+                .orElseThrow(() -> new RuntimeException("Comisión no encontrada con ID: " + comisionId));
+        c.setNombre(req.nombre());
+        c.setCupoMaximo(req.cupoMaximo());
+        c.setPrefijoTurno(req.prefijoTurno());
+        if (req.activa() != null) c.setActiva(req.activa());
+        return toComisionResponse(comisionRepository.save(c));
+    }
+
+    @Transactional
+    public void eliminarComision(Long comisionId) {
+        if (!comisionRepository.existsById(comisionId)) {
+            throw new RuntimeException("Comisión no encontrada con ID: " + comisionId);
+        }
+        comisionRepository.deleteById(comisionId);
     }
 
     public void eliminarCarrera(Long id) {
@@ -151,7 +187,20 @@ public class CarreraService {
                 .stream()
                 .map(this::toMateriaResponse)
                 .toList();
-        return new AnioCarreraResponse(a.getId(), a.getNumeroAnio(), materias);
+        List<ComisionResponse> comisiones = comisionRepository
+                .findByAnioCarreraIdOrderByNombre(a.getId())
+                .stream()
+                .map(this::toComisionResponse)
+                .toList();
+        return new AnioCarreraResponse(a.getId(), a.getNumeroAnio(), materias, comisiones);
+    }
+
+    private ComisionResponse toComisionResponse(Comision c) {
+        long alumnosCount = alumnoRepository.countByComisionId(c.getId());
+        return new ComisionResponse(
+                c.getId(), c.getNombre(), c.getCupoMaximo(),
+                c.getPrefijoTurno(), c.getActiva(), alumnosCount
+        );
     }
 
     private MateriaResponse toMateriaResponse(Materia m) {

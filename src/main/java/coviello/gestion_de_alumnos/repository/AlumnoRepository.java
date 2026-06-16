@@ -17,6 +17,9 @@ public interface AlumnoRepository extends JpaRepository<Alumno, Long> {
     Optional<Alumno> findByEmail(String email);
     Optional<Alumno> findByUsuarioId(Long usuarioId);
 
-    List<Alumno> findByCarreraId(Long carreraId);
+    List<Alumno> findByComisionId(Long comisionId);
+    List<Alumno> findByComision_AnioCarrera_CarreraId(Long carreraId);
+    List<Alumno> findByComision_AnioCarreraId(Long anioCarreraId);
     List<Alumno> findByHabilitadoTrue();
+    long countByComisionId(Long comisionId);
 }

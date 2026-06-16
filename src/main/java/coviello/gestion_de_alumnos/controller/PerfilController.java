@@ -1,13 +1,9 @@
 package coviello.gestion_de_alumnos.controller;
 
 import coviello.gestion_de_alumnos.Util.ApiResponse;
-import coviello.gestion_de_alumnos.dto.ActualizarPerfilRequest;
-import coviello.gestion_de_alumnos.dto.DocumentoResumen;
-import coviello.gestion_de_alumnos.dto.PerfilResponse;
-import coviello.gestion_de_alumnos.model.Alumno;
-import coviello.gestion_de_alumnos.model.DocumentoDigital;
-import coviello.gestion_de_alumnos.model.TipoDocumento;
-import coviello.gestion_de_alumnos.repository.AlumnoRepository;
+import coviello.gestion_de_alumnos.dto.*;
+import coviello.gestion_de_alumnos.model.*;
+import coviello.gestion_de_alumnos.repository.*;
 import coviello.gestion_de_alumnos.service.DocumentoDigitalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,11 +35,20 @@ public class PerfilController {
 
     private final AlumnoRepository alumnoRepository;
     private final DocumentoDigitalService documentoDigitalService;
+    private final InscripcionMateriaRepository inscripcionMateriaRepository;
+    private final AsistenciaRepository asistenciaRepository;
+    private final ConfiguracionAsistenciaRepository configAsistenciaRepository;
 
     public PerfilController(AlumnoRepository alumnoRepository,
-                            DocumentoDigitalService documentoDigitalService) {
+                            DocumentoDigitalService documentoDigitalService,
+                            InscripcionMateriaRepository inscripcionMateriaRepository,
+                            AsistenciaRepository asistenciaRepository,
+                            ConfiguracionAsistenciaRepository configAsistenciaRepository) {
         this.alumnoRepository = alumnoRepository;
         this.documentoDigitalService = documentoDigitalService;
+        this.inscripcionMateriaRepository = inscripcionMateriaRepository;
+        this.asistenciaRepository = asistenciaRepository;
+        this.configAsistenciaRepository = configAsistenciaRepository;
     }
 
     @GetMapping
@@ -80,8 +86,7 @@ public class PerfilController {
 
     @PostMapping(value = "/documentos/{tipo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ALUMNO')")
-    @Operation(summary = "Subir documento digital (ALUMNO)",
-               description = "Sube un archivo (imagen o PDF) para el tipo de documento indicado. Reemplaza el anterior si ya existía.")
+    @Operation(summary = "Subir documento digital (ALUMNO)")
     public ResponseEntity<ApiResponse> subirDocumento(
             @PathVariable TipoDocumento tipo,
             @RequestParam("archivo") MultipartFile archivo,
@@ -112,13 +117,104 @@ public class PerfilController {
                 .body(resource);
     }
 
+    @GetMapping("/horarios")
+    @PreAuthorize("hasRole('ALUMNO')")
+    @Transactional(readOnly = true)
+    @Operation(summary = "Horario semanal del alumno: materias confirmadas con día y hora")
+    public ResponseEntity<ApiResponse> horarios(Authentication auth) {
+        Alumno alumno = resolverAlumno(auth.getName());
+
+        List<HorarioAlumnoItem> items = inscripcionMateriaRepository
+                .findByAlumnoIdAndEstado(alumno.getId(), EstadoInscripcionMateria.CONFIRMADA)
+                .stream()
+                .flatMap(i -> i.getMateria().getHorarios().stream()
+                        .map(h -> new HorarioAlumnoItem(
+                                i.getMateria().getId(),
+                                i.getMateria().getNombre(),
+                                h.getDiaSemana().name(),
+                                h.getHoraInicio().toString(),
+                                h.getHoraFin().toString(),
+                                h.getAula() != null ? h.getAula().getNombre() : null
+                        ))
+                )
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse("Horario del alumno", items));
+    }
+
+    @GetMapping("/asistencias-resumen")
+    @PreAuthorize("hasRole('ALUMNO')")
+    @Transactional(readOnly = true)
+    @Operation(summary = "Resumen de asistencia por materia para el alumno autenticado")
+    public ResponseEntity<ApiResponse> asistenciasResumen(Authentication auth) {
+        Alumno alumno = resolverAlumno(auth.getName());
+
+        List<AsistenciaResumenResponse> resumen = inscripcionMateriaRepository
+                .findByAlumnoIdAndEstado(alumno.getId(), EstadoInscripcionMateria.CONFIRMADA)
+                .stream()
+                .map(i -> {
+                    Long materiaId = i.getMateria().getId();
+                    String materiaNombre = i.getMateria().getNombre();
+
+                    long presentes = asistenciaRepository.countByAlumnoIdAndHorarioClaseMateriaIdAndEstado(
+                            alumno.getId(), materiaId, EstadoAsistencia.PRESENTE);
+                    long tardanzas = asistenciaRepository.countByAlumnoIdAndHorarioClaseMateriaIdAndEstado(
+                            alumno.getId(), materiaId, EstadoAsistencia.TARDANZA);
+                    long ausentes  = asistenciaRepository.countByAlumnoIdAndHorarioClaseMateriaIdAndEstado(
+                            alumno.getId(), materiaId, EstadoAsistencia.AUSENTE);
+
+                    long totalClases = presentes + tardanzas + ausentes;
+                    long asistidos   = presentes + tardanzas;
+                    double porcentaje = totalClases > 0 ? (double) asistidos / totalClases * 100 : 100.0;
+
+                    double minimo = obtenerPorcentajeMinimo(materiaId);
+                    boolean libre = porcentaje < minimo;
+
+                    return new AsistenciaResumenResponse(
+                            alumno.getId(),
+                            alumno.getNombres() + " " + alumno.getApellidos(),
+                            materiaId, materiaNombre,
+                            totalClases, presentes, tardanzas, ausentes,
+                            porcentaje, libre
+                    );
+                })
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse("Resumen de asistencias", resumen));
+    }
+
     private Alumno resolverAlumno(String email) {
         return alumnoRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("No se encontró un alumno para: " + email));
     }
 
     private PerfilResponse toResponse(Alumno a) {
-        return new PerfilResponse(a.getNombres(), a.getApellidos(), a.getDni(), a.getEmail(),
-                a.getTelefono(), a.getDireccion(), a.getFechaNac(), a.isHabilitado());
+        String carreraNombre = null;
+        String comisionNombre = null;
+        Integer anioNumero = null;
+        if (a.getComision() != null) {
+            comisionNombre = a.getComision().getNombre();
+            if (a.getComision().getAnioCarrera() != null) {
+                anioNumero = a.getComision().getAnioCarrera().getNumeroAnio();
+                if (a.getComision().getAnioCarrera().getCarrera() != null) {
+                    carreraNombre = a.getComision().getAnioCarrera().getCarrera().getNombre();
+                }
+            }
+        }
+        return new PerfilResponse(
+                a.getId(), a.getNombres(), a.getApellidos(), a.getDni(), a.getEmail(),
+                a.getTelefono(), a.getDireccion(), a.getFechaNac(), a.isHabilitado(),
+                carreraNombre, comisionNombre, anioNumero
+        );
+    }
+
+    private double obtenerPorcentajeMinimo(Long materiaId) {
+        return configAsistenciaRepository
+                .findByAplicaAAndMateriaId(NivelConfiguracionAsistencia.MATERIA, materiaId)
+                .map(c -> (double) c.getPorcentajeMinimo())
+                .orElseGet(() -> configAsistenciaRepository
+                        .findFirstByAplicaA(NivelConfiguracionAsistencia.GLOBAL)
+                        .map(c -> (double) c.getPorcentajeMinimo())
+                        .orElse(75.0));
     }
 }

@@ -7,6 +7,5 @@ public record CarreraDetalleResponse(
     String nombre,
     String descripcion,
     Boolean activa,
-    int cupoMaximo,
     List<AnioCarreraResponse> anios
 ) {}

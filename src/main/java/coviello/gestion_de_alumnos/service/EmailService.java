@@ -117,7 +117,7 @@ public class EmailService {
     }
 
     public void enviarTurnoAsignado(String destinatario, String nombre, String numeroTurno,
-                                    String fecha, String hora, String urlConfirmacion) {
+                                    String fecha, String hora) {
         enviar(destinatario,
                 "Tu turno de inscripción: " + numeroTurno + " - " + institucion,
                 """
@@ -129,15 +129,13 @@ public class EmailService {
                   Fecha: %s
                   Hora: %s
 
-                Para confirmar tu asistencia hacé click en el siguiente enlace:
-
-                  %s
-
-                Si no confirmás tu turno, podría ser reasignado.
+                Recordá presentarte con la documentación requerida: DNI (original y copia),
+                título secundario (original y copia), foto carné 4x4, acta de nacimiento,
+                psicofísico y certificado de buena conducta.
 
                 Saludos,
                 Administración - %s
-                """.formatted(nombre, numeroTurno, fecha, hora, urlConfirmacion, institucion));
+                """.formatted(nombre, numeroTurno, fecha, hora, institucion));
     }
 
     public void enviarNuevaContrasena(String destinatario, String nombre, String nuevaContrasena) {

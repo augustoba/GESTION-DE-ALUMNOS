@@ -25,6 +25,11 @@ public class AnioCarrera {
     @OrderBy("nombre ASC")
     private List<Materia> materias = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "anioCarrera", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("nombre ASC")
+    private List<Comision> comisiones = new ArrayList<>();
+
     public AnioCarrera() {}
 
     public Long getId() { return id; }
@@ -38,4 +43,7 @@ public class AnioCarrera {
 
     public List<Materia> getMaterias() { return materias; }
     public void setMaterias(List<Materia> materias) { this.materias = materias; }
+
+    public List<Comision> getComisiones() { return comisiones; }
+    public void setComisiones(List<Comision> comisiones) { this.comisiones = comisiones; }
 }

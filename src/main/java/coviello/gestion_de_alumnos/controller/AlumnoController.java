@@ -3,6 +3,7 @@ package coviello.gestion_de_alumnos.controller;
 import coviello.gestion_de_alumnos.Util.ApiResponse;
 import coviello.gestion_de_alumnos.model.Alumno;
 import coviello.gestion_de_alumnos.service.AlumnoService;
+import coviello.gestion_de_alumnos.dto.AlumnoAdminResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +59,13 @@ public class AlumnoController {
                 alumnoService.listarPorCarrera(carreraId)));
     }
 
+    @GetMapping("/por-comision/{comisionId}")
+    @Operation(summary = "Listar alumnos de una comisión")
+    public ResponseEntity<ApiResponse> porComision(@PathVariable Long comisionId) {
+        return ResponseEntity.ok(new ApiResponse("Alumnos de la comisión",
+                alumnoService.listarPorComision(comisionId)));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtener alumno por ID")
     public ResponseEntity<ApiResponse> obtener(@PathVariable Long id) {
@@ -84,5 +92,13 @@ public class AlumnoController {
     public ResponseEntity<ApiResponse> deshabilitar(@PathVariable Long id) {
         return ResponseEntity.ok(new ApiResponse("Alumno deshabilitado",
                 alumnoService.deshabilitar(id)));
+    }
+
+    @PostMapping("/{id}/reenviar-activacion")
+    @Operation(summary = "Reenviar email de activación de cuenta",
+               description = "Genera un nuevo token (válido 72 horas) y reenvía el email de activación. Solo disponible si la cuenta aún no fue activada.")
+    public ResponseEntity<ApiResponse> reenviarActivacion(@PathVariable Long id) {
+        alumnoService.reenviarActivacion(id);
+        return ResponseEntity.ok(new ApiResponse("Email de activación reenviado correctamente.", null));
     }
 }

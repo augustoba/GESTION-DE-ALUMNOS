@@ -46,8 +46,8 @@ public class Alumno {
     private boolean habilitado = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "carrera_id")
-    private Carrera carrera;
+    @JoinColumn(name = "comision_id")
+    private Comision comision;
 
     @OneToOne
     @JoinColumn(name = "usuario_id", unique = true)

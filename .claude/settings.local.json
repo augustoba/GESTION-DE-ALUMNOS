@@ -34,7 +34,10 @@
       "PowerShell(Get-ChildItem \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\" -Name | Where-Object { $_ -match \"proxy|env\" })",
       "Bash(npx --prefix \"G:/proyecto final coviello/gestion-alumnos-front\" tsc --project \"G:/proyecto final coviello/gestion-alumnos-front/tsconfig.app.json\" --noEmit)",
       "Bash(echo \"EXIT:$?\")",
-      "Bash(xargs grep -l \"ControllerAdvice\\\\|ExceptionHandler\\\\|ServerError\\\\|GlobalException\")"
+      "Bash(xargs grep -l \"ControllerAdvice\\\\|ExceptionHandler\\\\|ServerError\\\\|GlobalException\")",
+      "PowerShell(\\(Get-Content \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\\\\src\\\\app\\\\features\\\\admin\\\\carreras\\\\admin-carrera-detalle.component.scss\"\\).Length)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(netstat *)"
     ]
   }
 }

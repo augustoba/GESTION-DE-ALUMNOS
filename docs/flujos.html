@@ -407,6 +407,156 @@
     text-align: center; font-size: 8.5pt; color: #555; margin-top: 8px;
     font-style: italic;
   }
+
+  /* ── Login dark-page background ───────────────────────── */
+  .mock-login-bg {
+    flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, rgba(0,80,118,0.93) 0%, rgba(0,40,70,0.97) 100%);
+    padding: 20px 16px; min-height: 300px;
+  }
+  .mock-inst-header {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    margin-bottom: 16px;
+  }
+  .mock-inst-logo {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color:#fff;
+  }
+  .mock-inst-name {
+    font-size: 5.8pt; font-weight: 700; color: #fff; text-align: center;
+    letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.6;
+  }
+  .mock-inst-line {
+    width: 28px; height: 2px; background: #F7941D; border-radius: 2px; margin-top: 4px;
+  }
+
+  /* ── Auth card (white card on dark or grey bg) ─────────── */
+  .mock-auth-card {
+    background: #fff; border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,0.28);
+    overflow: hidden;
+  }
+  .mock-auth-card.with-accent-border { border-top: 3px solid #F7941D; }
+  .mock-auth-card-header { padding: 14px 18px 6px; }
+  .mock-auth-title { font-size: 9pt; font-weight: 700; color: #003d52; letter-spacing: -0.02em; margin-bottom: 2px; }
+  .mock-auth-subtitle { font-size: 6pt; color: #888; }
+  .mock-auth-body { padding: 6px 18px 16px; display: flex; flex-direction: column; gap: 6px; }
+
+  /* Outline field */
+  .mock-outline-field {
+    border: 1.5px solid #B0BEC5; border-radius: 4px; padding: 5px 8px 4px;
+    display: flex; align-items: center; gap: 4px; min-height: 34px;
+  }
+  .mock-outline-field.focused { border-color: #1565C0; }
+  .mock-field-inner { flex: 1; }
+  .mock-field-label { font-size: 5pt; color: #1565C0; font-weight: 700; line-height: 1; }
+  .mock-field-value { font-size: 6.5pt; color: #555; margin-top: 1px; }
+  .mock-field-value.placeholder { color: #BBB; }
+  .mock-eye { font-size: 9px; color: #999; }
+
+  /* Nav item variants */
+  .mock-nav-item.admin-active {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border-left: 3px solid #F7941D;
+    padding-left: 1px;
+  }
+  .mock-nav-item.alumno-active {
+    background: #F7941D;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(247,148,29,0.4);
+  }
+  .mock-nav-item.alumno-active .mock-icon { color: #fff; }
+
+  /* Activar-cuenta standalone card */
+  .mock-activar-bg {
+    align-items: center; justify-content: center;
+    background: #F5F5F5; min-height: 200px;
+  }
+  .mock-activar-card {
+    background: #fff; border-radius: 12px; width: 190px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10); padding: 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .mock-activar-icon-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #005f7a, #009DC9);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #fff; margin-bottom: 2px;
+  }
+  .mock-activar-inst { font-size: 7.5pt; font-weight: 700; color: #003d52; margin-bottom: 6px; }
+  .mock-state-circle {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin: 4px 0;
+  }
+  .mock-state-circle.success { background: rgba(34,197,94,0.12); color: #16A34A; }
+  .mock-state-circle.error   { background: rgba(239,68,68,0.10); color: #B91C1C; }
+
+  /* Sidenav footer */
+  .mock-sidenav-footer {
+    margin-top: auto; border-top: 1px solid rgba(255,255,255,0.12); padding: 8px 6px;
+  }
+  .mock-user-row {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(0,0,0,0.18); padding: 5px 6px; border-radius: 4px; margin-bottom: 4px;
+  }
+  .mock-user-icon { font-size: 14px; color: rgba(255,255,255,0.5); }
+  .mock-user-name { font-size: 5.5pt; font-weight: 600; color: #fff; }
+  .mock-user-rol  { font-size: 4.5pt; color: rgba(255,255,255,0.45); text-transform: uppercase; }
+  .mock-logout-btn {
+    width: 100%; font-size: 6pt; color: rgba(255,255,255,0.55);
+    text-align: left; padding: 3px 6px; display: flex; align-items: center; gap: 4px;
+  }
+
+  /* Toolbar with back arrow */
+  .mock-toolbar-code {
+    font-family: monospace; font-size: 5.5pt; font-weight: 700;
+    background: #E3F2FD; color: #1565C0; padding: 1px 5px; border-radius: 3px;
+    margin-left: 4px;
+  }
+  .mock-toolbar-estado {
+    font-size: 5.5pt; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+  }
+  .mock-toolbar-estado.info { background: #DBEAFE; color: #1D4ED8; }
+  .mock-toolbar-estado.warn { background: #FEF3C7; color: #92400E; }
+
+  /* Mat-card style */
+  .mock-mat-card {
+    background: #fff; border-radius: 6px; border: 1px solid #E0E0E0;
+    padding: 10px 12px; margin-bottom: 7px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .mock-mat-card-title { font-size: 7.5pt; font-weight: 700; color: #003d52; margin-bottom: 2px; }
+  .mock-mat-card-sub { font-size: 6pt; color: #888; margin-bottom: 8px; }
+
+  /* Button-toggle group */
+  .mock-btn-toggle-group {
+    display: flex; gap: 0; border-radius: 4px; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-top: 5px;
+  }
+  .mock-btn-toggle {
+    font-size: 5.5pt; font-weight: 600; padding: 4px 8px;
+    background: #fff; border: 1px solid #E0E0E0; color: #666;
+    display: flex; align-items: center; gap: 2px;
+  }
+  .mock-btn-toggle.active { background: #1565C0; color: #fff; border-color: #1565C0; }
+
+  /* Acceso rápido cards (dashboard) */
+  .mock-quick-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 8px;
+  }
+  .mock-quick-card {
+    background: #fff; border-radius: 6px; padding: 7px 5px; text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06); font-size: 5.5pt; color: #003d52; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .mock-quick-icon { font-size: 13px; }
+
+  /* Stat cards grid */
+  .mock-stats-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin: 6px 0; }
+  .mock-stat-icon { font-size: 12px; }
 </style>
 </head>
 <body>
@@ -468,14 +618,14 @@
   <div class="toc-section mt-8"><a href="#superadmin">2. SUPER_ADMIN — Camino Feliz</a>
     <div class="toc-sub"><a href="#sa-usuarios">Crear administradores y docentes</a></div>
     <div class="toc-sub"><a href="#sa-permisos">Gestión de permisos</a></div>
-    <div class="toc-sub"><a href="#sa-carreras">Configurar carreras y períodos</a></div>
+    <div class="toc-sub"><a href="#sa-carreras">Configurar carreras, años y comisiones</a></div>
     <div class="toc-sub"><a href="#sa-calendario">Calendario académico</a></div>
   </div>
   <div class="toc-section mt-8"><a href="#admin">3. ADMIN — Camino Feliz</a>
     <div class="toc-sub"><a href="#ad-preinscripciones">Gestión de preinscripciones</a></div>
     <div class="toc-sub"><a href="#ad-pago">Registro de pago en efectivo</a></div>
     <div class="toc-sub"><a href="#ad-checklist">Checklist de documentación física</a></div>
-    <div class="toc-sub"><a href="#ad-habilitar">Habilitación del alumno</a></div>
+    <div class="toc-sub"><a href="#ad-habilitar">Habilitación del alumno (selección de comisión)</a></div>
     <div class="toc-sub"><a href="#ad-turnos">Asignación de turnos</a></div>
   </div>
   <div class="toc-section mt-8"><a href="#docente">4. DOCENTE — Camino Feliz</a>
@@ -494,7 +644,15 @@
   <div class="toc-section mt-8"><a href="#arduino">7. Flujo de Asistencia (Arduino)</a></div>
   <div class="toc-section mt-8"><a href="#estados">8. Máquinas de Estado</a></div>
   <div class="toc-section mt-8"><a href="#endpoints">9. Referencia Completa de Endpoints</a></div>
-  <div class="toc-section mt-8"><a href="#pantallas">10. Pantallas del Sistema</a></div>
+  <div class="toc-section mt-8"><a href="#pantallas">10. Pantallas del Sistema</a>
+    <div class="toc-sub"><a href="#pantalla-admin-lista">10.5 — Admin: Lista de Preinscripciones</a></div>
+    <div class="toc-sub"><a href="#pantalla-admin-revision">10.6 — Admin: Revisión y Habilitación con Comisión</a></div>
+    <div class="toc-sub"><a href="#pantalla-dashboard">10.7 — Portal del Alumno: Dashboard</a></div>
+    <div class="toc-sub"><a href="#pantalla-docente">10.8 — Portal del Docente</a></div>
+    <div class="toc-sub"><a href="#pantalla-carreras">10.9 — Admin: Gestión de Carreras y Comisiones</a></div>
+    <div class="toc-sub"><a href="#pantalla-alumnos">10.10 — Admin: Lista de Alumnos</a></div>
+    <div class="toc-sub"><a href="#pantalla-preinscripcion">10.11 — Formulario de Preinscripción (Público)</a></div>
+  </div>
 </div>
 </div>
 
@@ -712,22 +870,52 @@ El nuevo usuario recibe un email con sus credenciales temporales.</p>
 <span class="method delete">DEL</span>    <span class="path">/api/permisos/{permisoId}</span>          <span class="comment">// Revocar permiso</span>
 </div>
 
-<h2 class="sub-h" id="sa-carreras">2.3 — Configurar carreras y períodos</h2>
+<h2 class="sub-h" id="sa-carreras">2.3 — Configurar carreras, años y comisiones</h2>
+<p>La jerarquía es: <strong>Carrera → Año (AnioCarrera) → Comisión</strong>. Los cupos y prefijos de turno se configuran por comisión, no por carrera.</p>
 <div class="grid-2">
   <div>
     <h3 class="minor-h">Crear una carrera</h3>
     <div class="endpoint" style="margin-top:6px">
 <span class="method post">POST</span><span class="path">/api/carreras</span>
 {
-  <span class="json-key">"nombre"</span>:       <span class="json-str">"Tecnicatura en Informática"</span>,
-  <span class="json-key">"descripcion"</span>:  <span class="json-str">"Carrera de 3 años"</span>,
-  <span class="json-key">"activa"</span>:       <span class="json-bool">true</span>,
-  <span class="json-key">"cupoMaximo"</span>:   <span class="json-num">40</span>,
-  <span class="json-key">"prefijoTurno"</span>: <span class="json-str">"A"</span>
+  <span class="json-key">"nombre"</span>:      <span class="json-str">"Tecnicatura en Informática"</span>,
+  <span class="json-key">"descripcion"</span>: <span class="json-str">"Carrera de 3 años"</span>,
+  <span class="json-key">"activa"</span>:      <span class="json-bool">true</span>
 }
+
+<span class="method get">GET</span>  <span class="path">/api/carreras</span>        <span class="comment">// Lista de carreras</span>
+<span class="method get">GET</span>  <span class="path">/api/carreras/{id}</span>   <span class="comment">// Detalle con años y comisiones</span>
+<span class="method put">PUT</span>  <span class="path">/api/carreras/{id}</span>
+<span class="method delete">DEL</span>  <span class="path">/api/carreras/{id}</span>
     </div>
-    <p class="small text-secondary">El <code>prefijoTurno</code> genera los números de turno: A1, A2, A3...</p>
   </div>
+  <div>
+    <h3 class="minor-h">Crear comisiones por año</h3>
+    <div class="endpoint" style="margin-top:6px">
+<span class="comment">// 1° agregar un año a la carrera:</span>
+<span class="method post">POST</span><span class="path">/api/carreras/{id}/anios</span>
+{ <span class="json-key">"numeroAnio"</span>: <span class="json-num">1</span> }
+
+<span class="comment">// 2° crear comisión dentro del año:</span>
+<span class="method post">POST</span><span class="path">/api/carreras/anios/{anioId}/comisiones</span>
+{
+  <span class="json-key">"nombre"</span>:       <span class="json-str">"Comisión A"</span>,
+  <span class="json-key">"cupoMaximo"</span>:   <span class="json-num">30</span>,  <span class="comment">// 0 = sin límite</span>
+  <span class="json-key">"prefijoTurno"</span>: <span class="json-str">"A"</span>,  <span class="comment">// genera A1, A2...</span>
+  <span class="json-key">"activa"</span>:       <span class="json-bool">true</span>
+}
+<span class="method put">PUT</span>  <span class="path">/api/carreras/comisiones/{id}</span>
+<span class="method delete">DEL</span>  <span class="path">/api/carreras/comisiones/{id}</span>
+    </div>
+  </div>
+</div>
+<div class="info-box note">
+  <strong>Ejemplo: 1° año de Informática con dos secciones</strong>
+  Se crean dos comisiones: <em>"Comisión A" (mañana, cupo 30)</em> y <em>"Comisión B" (tarde, cupo 25)</em>.
+  Al habilitar un aspirante, el ADMIN elige en cuál de las dos queda inscripto.
+</div>
+
+<div class="grid-2 mt-8">
   <div>
     <h3 class="minor-h">Crear un período de inscripción</h3>
     <div class="endpoint" style="margin-top:6px">
@@ -883,16 +1071,24 @@ No se suben archivos — es solo un registro de presencia física.</p>
 
 <div class="endpoint">
 <span class="method put">PUT</span> <span class="path">/api/preinscripciones/{id}/en-revision</span>  <span class="comment">// PENDIENTE → EN_REVISION</span>
-<span class="method put">PUT</span> <span class="path">/api/preinscripciones/{id}/habilitar</span>     <span class="comment">// → HABILITADO (crea Alumno + Usuario)</span>
 <span class="method put">PUT</span> <span class="path">/api/preinscripciones/{id}/rechazar</span>      <span class="comment">// → RECHAZADO</span>
+
+<span class="comment">// Habilitar requiere seleccionar comisión:</span>
+<span class="method put">PUT</span> <span class="path">/api/preinscripciones/{id}/habilitar</span>     <span class="comment">// → HABILITADO (crea Alumno + Usuario)</span>
+{
+  <span class="json-key">"comisionId"</span>: <span class="json-num">3</span>   <span class="comment">// ID de la comisión elegida por el ADMIN</span>
+}
+<span class="comment">// Error 400 si la comisión no tiene cupo disponible</span>
 </div>
 
 <div class="info-box ok">
   <strong>¿Qué ocurre al habilitar?</strong>
-  El sistema crea automáticamente: (1) un registro <code>Usuario</code> con rol <code>ALUMNO</code>
-  (con contraseña bloqueada hasta la activación), (2) un registro <code>Alumno</code> con todos los datos de la preinscripción,
+  El ADMIN primero selecciona la <strong>comisión</strong> (sección) del año correspondiente donde quedará inscripto
+  el aspirante. El sistema verifica el cupo disponible y luego crea automáticamente:
+  (1) un registro <code>Alumno</code> asignado a la comisión elegida,
+  (2) un <code>Usuario</code> con rol <code>ALUMNO</code> (contraseña bloqueada hasta activación),
   y (3) envía al aspirante un email con un <strong>enlace de activación</strong> (válido 72 hs) que lo lleva a
-  <code>/auth/activar?token=UUID</code> para elegir su propia contraseña la primera vez.
+  <code>/auth/activar?token=UUID</code> para elegir su propia contraseña.
 </div>
 
 <h2 class="sub-h" id="ad-turnos">3.5 — Asignar turno de atención presencial</h2>
@@ -1349,18 +1545,20 @@ No requiere login.</p>
   <text x="340" y="336" text-anchor="middle" fill="#1565C0" font-size="9">POST .../checklist/FOTO ...</text>
   <line x1="340" y1="269" x2="340" y2="290" stroke="#1565C0" stroke-width="1.5" marker-end="url(#bl)"/>
 
-  <!-- Step 7: Admin habilita -->
-  <rect x="250" y="365" width="180" height="44" rx="6" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/>
-  <text x="340" y="383" text-anchor="middle" fill="#1565C0" font-weight="700">7. Habilita al alumno</text>
-  <text x="340" y="399" text-anchor="middle" fill="#1565C0" font-size="9">PUT .../habilitar</text>
+  <!-- Step 7: Admin selecciona comision y habilita -->
+  <rect x="250" y="365" width="180" height="55" rx="6" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="340" y="381" text-anchor="middle" fill="#1565C0" font-weight="700">7. Selecciona comisión</text>
+  <text x="340" y="395" text-anchor="middle" fill="#1565C0" font-size="9">y habilita al alumno</text>
+  <text x="340" y="409" text-anchor="middle" fill="#1565C0" font-size="9">PUT .../habilitar { comisionId }</text>
   <line x1="340" y1="345" x2="340" y2="365" stroke="#1565C0" stroke-width="1.5" marker-end="url(#bl)"/>
 
   <!-- Arrow to sistema: crea alumno -->
-  <line x1="430" y1="387" x2="490" y2="387" stroke="#1565C0" stroke-width="1.5" marker-end="url(#gy)"/>
-  <rect x="490" y="367" width="180" height="55" rx="6" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/>
+  <line x1="430" y1="390" x2="490" y2="390" stroke="#1565C0" stroke-width="1.5" marker-end="url(#gy)"/>
+  <rect x="490" y="367" width="180" height="65" rx="6" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/>
   <text x="580" y="385" text-anchor="middle" fill="#37474F" font-weight="700">8. Crea Alumno+Usuario</text>
   <text x="580" y="399" text-anchor="middle" fill="#546E7A" font-size="9">rol: ALUMNO</text>
-  <text x="580" y="413" text-anchor="middle" fill="#546E7A" font-size="9">contraseña temporal generada</text>
+  <text x="580" y="413" text-anchor="middle" fill="#546E7A" font-size="9">asignado a comisión elegida</text>
+  <text x="580" y="425" text-anchor="middle" fill="#546E7A" font-size="9">verifica cupo disponible</text>
 
   <!-- Email al alumno -->
   <line x1="490" y1="398" x2="190" y2="460" stroke="#546E7A" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gr)"/>
@@ -1892,15 +2090,15 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
         </div>
         <div class="mock-nav-item">
           <div class="mock-icon">🎓</div>
+          <span>Alumnos</span>
+        </div>
+        <div class="mock-nav-item">
+          <div class="mock-icon">📚</div>
           <span>Carreras</span>
         </div>
         <div class="mock-nav-item">
           <div class="mock-icon">👥</div>
           <span>Docentes</span>
-        </div>
-        <div class="mock-nav-item">
-          <div class="mock-icon">👑</div>
-          <span>Usuarios</span>
         </div>
       </div>
     </div>
@@ -1953,7 +2151,8 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
       <div class="mock-logo">🎓</div>
       <div class="mock-nav">
         <div class="mock-nav-item active"><div class="mock-icon">📋</div><span>Preinsc.</span></div>
-        <div class="mock-nav-item"><div class="mock-icon">🎓</div><span>Carreras</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">🎓</div><span>Alumnos</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">📚</div><span>Carreras</span></div>
         <div class="mock-nav-item"><div class="mock-icon">👥</div><span>Docentes</span></div>
       </div>
     </div>
@@ -1964,12 +2163,11 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
         <span style="font-size:6pt;font-family:monospace;background:#E3F2FD;color:#1565C0;padding:2px 7px;border-radius:4px;margin-left:4px">PRE-2026-0001</span>
         <span class="mock-spacer"></span>
         <span class="mock-chip chip-rev" style="font-size:6.5pt;padding:3px 9px">👁 EN REVISIÓN</span>
-        <div class="mock-icon-btn" style="margin-left:6px">🌙</div>
       </div>
       <div class="mock-content" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start">
         <!-- Datos personales -->
         <div class="mock-section-card" style="grid-column:1/-1">
-          <div class="mock-card-title">👤 García, María · Tec. en Informática</div>
+          <div class="mock-card-title">👤 García, María · Tec. en Sistemas Informáticos</div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:6pt;color:#666">
             <div><div style="font-size:5.5pt;color:#999;text-transform:uppercase">DNI</div>30123456</div>
             <div><div style="font-size:5.5pt;color:#999;text-transform:uppercase">Email</div>mgarcia@gmail.com</div>
@@ -2004,8 +2202,8 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
         </div>
         <!-- Acciones -->
         <div style="grid-column:1/-1;display:flex;gap:7px;align-items:center;padding:8px 0">
-          <div style="background:#005f7a;color:#fff;font-size:7pt;padding:5px 12px;border-radius:5px;font-weight:700">👤 Habilitar alumno</div>
-          <div style="border:1.5px solid #EEE;color:#555;font-size:7pt;padding:5px 12px;border-radius:5px">📋 Pasar a En Revisión</div>
+          <div style="background:#1565C0;color:#fff;font-size:7pt;padding:5px 12px;border-radius:5px;font-weight:700">✓ Habilitar alumno</div>
+          <div style="border:1.5px solid #EEE;color:#555;font-size:7pt;padding:5px 12px;border-radius:5px">👁 Pasar a En Revisión</div>
           <div style="border:1.5px solid #F87171;color:#B91C1C;font-size:7pt;padding:5px 12px;border-radius:5px">✕ Rechazar</div>
         </div>
       </div>
@@ -2013,6 +2211,65 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
   </div>
 </div>
 <div class="screen-caption">Pantalla de revisión — el ADMIN gestiona pago, checklist de documentos y habilita o rechaza al aspirante</div>
+
+<!-- Diálogo selección de comisión -->
+<h3 class="minor-h" style="margin-top:20px">Diálogo: Seleccionar comisión al habilitar</h3>
+<p class="small text-secondary">Al hacer clic en "Habilitar alumno" se carga el detalle de la carrera y se abre un diálogo para elegir la comisión (sección) donde quedará inscripto el aspirante. Las comisiones llenas aparecen deshabilitadas.</p>
+
+<div style="max-width:360px;margin:14px auto 4px">
+  <div class="screen-frame">
+    <div class="screen-chrome">
+      <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+      <div class="chrome-url">localhost:4200/admin/revision/1 — diálogo</div>
+    </div>
+    <div class="screen-body" style="min-height:260px;background:#F5F5F5;align-items:center;justify-content:center">
+      <!-- Dialog -->
+      <div style="background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:260px;padding:0 0 12px">
+        <!-- Dialog header -->
+        <div style="padding:14px 16px 8px;border-bottom:1px solid #EEE">
+          <div style="font-size:9pt;font-weight:700;color:#1A1A1A">Seleccionar comisión</div>
+          <div style="font-size:6.5pt;color:#888;margin-top:2px">📚 Tec. en Sistemas Informáticos</div>
+        </div>
+        <!-- Año 1 -->
+        <div style="padding:8px 14px 4px">
+          <div style="font-size:7pt;font-weight:700;color:#555;margin-bottom:5px">1° Año</div>
+          <!-- Comisión A -->
+          <div style="border:1.5px solid #1565C0;border-radius:7px;padding:6px 10px;margin-bottom:5px;cursor:pointer;background:#F0F7FF">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:7.5pt;font-weight:700;color:#1565C0">Comisión A</span>
+              <span style="font-size:6pt;background:#DCFCE7;color:#15803D;padding:1px 6px;border-radius:8px;font-weight:700">Activa</span>
+            </div>
+            <div style="font-size:6pt;color:#777;margin-top:3px">12 / 30 alumnos · Prefijo: A</div>
+          </div>
+          <!-- Comisión B (llena) -->
+          <div style="border:1.5px solid #DDD;border-radius:7px;padding:6px 10px;margin-bottom:5px;opacity:0.5">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:7.5pt;font-weight:700;color:#888">Comisión B</span>
+              <span style="font-size:6pt;background:#FEE2E2;color:#991B1B;padding:1px 6px;border-radius:8px;font-weight:700">Sin cupo</span>
+            </div>
+            <div style="font-size:6pt;color:#999;margin-top:3px">30 / 30 alumnos · Prefijo: B</div>
+          </div>
+        </div>
+        <!-- Año 2 -->
+        <div style="padding:4px 14px 4px">
+          <div style="font-size:7pt;font-weight:700;color:#555;margin-bottom:5px">2° Año</div>
+          <div style="border:1.5px solid #EEE;border-radius:7px;padding:6px 10px;margin-bottom:5px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:7.5pt;font-weight:700;color:#333">Comisión Única</span>
+              <span style="font-size:6pt;background:#DCFCE7;color:#15803D;padding:1px 6px;border-radius:8px;font-weight:700">Activa</span>
+            </div>
+            <div style="font-size:6pt;color:#777;margin-top:3px">25 / 0 alumnos · Sin límite</div>
+          </div>
+        </div>
+        <!-- Buttons -->
+        <div style="display:flex;justify-content:flex-end;gap:7px;padding:4px 14px 0">
+          <div style="border:1px solid #DDD;color:#555;font-size:6.5pt;padding:4px 10px;border-radius:4px">Cancelar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-caption">Diálogo de selección de comisión — las llenas aparecen deshabilitadas</div>
+</div>
 </div><!-- fin page 10.3-4 -->
 
 <div class="page page-break">
@@ -2042,7 +2299,11 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
         <div class="mock-icon-btn">🌙</div>
       </div>
       <div class="mock-content">
-        <div style="font-size:9.5pt;font-weight:700;color:#003d52;margin-bottom:10px">¡Bienvenida, María!</div>
+        <div style="font-size:9.5pt;font-weight:700;color:#003d52;margin-bottom:4px">¡Bienvenida, María!</div>
+        <!-- Carrera/comisión tag -->
+        <div style="display:inline-flex;align-items:center;gap:5px;background:#E3F2FD;border-radius:8px;padding:3px 9px;margin-bottom:9px">
+          <span style="font-size:6pt;color:#1565C0;font-weight:700">📚 Tec. en Sistemas Informáticos — 1° año — Comisión A</span>
+        </div>
         <div class="mock-stats">
           <div class="mock-stat-card" style="border-left-color:#009DC9">
             <div class="mock-stat-num">5</div>
@@ -2137,8 +2398,162 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
 </div>
 <div class="screen-caption">Portal del docente — materias asignadas con cantidad de alumnos y horarios</div>
 
+<!-- ── ADMIN CARRERAS ─────────────────────────────────────────── -->
+<h2 class="sub-h" style="margin-top:28px" id="pantalla-carreras">10.9 — Admin: Gestión de Carreras y Comisiones</h2>
+<p class="small text-secondary">El admin accede a <code>/admin/carreras/{id}</code> para ver el detalle de una carrera. Por cada año puede crear, editar y eliminar comisiones con su cupo y prefijo de turno.</p>
+
+<div class="screen-frame mockup-full" style="margin-bottom:6px">
+  <div class="screen-chrome">
+    <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+    <div class="chrome-url">localhost:4200/admin/carreras/1</div>
+  </div>
+  <div class="screen-body" style="min-height:280px">
+    <div class="mock-sidebar">
+      <div class="mock-logo">🎓</div>
+      <div class="mock-nav">
+        <div class="mock-nav-item"><div class="mock-icon">📋</div><span>Preinsc.</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">🎓</div><span>Alumnos</span></div>
+        <div class="mock-nav-item active"><div class="mock-icon">📚</div><span>Carreras</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">👥</div><span>Docentes</span></div>
+      </div>
+    </div>
+    <div class="mock-main">
+      <div class="mock-toolbar">
+        <span style="font-size:10px;color:#005f7a">← </span>
+        <span class="mock-toolbar-title">Tec. Superior en Sistemas Informáticos</span>
+        <span class="mock-spacer"></span>
+        <div style="background:#1565C0;color:#fff;font-size:6pt;padding:3px 9px;border-radius:4px;font-weight:700">+ Nuevo año</div>
+      </div>
+      <div class="mock-content">
+        <!-- Año 1 -->
+        <div style="border:1.5px solid #E0E0E0;border-radius:8px;margin-bottom:8px;overflow:hidden">
+          <div style="background:#E3F2FD;padding:5px 10px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:7.5pt;font-weight:700;color:#1565C0">📅 1° Año</span>
+            <div style="display:flex;gap:5px">
+              <div style="background:#1565C0;color:#fff;font-size:5.5pt;padding:2px 7px;border-radius:10px;font-weight:700">+ Nueva comisión</div>
+              <div style="background:#E3F2FD;color:#1565C0;font-size:5.5pt;padding:2px 7px;border-radius:10px">+ Materia</div>
+            </div>
+          </div>
+          <!-- Comisiones -->
+          <div style="padding:7px 10px;display:flex;gap:7px;flex-wrap:wrap">
+            <div style="border:1.5px solid #22C55E;border-radius:6px;padding:6px 10px;min-width:120px;background:#F0FDF4">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+                <span style="font-size:7pt;font-weight:700;color:#15803D">Comisión A</span>
+                <div style="display:flex;gap:3px">
+                  <span style="font-size:9px;cursor:pointer;color:#888">✏️</span>
+                  <span style="font-size:9px;cursor:pointer;color:#EF4444">🗑</span>
+                </div>
+              </div>
+              <div style="font-size:5.5pt;color:#777">👥 12/30 alumnos</div>
+              <div style="font-size:5.5pt;color:#777">Prefijo: A &nbsp;|&nbsp; <span style="background:#DCFCE7;color:#15803D;border-radius:8px;padding:0 4px">Activa</span></div>
+            </div>
+            <div style="border:1.5px solid #EF4444;border-radius:6px;padding:6px 10px;min-width:120px;background:#FFF1F1">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+                <span style="font-size:7pt;font-weight:700;color:#B91C1C">Comisión B</span>
+                <div style="display:flex;gap:3px">
+                  <span style="font-size:9px;cursor:pointer;color:#888">✏️</span>
+                  <span style="font-size:9px;cursor:pointer;color:#EF4444">🗑</span>
+                </div>
+              </div>
+              <div style="font-size:5.5pt;color:#777">👥 30/30 alumnos <span style="color:#EF4444">(llena)</span></div>
+              <div style="font-size:5.5pt;color:#777">Prefijo: B &nbsp;|&nbsp; <span style="background:#DCFCE7;color:#15803D;border-radius:8px;padding:0 4px">Activa</span></div>
+            </div>
+          </div>
+          <!-- Materias -->
+          <div style="padding:4px 10px 7px;border-top:1px solid #F0F0F0">
+            <div style="font-size:6pt;color:#888;margin-bottom:3px">Materias del año:</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <span style="background:#F3E5F5;color:#6A1B9A;font-size:5.5pt;padding:1px 7px;border-radius:8px">Programación I</span>
+              <span style="background:#F3E5F5;color:#6A1B9A;font-size:5.5pt;padding:1px 7px;border-radius:8px">Matemática I</span>
+              <span style="background:#F3E5F5;color:#6A1B9A;font-size:5.5pt;padding:1px 7px;border-radius:8px">Inglés Técnico</span>
+            </div>
+          </div>
+        </div>
+        <!-- Año 2 -->
+        <div style="border:1.5px solid #E0E0E0;border-radius:8px;overflow:hidden">
+          <div style="background:#E3F2FD;padding:5px 10px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:7.5pt;font-weight:700;color:#1565C0">📅 2° Año</span>
+            <div style="background:#1565C0;color:#fff;font-size:5.5pt;padding:2px 7px;border-radius:10px;font-weight:700">+ Nueva comisión</div>
+          </div>
+          <div style="padding:7px 10px">
+            <div style="border:1.5px solid #22C55E;border-radius:6px;padding:6px 10px;min-width:140px;background:#F0FDF4;display:inline-block">
+              <div style="font-size:7pt;font-weight:700;color:#15803D;margin-bottom:2px">Comisión Única</div>
+              <div style="font-size:5.5pt;color:#777">👥 25 alumnos · Sin límite</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="screen-caption">Pantalla de detalle de carrera — comisiones agrupadas por año con edición inline</div>
+
+<!-- ── ADMIN ALUMNOS ───────────────────────────────────────────── -->
+<h2 class="sub-h" style="margin-top:28px" id="pantalla-alumnos">10.10 — Admin: Lista de Alumnos</h2>
+<p class="small text-secondary">El admin puede buscar alumnos por nombre/apellido. La tabla muestra la carrera, año y comisión asignados a cada alumno, y permite habilitar o deshabilitar.</p>
+
+<div class="screen-frame mockup-full" style="margin-bottom:6px">
+  <div class="screen-chrome">
+    <div class="chrome-dots"><span class="chrome-dot dot-red"></span><span class="chrome-dot dot-yellow"></span><span class="chrome-dot dot-green"></span></div>
+    <div class="chrome-url">localhost:4200/admin/alumnos</div>
+  </div>
+  <div class="screen-body" style="min-height:260px">
+    <div class="mock-sidebar">
+      <div class="mock-logo">🎓</div>
+      <div class="mock-nav">
+        <div class="mock-nav-item"><div class="mock-icon">📋</div><span>Preinsc.</span></div>
+        <div class="mock-nav-item active"><div class="mock-icon">🎓</div><span>Alumnos</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">📚</div><span>Carreras</span></div>
+        <div class="mock-nav-item"><div class="mock-icon">👥</div><span>Docentes</span></div>
+      </div>
+    </div>
+    <div class="mock-main">
+      <div class="mock-toolbar">
+        <span class="mock-toolbar-title">Alumnos</span>
+        <span class="mock-spacer"></span>
+        <span style="font-size:6pt;color:#888;background:#F1F5F9;padding:2px 8px;border-radius:10px">3 registros</span>
+      </div>
+      <div class="mock-content">
+        <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
+          <div style="flex:1;height:22px;border:1.5px solid #DDD;border-radius:20px;font-size:6.5pt;color:#AAA;display:flex;align-items:center;padding:0 10px">🔍 Buscar por nombre o apellido</div>
+          <div style="background:#1565C0;color:#fff;font-size:6.5pt;padding:3px 10px;border-radius:4px;font-weight:700">Buscar</div>
+        </div>
+        <table class="mock-table">
+          <thead>
+            <tr><th>Alumno</th><th>DNI</th><th>Carrera / Comisión</th><th>Estado</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div style="font-weight:600;color:#333">García, María</div><div style="font-size:5.5pt;color:#888">mgarcia@gmail.com</div></td>
+              <td>30123456</td>
+              <td><span style="color:#1565C0;font-size:6pt">Sistemas — 1° — Com. A</span></td>
+              <td><span class="mock-chip chip-hab">✓ Habilitado</span></td>
+              <td><span style="font-size:6.5pt;color:#EF4444;font-weight:600">Deshabilitar</span> <span style="font-size:6.5pt;color:#888">›</span></td>
+            </tr>
+            <tr>
+              <td><div style="font-weight:600;color:#333">López, Carlos</div><div style="font-size:5.5pt;color:#888">clopez@gmail.com</div></td>
+              <td>29876543</td>
+              <td><span style="color:#1565C0;font-size:6pt">Sistemas — 1° — Com. A</span></td>
+              <td><span class="mock-chip chip-hab">✓ Habilitado</span></td>
+              <td><span style="font-size:6.5pt;color:#EF4444;font-weight:600">Deshabilitar</span> <span style="font-size:6.5pt;color:#888">›</span></td>
+            </tr>
+            <tr>
+              <td><div style="font-weight:600;color:#333">Martínez, Ana</div><div style="font-size:5.5pt;color:#888">amartinez@gmail.com</div></td>
+              <td>31045678</td>
+              <td><span style="color:#888;font-size:6pt">—</span></td>
+              <td><span class="mock-chip chip-pend">⊘ Deshabilitado</span></td>
+              <td><span style="font-size:6.5pt;color:#1565C0;font-weight:600">Habilitar</span> <span style="font-size:6.5pt;color:#888">›</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="screen-caption">Lista de alumnos — columna "Carrera / Comisión" muestra carrera, año y sección</div>
+
 <!-- ── Preinscripcion publica ─────────────────────────────────── -->
-<h2 class="sub-h" style="margin-top:28px" id="pantalla-preinscripcion">10.9 — Formulario de Preinscripción (Público)</h2>
+<h2 class="sub-h" style="margin-top:28px" id="pantalla-preinscripcion">10.11 — Formulario de Preinscripción (Público)</h2>
 <p class="small text-secondary">Ruta pública accesible sin login. El aspirante completa sus datos para iniciar el proceso de inscripción presencial.</p>
 
 <div style="max-width:380px;margin:16px auto 4px">

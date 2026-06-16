@@ -55,11 +55,15 @@ public class DocentePortalService {
         if (carreraIds.isEmpty()) return List.of();
 
         return alumnoRepository.findAll().stream()
-                .filter(a -> a.isHabilitado() && a.getCarrera() != null && carreraIds.contains(a.getCarrera().getId()))
+                .filter(a -> a.isHabilitado()
+                        && a.getComision() != null
+                        && a.getComision().getAnioCarrera() != null
+                        && a.getComision().getAnioCarrera().getCarrera() != null
+                        && carreraIds.contains(a.getComision().getAnioCarrera().getCarrera().getId()))
                 .map(a -> new AlumnoPortalResponse(
                         a.getId(), a.getNombres(), a.getApellidos(),
                         a.getDni(), a.getEmail(), a.getTelefono(),
-                        a.getCarrera() != null ? a.getCarrera().getNombre() : null
+                        a.getComision().getAnioCarrera().getCarrera().getNombre()
                 ))
                 .toList();
     }
@@ -67,11 +71,17 @@ public class DocentePortalService {
     @Transactional(readOnly = true)
     public AlumnoPortalResponse getAlumno(Long id) {
         return alumnoRepository.findById(id)
-                .map(a -> new AlumnoPortalResponse(
-                        a.getId(), a.getNombres(), a.getApellidos(),
-                        a.getDni(), a.getEmail(), a.getTelefono(),
-                        a.getCarrera() != null ? a.getCarrera().getNombre() : null
-                ))
+                .map(a -> {
+                    String carreraNombre = null;
+                    if (a.getComision() != null && a.getComision().getAnioCarrera() != null
+                            && a.getComision().getAnioCarrera().getCarrera() != null) {
+                        carreraNombre = a.getComision().getAnioCarrera().getCarrera().getNombre();
+                    }
+                    return new AlumnoPortalResponse(
+                            a.getId(), a.getNombres(), a.getApellidos(),
+                            a.getDni(), a.getEmail(), a.getTelefono(), carreraNombre
+                    );
+                })
                 .orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
     }
 

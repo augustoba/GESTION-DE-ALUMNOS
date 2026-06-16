@@ -84,22 +84,20 @@ public class DataInitializer implements ApplicationRunner {
     private void crearCarrerasSiNoExisten() {
         if (carreraRepository.count() > 0) return;
 
-        Object[][] datos = {
+        String[][] datos = {
             { "Técnico Superior en Sistemas Informáticos",
-              "Carrera orientada al desarrollo de software, bases de datos y redes.", "A" },
+              "Carrera orientada al desarrollo de software, bases de datos y redes." },
             { "Técnico Superior en Diseño Gráfico",
-              "Carrera orientada al diseño visual, branding e identidad corporativa.", "B" },
+              "Carrera orientada al diseño visual, branding e identidad corporativa." },
             { "Técnico Superior en Administración de Empresas",
-              "Carrera orientada a la gestión, contabilidad y organización empresarial.", "C" }
+              "Carrera orientada a la gestión, contabilidad y organización empresarial." }
         };
 
-        for (Object[] d : datos) {
+        for (String[] d : datos) {
             Carrera c = new Carrera();
-            c.setNombre((String) d[0]);
-            c.setDescripcion((String) d[1]);
+            c.setNombre(d[0]);
+            c.setDescripcion(d[1]);
             c.setActiva(true);
-            c.setCupoMaximo(30);
-            c.setPrefijoTurno((String) d[2]);
             carreraRepository.save(c);
             log.info("Carrera creada: {}", d[0]);
         }

@@ -20,6 +20,10 @@ public class HorarioClase {
     private Materia materia;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comision_id")
+    private Comision comision;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aula_id")
     private Aula aula;
 

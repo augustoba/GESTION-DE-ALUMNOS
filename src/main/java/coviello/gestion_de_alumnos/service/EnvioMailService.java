@@ -88,14 +88,12 @@ public class EnvioMailService {
             case TODOS -> alumnoRepository.findByHabilitadoTrue();
             case POR_CARRERA -> {
                 if (req.carreraId() == null) throw new RuntimeException("carreraId requerido para POR_CARRERA");
-                yield alumnoRepository.findByCarreraId(req.carreraId()).stream()
+                yield alumnoRepository.findByComision_AnioCarrera_CarreraId(req.carreraId()).stream()
                         .filter(Alumno::isHabilitado).toList();
             }
             case POR_ANIO -> {
                 if (req.anioCarreraId() == null) throw new RuntimeException("anioCarreraId requerido para POR_ANIO");
-                AnioCarrera anio = anioCarreraRepository.findById(req.anioCarreraId())
-                        .orElseThrow(() -> new RuntimeException("Año carrera no encontrado: " + req.anioCarreraId()));
-                yield alumnoRepository.findByCarreraId(anio.getCarrera().getId()).stream()
+                yield alumnoRepository.findByComision_AnioCarreraId(req.anioCarreraId()).stream()
                         .filter(Alumno::isHabilitado).toList();
             }
             case DOCS_FALTANTES -> {

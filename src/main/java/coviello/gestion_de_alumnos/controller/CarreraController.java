@@ -132,6 +132,36 @@ public class CarreraController {
         return ResponseEntity.ok(new ApiResponse("Materia eliminada correctamente", null));
     }
 
+    // ── Comisiones ────────────────────────────────────────────────
+
+    @PostMapping("/anios/{anioId}/comisiones")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Agregar una comisión a un año (SUPER_ADMIN)")
+    public ResponseEntity<ApiResponse> agregarComision(
+            @PathVariable Long anioId,
+            @RequestBody ComisionRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse("Comisión agregada", carreraService.agregarComision(anioId, req)));
+    }
+
+    @PutMapping("/comisiones/{comisionId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Actualizar una comisión (SUPER_ADMIN)")
+    public ResponseEntity<ApiResponse> actualizarComision(
+            @PathVariable Long comisionId,
+            @RequestBody ComisionRequest req) {
+        return ResponseEntity.ok(new ApiResponse("Comisión actualizada",
+                carreraService.actualizarComision(comisionId, req)));
+    }
+
+    @DeleteMapping("/comisiones/{comisionId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Eliminar una comisión (SUPER_ADMIN)")
+    public ResponseEntity<ApiResponse> eliminarComision(@PathVariable Long comisionId) {
+        carreraService.eliminarComision(comisionId);
+        return ResponseEntity.ok(new ApiResponse("Comisión eliminada correctamente", null));
+    }
+
     // ── Docentes (para selector en frontend) ──────────────────────
 
     @GetMapping("/docentes")
