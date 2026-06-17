@@ -209,6 +209,16 @@ public class CarreraService {
             Docente d = m.getDocente();
             docenteResumen = new DocenteResumen(d.getId(), d.getNombres(), d.getApellidos(), d.getEmail());
         }
-        return new MateriaResponse(m.getId(), m.getNombre(), m.getDescripcion(), docenteResumen);
+        AnioCarrera anio = m.getAnioCarrera();
+        Long anioCarreraId = anio != null ? anio.getId() : null;
+        int numeroAnio = anio != null ? anio.getNumeroAnio() : 0;
+        String carreraNombre = (anio != null && anio.getCarrera() != null) ? anio.getCarrera().getNombre() : null;
+        List<HorarioResponse> horarios = m.getHorarios().stream()
+                .map(h -> new HorarioResponse(h.getId(), h.getDiaSemana(),
+                        h.getHoraInicio(), h.getHoraFin(),
+                        h.getFechaInicioCursada(), h.getFechaFinCursada()))
+                .toList();
+        return new MateriaResponse(m.getId(), m.getNombre(), m.getDescripcion(),
+                anioCarreraId, numeroAnio, carreraNombre, docenteResumen, horarios);
     }
 }

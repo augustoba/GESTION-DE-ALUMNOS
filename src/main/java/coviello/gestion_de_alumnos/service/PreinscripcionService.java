@@ -18,8 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -98,16 +99,12 @@ public class PreinscripcionService {
         pago.setEstado(EstadoPago.SIN_PAGO);
         pagoRepository.save(pago);
 
-        // Enviar PDF por email si tiene email
+        // Enviar PDF por email en segundo plano para no bloquear la respuesta
         if (guardada.getEmail() != null && !guardada.getEmail().isBlank()) {
-            try {
-                byte[] pdf = pdfService.generarFormularioPreinscripcion(guardada);
-                String nombre = guardada.getNombre() + " " + guardada.getApellido();
-                emailService.enviarFormularioPreinscripcion(guardada.getEmail(), nombre,
-                        guardada.getCodigoFormulario(), pdf);
-            } catch (Exception e) {
-                log.error("No se pudo enviar el formulario PDF a {}: {}", guardada.getEmail(), e.getMessage());
-            }
+            byte[] pdf = pdfService.generarFormularioPreinscripcion(guardada);
+            String nombre = guardada.getNombre() + " " + guardada.getApellido();
+            emailService.enviarFormularioPreinscripcion(guardada.getEmail(), nombre,
+                    guardada.getCodigoFormulario(), pdf);
         }
 
         return guardada;
@@ -187,52 +184,64 @@ public class PreinscripcionService {
 
         verificarCupoComision(comision);
 
-        if (pre.getAlumno() == null) {
-            Rol rolAlumno = rolRepository.findByNombre("ALUMNO")
-                    .orElseThrow(() -> new RuntimeException("Rol ALUMNO no encontrado"));
-
-            String token = UUID.randomUUID().toString();
-
-            Usuario usuario = new Usuario();
-            usuario.setUsername(pre.getEmail());
-            usuario.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-            usuario.setRol(rolAlumno);
-            usuario.setTokenActivacion(token);
-            usuario.setTokenActivacionExpiracion(LocalDateTime.now().plusHours(72));
-            usuario = usuarioRepository.save(usuario);
-
-            Alumno alumno = new Alumno();
-            alumno.setNombres(pre.getNombre());
-            alumno.setApellidos(pre.getApellido());
-            alumno.setDni(pre.getDni());
-            alumno.setEmail(pre.getEmail());
-            alumno.setTelefono(pre.getTelefono());
-            alumno.setDireccion(pre.getDireccion());
-            alumno.setLocalidad(pre.getLocalidad());
-            alumno.setFechaNac(pre.getFechaNacimiento());
-            alumno.setFotoUrl(pre.getFotoUrl());
-            alumno.setComision(comision);
-            alumno.setHabilitado(true);
-            alumno.setUsuario(usuario);
-            alumno = alumnoRepository.save(alumno);
-
-            pre.setAlumno(alumno);
-
-            try {
-                String nombre = pre.getNombre() + " " + pre.getApellido();
-                String carreraNombre = comision.getAnioCarrera() != null
-                        && comision.getAnioCarrera().getCarrera() != null
-                        ? comision.getAnioCarrera().getCarrera().getNombre()
-                        : "la carrera seleccionada";
-                emailService.enviarActivacionCuenta(pre.getEmail(), nombre, carreraNombre, token);
-            } catch (MailException e) {
-                log.error("No se pudo enviar email de activación a {}: {}", pre.getEmail(), e.getMessage());
-            }
-        } else {
+        if (pre.getAlumno() != null) {
+            // Preinscripción ya tiene un alumno vinculado: solo actualizar
             Alumno alumno = pre.getAlumno();
             alumno.setHabilitado(true);
             alumno.setComision(comision);
             alumnoRepository.save(alumno);
+        } else {
+            // Buscar si ya existe un alumno con ese DNI para no duplicar
+            Optional<Alumno> alumnoExistente = alumnoRepository.findByDni(pre.getDni());
+
+            if (alumnoExistente.isPresent()) {
+                Alumno alumno = alumnoExistente.get();
+                alumno.setHabilitado(true);
+                alumno.setComision(comision);
+                alumnoRepository.save(alumno);
+                pre.setAlumno(alumno);
+            } else {
+                Rol rolAlumno = rolRepository.findByNombre("ALUMNO")
+                        .orElseThrow(() -> new RuntimeException("Rol ALUMNO no encontrado"));
+
+                String token = UUID.randomUUID().toString();
+
+                Usuario usuario = new Usuario();
+                usuario.setUsername(pre.getEmail());
+                usuario.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                usuario.setRol(rolAlumno);
+                usuario.setTokenActivacion(token);
+                usuario.setTokenActivacionExpiracion(LocalDateTime.now().plusHours(72));
+                usuario = usuarioRepository.save(usuario);
+
+                Alumno alumno = new Alumno();
+                alumno.setNombres(pre.getNombre());
+                alumno.setApellidos(pre.getApellido());
+                alumno.setDni(pre.getDni());
+                alumno.setEmail(pre.getEmail());
+                alumno.setTelefono(pre.getTelefono());
+                alumno.setDireccion(pre.getDireccion());
+                alumno.setLocalidad(pre.getLocalidad());
+                alumno.setFechaNac(pre.getFechaNacimiento());
+                alumno.setFotoUrl(pre.getFotoUrl());
+                alumno.setComision(comision);
+                alumno.setHabilitado(true);
+                alumno.setUsuario(usuario);
+                alumno = alumnoRepository.save(alumno);
+
+                pre.setAlumno(alumno);
+
+                try {
+                    String nombre = pre.getNombre() + " " + pre.getApellido();
+                    String carreraNombre = comision.getAnioCarrera() != null
+                            && comision.getAnioCarrera().getCarrera() != null
+                            ? comision.getAnioCarrera().getCarrera().getNombre()
+                            : "la carrera seleccionada";
+                    emailService.enviarActivacionCuenta(pre.getEmail(), nombre, carreraNombre, token);
+                } catch (MailException e) {
+                    log.error("No se pudo enviar email de activación a {}: {}", pre.getEmail(), e.getMessage());
+                }
+            }
         }
 
         pre.setEstado(EstadoPreinscripcion.HABILITADO);

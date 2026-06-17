@@ -14,7 +14,7 @@ public class Preinscripcion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "codigo_formulario", nullable = false, unique = true, length = 20)
+    @Column(name = "codigo_formulario", nullable = true, unique = true, length = 20)
     private String codigoFormulario;
 
     @Column(nullable = false)

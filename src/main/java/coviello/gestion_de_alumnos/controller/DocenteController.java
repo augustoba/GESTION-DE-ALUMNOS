@@ -59,10 +59,28 @@ public class DocenteController {
 
     @GetMapping("/{id}/materias")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    @Operation(summary = "Materias asignadas a un docente con carrera y horario")
+    @Operation(summary = "Materias asignadas a un docente")
     public ResponseEntity<ApiResponse> obtenerMaterias(@PathVariable Long id) {
         List<MateriaDetalleDocente> materias = docenteService.obtenerMaterias(id);
         return ResponseEntity.ok(new ApiResponse("Materias del docente", materias));
+    }
+
+    @PostMapping("/{id}/materias/{materiaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Asignar una materia a un docente existente")
+    public ResponseEntity<ApiResponse> asignarMateria(@PathVariable Long id,
+                                                       @PathVariable Long materiaId) {
+        return ResponseEntity.ok(new ApiResponse("Materia asignada",
+                docenteService.asignarMateria(id, materiaId)));
+    }
+
+    @DeleteMapping("/{id}/materias/{materiaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Quitar una materia de un docente")
+    public ResponseEntity<ApiResponse> desasignarMateria(@PathVariable Long id,
+                                                          @PathVariable Long materiaId) {
+        return ResponseEntity.ok(new ApiResponse("Materia desasignada",
+                docenteService.desasignarMateria(id, materiaId)));
     }
 
     @PatchMapping("/{id}/estado")

@@ -41,9 +41,9 @@ public class HorarioClase {
     @Column(name = "hora_fin", nullable = false)
     private LocalTime horaFin;
 
-    @Column(name = "fecha_inicio_cursada", nullable = false)
+    @Column(name = "fecha_inicio_cursada")
     private LocalDate fechaInicioCursada;
 
-    @Column(name = "fecha_fin_cursada", nullable = false)
+    @Column(name = "fecha_fin_cursada")
     private LocalDate fechaFinCursada;
 }

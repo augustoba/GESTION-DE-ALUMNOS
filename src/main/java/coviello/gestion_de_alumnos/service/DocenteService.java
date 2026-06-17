@@ -79,9 +79,19 @@ public class DocenteService {
         docente.setActivo(true);
         docente.setUsuario(usuario);
 
-        DocenteResponse response = toResponse(docenteRepository.save(docente));
+        Docente guardado = docenteRepository.save(docente);
+
+        if (req.materiasIds() != null && !req.materiasIds().isEmpty()) {
+            for (Long materiaId : req.materiasIds()) {
+                materiaRepository.findById(materiaId).ifPresent(m -> {
+                    m.setDocente(guardado);
+                    materiaRepository.save(m);
+                });
+            }
+        }
+
         try { emailService.enviarBienvenidaDocente(req.email(), req.nombres(), passwordTemporal); } catch (Exception ignored) {}
-        return response;
+        return toResponse(guardado);
     }
 
     @Transactional
@@ -129,6 +139,29 @@ public class DocenteService {
                     return new MateriaDetalleDocente(m.getId(), m.getNombre(), m.getDescripcion(), carreraNombre, numeroAnio);
                 })
                 .toList();
+    }
+
+    @Transactional
+    public List<MateriaDetalleDocente> asignarMateria(Long docenteId, Long materiaId) {
+        Docente docente = findById(docenteId);
+        Materia materia = materiaRepository.findById(materiaId)
+                .orElseThrow(() -> new RuntimeException("Materia no encontrada: " + materiaId));
+        materia.setDocente(docente);
+        materiaRepository.save(materia);
+        return obtenerMaterias(docenteId);
+    }
+
+    @Transactional
+    public List<MateriaDetalleDocente> desasignarMateria(Long docenteId, Long materiaId) {
+        findById(docenteId);
+        Materia materia = materiaRepository.findById(materiaId)
+                .orElseThrow(() -> new RuntimeException("Materia no encontrada: " + materiaId));
+        if (materia.getDocente() == null || !materia.getDocente().getId().equals(docenteId)) {
+            throw new RuntimeException("La materia no está asignada a este docente");
+        }
+        materia.setDocente(null);
+        materiaRepository.save(materia);
+        return obtenerMaterias(docenteId);
     }
 
     private String generarPasswordTemporal() {

@@ -619,13 +619,14 @@
     <div class="toc-sub"><a href="#sa-usuarios">Crear administradores y docentes</a></div>
     <div class="toc-sub"><a href="#sa-permisos">Gestión de permisos</a></div>
     <div class="toc-sub"><a href="#sa-carreras">Configurar carreras, años y comisiones</a></div>
+    <div class="toc-sub"><a href="#sa-materias">ABM de materias y horarios</a></div>
     <div class="toc-sub"><a href="#sa-calendario">Calendario académico</a></div>
   </div>
   <div class="toc-section mt-8"><a href="#admin">3. ADMIN — Camino Feliz</a>
     <div class="toc-sub"><a href="#ad-preinscripciones">Gestión de preinscripciones</a></div>
     <div class="toc-sub"><a href="#ad-pago">Registro de pago en efectivo</a></div>
     <div class="toc-sub"><a href="#ad-checklist">Checklist de documentación física</a></div>
-    <div class="toc-sub"><a href="#ad-habilitar">Habilitación del alumno (selección de comisión)</a></div>
+    <div class="toc-sub"><a href="#ad-habilitar">Habilitación del alumno (dedup DNI + selección de comisión)</a></div>
     <div class="toc-sub"><a href="#ad-turnos">Asignación de turnos</a></div>
   </div>
   <div class="toc-section mt-8"><a href="#docente">4. DOCENTE — Camino Feliz</a>
@@ -855,6 +856,24 @@ El nuevo usuario recibe un email con sus credenciales temporales.</p>
 <span class="method delete">DEL</span> <span class="path">/api/admin/usuarios/{id}</span>      <span class="comment">// Desactivar (no puede desactivar SUPER_ADMIN)</span>
 </div>
 
+<p>Al crear un <strong>DOCENTE</strong>, se puede asignar una lista de materias ya existentes directamente:</p>
+<div class="endpoint">
+<span class="method post">POST</span><span class="path">/api/docentes</span>  <span class="comment">// Solo SUPER_ADMIN</span>
+{
+  <span class="json-key">"nombres"</span>:    <span class="json-str">"Luis"</span>,
+  <span class="json-key">"apellidos"</span>:  <span class="json-str">"Gómez"</span>,
+  <span class="json-key">"dni"</span>:        <span class="json-str">"28456123"</span>,
+  <span class="json-key">"email"</span>:      <span class="json-str">"lgomez@coviello.edu.ar"</span>,
+  <span class="json-key">"telefono"</span>:   <span class="json-str">"351-555-0101"</span>,
+  <span class="json-key">"materiasIds"</span>: [<span class="json-num">3</span>, <span class="json-num">7</span>]  <span class="comment">// opcional — asigna materias al docente en el momento de creación</span>
+}
+
+<span class="comment">// Asignar / quitar materia a un docente ya existente:</span>
+<span class="method post">POST</span>   <span class="path">/api/docentes/{id}/materias/{materiaId}</span>
+<span class="method delete">DEL</span>    <span class="path">/api/docentes/{id}/materias/{materiaId}</span>
+<span class="method get">GET</span>    <span class="path">/api/docentes/{id}/materias</span>  <span class="comment">// Ver todas las materias del docente</span>
+</div>
+
 <h2 class="sub-h" id="sa-permisos">2.2 — Otorgar permisos granulares a un ADMIN</h2>
 <p>El SUPER_ADMIN puede otorgar permisos específicos a cada ADMIN, con fecha de vencimiento opcional.</p>
 
@@ -931,7 +950,52 @@ El nuevo usuario recibe un email con sus credenciales temporales.</p>
   </div>
 </div>
 
-<h2 class="sub-h" id="sa-calendario">2.4 — Calendario académico y emails masivos</h2>
+<h2 class="sub-h" id="sa-materias">2.4 — ABM de Materias y Horarios</h2>
+<p>Las materias pertenecen a un <strong>año de carrera</strong> (ej. "1° año de Informática") y tienen un docente asignado y horarios semanales opcionales.</p>
+<div class="grid-2">
+  <div>
+    <h3 class="minor-h">Crear una materia</h3>
+    <div class="endpoint" style="margin-top:6px">
+<span class="method post">POST</span><span class="path">/api/materias</span>
+{
+  <span class="json-key">"nombre"</span>:       <span class="json-str">"Inglés"</span>,
+  <span class="json-key">"descripcion"</span>:  <span class="json-str">"Inglés técnico"</span>,
+  <span class="json-key">"anioCarreraId"</span>: <span class="json-num">1</span>,     <span class="comment">// obligatorio</span>
+  <span class="json-key">"docenteId"</span>:    <span class="json-num">5</span>,     <span class="comment">// opcional</span>
+  <span class="json-key">"horarios"</span>: [
+    {
+      <span class="json-key">"diaSemana"</span>:  <span class="json-str">"LUNES"</span>,
+      <span class="json-key">"horaInicio"</span>: <span class="json-str">"08:00"</span>,
+      <span class="json-key">"horaFin"</span>:    <span class="json-str">"10:00"</span>,
+      <span class="json-key">"fechaInicioCursada"</span>: <span class="json-str">"2026-03-01"</span>,  <span class="comment">// opcional</span>
+      <span class="json-key">"fechaFinCursada"</span>:    <span class="json-str">"2026-11-30"</span>   <span class="comment">// opcional</span>
+    },
+    { <span class="json-key">"diaSemana"</span>: <span class="json-str">"MIERCOLES"</span>, <span class="json-key">"horaInicio"</span>: <span class="json-str">"08:00"</span>, <span class="json-key">"horaFin"</span>: <span class="json-str">"10:00"</span> }
+  ]
+}
+    </div>
+  </div>
+  <div>
+    <h3 class="minor-h">Consultar y gestionar</h3>
+    <div class="endpoint" style="margin-top:6px">
+<span class="method get">GET</span>  <span class="path">/api/materias</span>                              <span class="comment">// Todas</span>
+<span class="method get">GET</span>  <span class="path">/api/materias/{id}</span>                         <span class="comment">// Detalle con horarios</span>
+<span class="method get">GET</span>  <span class="path">/api/materias/anio-carrera/{anioId}</span>       <span class="comment">// Filtrar por año</span>
+<span class="method put">PUT</span>  <span class="path">/api/materias/{id}</span>                         <span class="comment">// Actualizar (reemplaza horarios)</span>
+<span class="method delete">DEL</span>  <span class="path">/api/materias/{id}</span>                         <span class="comment">// Eliminar (solo SUPER_ADMIN)</span>
+
+<span class="comment">// Asignar / quitar docente sin tocar los horarios:</span>
+<span class="method put">PUT</span>  <span class="path">/api/materias/{id}/docente/{docenteId}</span>
+<span class="method delete">DEL</span>  <span class="path">/api/materias/{id}/docente</span>
+    </div>
+  </div>
+</div>
+<div class="info-box note">
+  <strong>Días de semana válidos:</strong> <code>LUNES</code>, <code>MARTES</code>, <code>MIERCOLES</code>, <code>JUEVES</code>, <code>VIERNES</code>, <code>SABADO</code>, <code>DOMINGO</code>.<br/>
+  Las fechas de cursada (<code>fechaInicioCursada</code> / <code>fechaFinCursada</code>) son opcionales al crear; se usan para que el Arduino determine si una clase está activa en una fecha concreta.
+</div>
+
+<h2 class="sub-h" id="sa-calendario">2.5 — Calendario académico y emails masivos</h2>
 <div class="endpoint">
 <span class="method post">POST</span><span class="path">/api/calendario</span>      <span class="comment">// Agregar feriado o evento</span>
 { <span class="json-key">"fecha"</span>: <span class="json-str">"2026-07-09"</span>, <span class="json-key">"tipo"</span>: <span class="json-str">"FERIADO_NACIONAL"</span>, <span class="json-key">"descripcion"</span>: <span class="json-str">"Independencia"</span> }
@@ -1084,11 +1148,12 @@ No se suben archivos — es solo un registro de presencia física.</p>
 <div class="info-box ok">
   <strong>¿Qué ocurre al habilitar?</strong>
   El ADMIN primero selecciona la <strong>comisión</strong> (sección) del año correspondiente donde quedará inscripto
-  el aspirante. El sistema verifica el cupo disponible y luego crea automáticamente:
-  (1) un registro <code>Alumno</code> asignado a la comisión elegida,
-  (2) un <code>Usuario</code> con rol <code>ALUMNO</code> (contraseña bloqueada hasta activación),
-  y (3) envía al aspirante un email con un <strong>enlace de activación</strong> (válido 72 hs) que lo lleva a
-  <code>/auth/activar?token=UUID</code> para elegir su propia contraseña.
+  el aspirante. El sistema verifica el cupo disponible y luego:
+  <ol style="margin:6px 0 0 18px; line-height:1.8">
+    <li>Busca si ya existe un <code>Alumno</code> con ese DNI en el sistema. Si existe, lo reutiliza (evita duplicados); si no, crea uno nuevo asignado a la comisión elegida.</li>
+    <li>Si el alumno es nuevo, crea un <code>Usuario</code> con rol <code>ALUMNO</code> (contraseña bloqueada hasta activación).</li>
+    <li>Envía al aspirante un email con un <strong>enlace de activación</strong> (válido 72 hs) que lo lleva a <code>/activar-cuenta?token=UUID</code> para elegir su propia contraseña.</li>
+  </ol>
 </div>
 
 <h2 class="sub-h" id="ad-turnos">3.5 — Asignar turno de atención presencial</h2>
@@ -1302,16 +1367,19 @@ No se suben archivos — es solo un registro de presencia física.</p>
 <div class="endpoint">
 <span class="method post">POST</span><span class="path">/api/preinscripciones</span>   <span class="comment">// Sin autenticación (ruta pública)</span>
 {
-  <span class="json-key">"nombre"</span>:          <span class="json-str">"Juan"</span>,
-  <span class="json-key">"apellido"</span>:        <span class="json-str">"Pérez"</span>,
-  <span class="json-key">"dni"</span>:             <span class="json-str">"30123456"</span>,
-  <span class="json-key">"email"</span>:           <span class="json-str">"juan.perez@gmail.com"</span>,
-  <span class="json-key">"fechaNacimiento"</span>: <span class="json-str">"2000-05-14"</span>,
-  <span class="json-key">"direccion"</span>:       <span class="json-str">"Av. Colón 1234"</span>,
-  <span class="json-key">"telefono"</span>:        <span class="json-str">"3512345678"</span>,
-  <span class="json-key">"carreraId"</span>:       <span class="json-num">1</span>
+  <span class="json-key">"nombre"</span>:          <span class="json-str">"Juan"</span>,        <span class="comment">// obligatorio, mín. 3 caracteres</span>
+  <span class="json-key">"apellido"</span>:        <span class="json-str">"Pérez"</span>,       <span class="comment">// obligatorio, mín. 3 caracteres</span>
+  <span class="json-key">"dni"</span>:             <span class="json-str">"30123456"</span>,    <span class="comment">// obligatorio, mín. 6 caracteres</span>
+  <span class="json-key">"fechaNacimiento"</span>: <span class="json-str">"2000-05-14"</span>,  <span class="comment">// obligatorio, debe ser fecha pasada</span>
+  <span class="json-key">"email"</span>:           <span class="json-str">"juan.perez@gmail.com"</span>,  <span class="comment">// opcional, formato válido</span>
+  <span class="json-key">"direccion"</span>:       <span class="json-str">"Av. Colón 1234"</span>,         <span class="comment">// opcional, mín. 5 caracteres</span>
+  <span class="json-key">"telefono"</span>:        <span class="json-str">"3512345678"</span>,  <span class="comment">// opcional, mín. 7 caracteres</span>
+  <span class="json-key">"localidad"</span>:       <span class="json-str">"Córdoba"</span>,     <span class="comment">// opcional, mín. 3 caracteres</span>
+  <span class="json-key">"nacionalidad"</span>:    <span class="json-str">"Argentina"</span>,   <span class="comment">// opcional, mín. 3 caracteres</span>
+  <span class="json-key">"lugarNacimiento"</span>: <span class="json-str">"Córdoba"</span>,     <span class="comment">// opcional, mín. 3 caracteres</span>
+  <span class="json-key">"carreraId"</span>:       <span class="json-num">1</span>             <span class="comment">// opcional</span>
 }
-<span class="comment">// Respuesta: 201 Created + codigoFormulario: "PRE-2026-00042" + PDF enviado al email</span>
+<span class="comment">// Respuesta: 201 Created + codigoFormulario: "42" (= id de la tabla) + PDF enviado al email en segundo plano (async)</span>
 </div>
 
 <h2 class="sub-h" id="al-turno">5.3 — Confirmar turno por email</h2>
@@ -1338,7 +1406,7 @@ No requiere login.</p>
     <div class="step-content">
       <strong>El aspirante recibe el email de activación</strong>
       El asunto dice <em>"Activá tu cuenta — IES Alfredo Coviello"</em>.
-      Contiene un link de la forma <code>http://localhost:4200/auth/activar?token=&lt;UUID&gt;</code>.
+      Contiene un link de la forma <code>http://localhost:4200/activar-cuenta?token=&lt;UUID&gt;</code>.
     </div>
   </li>
   <li>
@@ -1848,6 +1916,16 @@ el dedo (o ingresa su PIN), el Arduino envía una solicitud al backend que regis
     <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/carreras</code></td><td><span class="badge badge-pub">Público</span></td><td>Listar carreras activas</td></tr>
     <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/carreras</code></td><td><span class="badge badge-sa">SUPER_ADMIN</span></td><td>Crear carrera</td></tr>
     <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/docentes</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Listar docentes</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/docentes</code></td><td><span class="badge badge-sa">SUPER_ADMIN</span></td><td>Crear docente (con <code>materiasIds</code> opcional)</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/docentes/{id}/materias/{materiaId}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Asignar materia a docente existente</td></tr>
+    <tr><td><span class="method delete" style="font-size:8pt;padding:1px 5px">DEL</span></td><td><code>/api/docentes/{id}/materias/{materiaId}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Quitar materia de un docente</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/materias</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Listar todas las materias</td></tr>
+    <tr><td><span class="method get" style="font-size:8pt;padding:1px 5px">GET</span></td><td><code>/api/materias/anio-carrera/{anioId}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Materias de un año de carrera</td></tr>
+    <tr><td><span class="method post" style="font-size:8pt;padding:1px 5px">POST</span></td><td><code>/api/materias</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Crear materia con horarios y docente opcionales</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/materias/{id}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Actualizar materia (reemplaza horarios si se envían)</td></tr>
+    <tr><td><span class="method delete" style="font-size:8pt;padding:1px 5px">DEL</span></td><td><code>/api/materias/{id}</code></td><td><span class="badge badge-sa">SUPER_ADMIN</span></td><td>Eliminar materia</td></tr>
+    <tr><td><span class="method put" style="font-size:8pt;padding:1px 5px">PUT</span></td><td><code>/api/materias/{id}/docente/{docenteId}</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Asignar docente a materia</td></tr>
+    <tr><td><span class="method delete" style="font-size:8pt;padding:1px 5px">DEL</span></td><td><code>/api/materias/{id}/docente</code></td><td><span class="badge badge-ad">ADMIN</span></td><td>Desasignar docente de materia</td></tr>
   </tbody>
 </table>
 
