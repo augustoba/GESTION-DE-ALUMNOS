@@ -3,7 +3,6 @@ package coviello.gestion_de_alumnos.service;
 import coviello.gestion_de_alumnos.dto.*;
 import coviello.gestion_de_alumnos.model.*;
 import coviello.gestion_de_alumnos.repository.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class AsistenciaService {
 
     private final AsistenciaRepository asistenciaRepository;
@@ -67,12 +65,13 @@ public class AsistenciaService {
                 .findClaseActivaEnAula(arduino.getAula().getId(), diaSemana, ahora, hoy)
                 .orElseThrow(() -> new RuntimeException("No hay clase activa en este aula ahora mismo"));
 
-        // Resolver alumno: por ID (huella) o por PIN
+        // Resolver alumno: por sensorId de huella o por PIN
         Alumno alumno;
         MetodoAsistencia metodo;
-        if ("HUELLA".equalsIgnoreCase(req.metodo()) && req.alumnoId() != null) {
-            alumno = alumnoRepository.findById(req.alumnoId())
-                    .orElseThrow(() -> new RuntimeException("Alumno no encontrado: " + req.alumnoId()));
+        if ("HUELLA".equalsIgnoreCase(req.metodo()) && req.sensorId() != null) {
+            HuellaAlumno huella = huellaAlumnoRepository.findBySensorId(req.sensorId())
+                    .orElseThrow(() -> new RuntimeException("Huella no reconocida (sensorId=" + req.sensorId() + ")"));
+            alumno = huella.getAlumno();
             metodo = MetodoAsistencia.HUELLA;
         } else if ("PIN".equalsIgnoreCase(req.metodo()) && req.pin() != null) {
             alumno = huellaAlumnoRepository.findAll().stream()

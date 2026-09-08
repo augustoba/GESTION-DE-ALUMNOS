@@ -7,7 +7,6 @@ import coviello.gestion_de_alumnos.dto.PreinscripcionRequest;
 import coviello.gestion_de_alumnos.model.*;
 import coviello.gestion_de_alumnos.repository.*;
 import coviello.gestion_de_alumnos.repository.ComisionRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,7 +22,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Slf4j
 public class PreinscripcionService {
 
     private final PreinscripcionRepository preinscripcionRepository;
@@ -89,6 +87,7 @@ public class PreinscripcionService {
             pre.setCarrera(carrera);
         }
 
+        pre.setCodigoFormulario(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
         Preinscripcion guardada = preinscripcionRepository.save(pre);
         guardada.setCodigoFormulario(String.valueOf(guardada.getId()));
         guardada = preinscripcionRepository.save(guardada);
@@ -239,7 +238,7 @@ public class PreinscripcionService {
                             : "la carrera seleccionada";
                     emailService.enviarActivacionCuenta(pre.getEmail(), nombre, carreraNombre, token);
                 } catch (MailException e) {
-                    log.error("No se pudo enviar email de activación a {}: {}", pre.getEmail(), e.getMessage());
+                    System.err.println("No se pudo enviar email de activación a " + pre.getEmail() + ": " + e.getMessage());
                 }
             }
         }

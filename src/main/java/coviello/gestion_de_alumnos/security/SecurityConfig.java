@@ -70,6 +70,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/turnos/solicitar").permitAll()
                 .requestMatchers("/api/turnos/confirmar").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/perfil/documentos/archivo/**").permitAll()
+                // Arduino ESP32: autenticados por X-Arduino-Id, no requieren JWT
+                .requestMatchers("/api/arduino/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/asistencias/arduino").permitAll()
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/v3/api-docs/**",

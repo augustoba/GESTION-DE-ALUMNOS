@@ -4,7 +4,6 @@ import coviello.gestion_de_alumnos.dto.EnvioMailRequest;
 import coviello.gestion_de_alumnos.dto.EnvioMailResponse;
 import coviello.gestion_de_alumnos.model.*;
 import coviello.gestion_de_alumnos.repository.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
 public class EnvioMailService {
 
     private final EnvioMailRepository envioMailRepository;
@@ -60,7 +58,7 @@ public class EnvioMailService {
                 emailService.enviarMasivo(alumno.getEmail(), req.asunto(), req.cuerpo());
                 totalEnviados++;
             } catch (Exception e) {
-                log.error("No se pudo enviar mail a {}: {}", alumno.getEmail(), e.getMessage());
+                System.err.println("No se pudo enviar mail a " + alumno.getEmail() + ": " + e.getMessage());
             }
         }
 

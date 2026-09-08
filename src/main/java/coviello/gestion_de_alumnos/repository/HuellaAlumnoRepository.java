@@ -9,5 +9,7 @@ public interface HuellaAlumnoRepository extends JpaRepository<HuellaAlumno, Long
 
     Optional<HuellaAlumno> findByAlumnoId(Long alumnoId);
 
+    Optional<HuellaAlumno> findBySensorId(Integer sensorId);
+
     boolean existsByAlumnoId(Long alumnoId);
 }

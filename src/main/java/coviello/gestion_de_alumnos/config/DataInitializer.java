@@ -2,8 +2,6 @@ package coviello.gestion_de_alumnos.config;
 
 import coviello.gestion_de_alumnos.model.*;
 import coviello.gestion_de_alumnos.repository.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class DataInitializer implements ApplicationRunner {
 
     private final RolRepository rolRepository;
@@ -31,6 +27,30 @@ public class DataInitializer implements ApplicationRunner {
     private final ComisionRepository comisionRepository;
     private final MateriaRepository materiaRepository;
     private final HorarioClaseRepository horarioClaseRepository;
+
+    public DataInitializer(RolRepository rolRepository,
+                           UsuarioRepository usuarioRepository,
+                           PasswordEncoder passwordEncoder,
+                           CarreraRepository carreraRepository,
+                           PermisoRepository permisoRepository,
+                           DocenteRepository docenteRepository,
+                           AlumnoRepository alumnoRepository,
+                           AnioCarreraRepository anioCarreraRepository,
+                           ComisionRepository comisionRepository,
+                           MateriaRepository materiaRepository,
+                           HorarioClaseRepository horarioClaseRepository) {
+        this.rolRepository = rolRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.carreraRepository = carreraRepository;
+        this.permisoRepository = permisoRepository;
+        this.docenteRepository = docenteRepository;
+        this.alumnoRepository = alumnoRepository;
+        this.anioCarreraRepository = anioCarreraRepository;
+        this.comisionRepository = comisionRepository;
+        this.materiaRepository = materiaRepository;
+        this.horarioClaseRepository = horarioClaseRepository;
+    }
 
     private static final String SUPER_ADMIN_EMAIL = "superadmin@coviello.com";
     private static final String ADMIN_EMAIL        = "admin@coviello.com";
@@ -77,7 +97,7 @@ public class DataInitializer implements ApplicationRunner {
             Rol rol = new Rol();
             rol.setNombre(nombre);
             rolRepository.save(rol);
-            log.info("Rol '{}' creado", nombre);
+            System.out.println("Rol '" + nombre + "' creado");
         }
     }
 
@@ -88,7 +108,7 @@ public class DataInitializer implements ApplicationRunner {
                 p.setCodigo(codigo);
                 p.setDescripcion(codigo.name().replace('_', ' ').toLowerCase());
                 permisoRepository.save(p);
-                log.info("Permiso '{}' creado", codigo);
+                System.out.println("Permiso '" + codigo + "' creado");
             }
         }
     }
@@ -102,7 +122,7 @@ public class DataInitializer implements ApplicationRunner {
         u.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
         u.setRol(rol);
         usuarioRepository.save(u);
-        log.info("Super admin creado: {}", SUPER_ADMIN_EMAIL);
+        System.out.println("Super admin creado: " + SUPER_ADMIN_EMAIL);
     }
 
     private void crearAdminSiNoExiste() {
@@ -114,7 +134,7 @@ public class DataInitializer implements ApplicationRunner {
         u.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
         u.setRol(rol);
         usuarioRepository.save(u);
-        log.info("Admin creado: {}", ADMIN_EMAIL);
+        System.out.println("Admin creado: " + ADMIN_EMAIL);
     }
 
     // Credenciales de ejemplo: docente@coviello.com / Admin1234
@@ -138,7 +158,7 @@ public class DataInitializer implements ApplicationRunner {
         d.setActivo(true);
         d.setUsuario(u);
         docenteRepository.save(d);
-        log.info("Docente creado: {}", DOCENTE_EMAIL);
+        System.out.println("Docente creado: " + DOCENTE_EMAIL);
     }
 
     private void asignarComisionAlumno() {
@@ -166,13 +186,13 @@ public class DataInitializer implements ApplicationRunner {
                     c.setAnioCarrera(primerAnio);
                     c.setActiva(true);
                     comisionRepository.save(c);
-                    log.info("Comisión creada para 1° año de Sistemas");
+                    System.out.println("Comisión creada para 1° año de Sistemas");
                     return c;
                 });
 
         alumno.setComision(comision);
         alumnoRepository.save(alumno);
-        log.info("Alumno '{}' asignado a '{}'", ALUMNO_EMAIL, comision.getNombre());
+        System.out.println("Alumno '" + ALUMNO_EMAIL + "' asignado a '" + comision.getNombre() + "'");
     }
 
     // Credenciales de ejemplo: alumno@coviello.com / Admin1234
@@ -197,7 +217,7 @@ public class DataInitializer implements ApplicationRunner {
         a.setHabilitado(true);
         a.setUsuario(u);
         alumnoRepository.save(a);
-        log.info("Alumno creado: {}", ALUMNO_EMAIL);
+        System.out.println("Alumno creado: " + ALUMNO_EMAIL);
     }
 
     private void crearCarrerasSiNoExisten() {
@@ -218,7 +238,7 @@ public class DataInitializer implements ApplicationRunner {
             c.setDescripcion(d[1]);
             c.setActiva(true);
             carreraRepository.save(c);
-            log.info("Carrera creada: {}", d[0]);
+            System.out.println("Carrera creada: " + d[0]);
         }
     }
 
@@ -287,7 +307,7 @@ public class DataInitializer implements ApplicationRunner {
                 anio.setCarrera(carrera);
                 anio.setNumeroAnio(a + 1);
                 anioCarreraRepository.save(anio);
-                log.info("Año {} creado para carrera '{}'", a + 1, carrera.getNombre());
+                System.out.println("Año " + (a + 1) + " creado para carrera '" + carrera.getNombre() + "'");
 
                 for (String[] mat : anios[a]) {
                     boolean asignarDocente = docente != null && MATERIAS_DOCENTE.contains(mat[0]);
@@ -298,7 +318,7 @@ public class DataInitializer implements ApplicationRunner {
                     m.setAnioCarrera(anio);
                     m.setDocente(asignarDocente ? docente : null);
                     materiaRepository.save(m);
-                    log.info("  Materia creada: {}", mat[0]);
+                    System.out.println("  Materia creada: " + mat[0]);
 
                     if (asignarDocente) {
                         HorarioClase h = new HorarioClase();
@@ -310,7 +330,7 @@ public class DataInitializer implements ApplicationRunner {
                         h.setFechaInicioCursada(LocalDate.of(2026, 3, 1));
                         h.setFechaFinCursada(LocalDate.of(2026, 12, 15));
                         horarioClaseRepository.save(h);
-                        log.info("    Horario creado: {} {}", HORARIO_POR_MATERIA.get(mat[0]), "08:00-10:00");
+                        System.out.println("    Horario creado: " + HORARIO_POR_MATERIA.get(mat[0]) + " 08:00-10:00");
                     }
                 }
             }

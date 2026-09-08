@@ -5,7 +5,6 @@ import coviello.gestion_de_alumnos.model.Rol;
 import coviello.gestion_de_alumnos.model.Usuario;
 import coviello.gestion_de_alumnos.repository.RolRepository;
 import coviello.gestion_de_alumnos.repository.UsuarioRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +13,6 @@ import java.security.SecureRandom;
 import java.util.List;
 
 @Service
-@Slf4j
 public class UsuarioAdminService {
 
     private final UsuarioRepository usuarioRepository;
@@ -65,7 +63,7 @@ public class UsuarioAdminService {
         try {
             emailService.enviarBienvenidaAdmin(req.email(), req.nombres(), passwordTemporal);
         } catch (Exception e) {
-            log.error("No se pudo enviar email de bienvenida admin a {}: {}", req.email(), e.getMessage());
+            System.err.println("No se pudo enviar email de bienvenida admin a " + req.email() + ": " + e.getMessage());
         }
 
         return usuario;

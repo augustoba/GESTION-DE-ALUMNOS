@@ -37,7 +37,18 @@
       "Bash(xargs grep -l \"ControllerAdvice\\\\|ExceptionHandler\\\\|ServerError\\\\|GlobalException\")",
       "PowerShell(\\(Get-Content \"G:\\\\proyecto final coviello\\\\gestion-alumnos-front\\\\src\\\\app\\\\features\\\\admin\\\\carreras\\\\admin-carrera-detalle.component.scss\"\\).Length)",
       "PowerShell(Get-Process *)",
-      "PowerShell(netstat *)"
+      "PowerShell(netstat *)",
+      "Bash(node generate.js)",
+      "Bash(cd *)",
+      "Bash(node -e \"const c=require\\('./GestionAlumnos.postman_collection.json'\\); console.log\\('valid JSON, folders:', c.item.length\\);\")",
+      "Bash(node -e ' *)",
+      "Bash(java *)",
+      "Bash(mvn -q -o dependency:build-classpath -Dmdep.outputFile=/tmp/cp.txt)",
+      "Bash(mvn -q dependency:build-classpath -Dmdep.outputFile=/tmp/cp.txt)",
+      "Bash(node scripts/clean_delombok.js)",
+      "Bash(mvn -q compile)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(mvn -q test-compile)"
     ]
   }
 }

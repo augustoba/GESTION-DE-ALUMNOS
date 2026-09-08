@@ -1,0 +1,3738 @@
+{
+  "info": {
+    "_postman_id": "8f2b6b3a-4c1a-4e9a-9a3a-6b1e2d0a9c10",
+    "name": "Gestión de Alumnos - IES Coviello API",
+    "description": "Colección completa de endpoints del backend de Gestión de Alumnos (IES Alfredo Coviello). Autenticación: JWT Bearer, variable de colección {{token}}. Base URL: variable {{baseUrl}} (default http://localhost:8080). Los endpoints públicos (formulario de preinscripción, turnos, carreras, Arduino, etc.) tienen auth = No Auth explícito.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Autenticación",
+      "description": "Endpoints públicos (sin JWT).",
+      "item": [
+        {
+          "name": "Login",
+          "id": "id-0001",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica y devuelve el JWT. El test script guarda automáticamente `data.token` en la variable de colección `token`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin@coviello.com\",\n  \"password\": \"Admin1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    const token = body && body.data && body.data.token;",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('token', token);",
+                  "        console.log('Token guardado en la variable de colección \"token\".');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro de alumno",
+          "id": "id-0002",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Registra un alumno directamente (fuera del flujo de preinscripción). Genera contraseña o usa la enviada, según implementación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Pérez\",\n  \"dni\": \"12345678\",\n  \"email\": \"juan.perez@gmail.com\",\n  \"password\": \"MiContraseña123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recuperar contraseña",
+          "id": "id-0003",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/recuperar-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "recuperar-password"
+              ]
+            },
+            "description": "Genera una nueva contraseña aleatoria y la envía por email.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alumno@ejemplo.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validar token de activación",
+          "id": "id-0004",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/validar-token?token=abc123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "validar-token"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "abc123",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activar cuenta",
+          "id": "id-0005",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/activar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "activar"
+              ]
+            },
+            "description": "Establece la contraseña definitiva usando el token recibido por email al ser habilitado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"abc123...\",\n  \"password\": \"MiPassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar contraseña (autenticado)",
+          "id": "id-0006",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/cambiar-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "cambiar-password"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordActual\": \"actual123\",\n  \"passwordNueva\": \"nueva12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refrescar token",
+          "id": "id-0007",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Devuelve un nuevo JWT a partir del token activo enviado en el header Authorization."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    const token = body && body.data && body.data.token;",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('token', token);",
+                  "        console.log('Token guardado en la variable de colección \"token\".');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02. Preinscripciones",
+      "description": "Proceso de preinscripción web y gestión presencial (ADMIN).",
+      "item": [
+        {
+          "name": "Crear preinscripción (público)",
+          "id": "id-0008",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones"
+              ]
+            },
+            "description": "Requiere que la preinscripción esté habilitada (GET /api/configuracion/preinscripcion). Genera código PRE-YYYY-NNNNN y envía PDF por email.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"dni\": \"30111222\",\n  \"fechaNacimiento\": \"2000-05-15\",\n  \"lugarNacimiento\": \"Córdoba\",\n  \"nacionalidad\": \"Argentina\",\n  \"direccion\": \"Av. Colón 1234\",\n  \"localidad\": \"Córdoba\",\n  \"telefono\": \"3515556677\",\n  \"email\": \"juan@ejemplo.com\",\n  \"fotoUrl\": \"https://...\",\n  \"carreraId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar preinscripciones (paginado)",
+          "id": "id-0009",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Listar por estado",
+          "id": "id-0010",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/estado/PENDIENTE?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "estado",
+                "PENDIENTE"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Valores de {estado}: PENDIENTE | EN_REVISION | HABILITADO | RECHAZADO."
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle de preinscripción",
+          "id": "id-0011",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar por código (parcial)",
+          "id": "id-0012",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/buscar/codigo?codigo=PRE-2026-00001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "buscar",
+                "codigo"
+              ],
+              "query": [
+                {
+                  "key": "codigo",
+                  "value": "PRE-2026-00001",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar por DNI",
+          "id": "id-0013",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/buscar/dni?dni=30111222",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "buscar",
+                "dni"
+              ],
+              "query": [
+                {
+                  "key": "dni",
+                  "value": "30111222",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar por nombre/apellido",
+          "id": "id-0014",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/buscar/nombre?nombre=&apellido=&page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "buscar",
+                "nombre"
+              ],
+              "query": [
+                {
+                  "key": "nombre",
+                  "value": "",
+                  "disabled": false
+                },
+                {
+                  "key": "apellido",
+                  "value": "",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Descargar PDF del formulario",
+          "id": "id-0015",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "pdf"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Poner en revisión",
+          "id": "id-0016",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/en-revision",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "en-revision"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Habilitar como alumno",
+          "id": "id-0017",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/habilitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "habilitar"
+              ]
+            },
+            "description": "Crea el usuario ALUMNO, lo asigna a la comisión y envía email de activación (token 72hs).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comisionId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rechazar preinscripción",
+          "id": "id-0018",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/rechazar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "rechazar"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar/actualizar pago en efectivo",
+          "id": "id-0019",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/pago",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "pago"
+              ]
+            },
+            "description": "Acumulativo: suma al monto ya abonado. Estado resultante: SIN_PAGO / PARCIAL / COMPLETO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"montoTotal\": 50000,\n  \"montoAbonado\": 25000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver estado del pago",
+          "id": "id-0020",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/pago",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "pago"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Anular pago",
+          "id": "id-0021",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/pago",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "pago"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Ver checklist de documentos físicos",
+          "id": "id-0022",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/checklist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "checklist"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Marcar documento físico como presentado",
+          "id": "id-0023",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/checklist/DNI_FRENTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "checklist",
+                "DNI_FRENTE"
+              ]
+            },
+            "description": "Tipos válidos: DNI_FRENTE | DNI_DORSO | TITULO | FOTO_CARNET | ACTA_NACIMIENTO | PSICOFISICO | BUENA_CONDUCTA."
+          },
+          "response": []
+        },
+        {
+          "name": "Desmarcar documento físico",
+          "id": "id-0024",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/checklist/DNI_FRENTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "checklist",
+                "DNI_FRENTE"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Asignar turno de atención",
+          "id": "id-0025",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/turno",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "turno"
+              ]
+            },
+            "description": "Genera el número de turno y envía email con link de confirmación."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver turno asignado",
+          "id": "id-0026",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/preinscripciones/1/turno",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "preinscripciones",
+                "1",
+                "turno"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Alumnos (Admin)",
+      "description": "Gestión de alumnos ya habilitados. Requiere rol ADMIN o SUPER_ADMIN.",
+      "item": [
+        {
+          "name": "Listar alumnos (paginado)",
+          "id": "id-0027",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar por nombre/apellido",
+          "id": "id-0028",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/buscar?nombre=&apellido=&page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "buscar"
+              ],
+              "query": [
+                {
+                  "key": "nombre",
+                  "value": "",
+                  "disabled": false
+                },
+                {
+                  "key": "apellido",
+                  "value": "",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Listar alumnos habilitados",
+          "id": "id-0029",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/habilitados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "habilitados"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Listar alumnos por carrera",
+          "id": "id-0030",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/por-carrera/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "por-carrera",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Listar alumnos por comisión",
+          "id": "id-0031",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/por-comision/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "por-comision",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener alumno por ID",
+          "id": "id-0032",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar alumno",
+          "id": "id-0033",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "1"
+              ]
+            },
+            "description": "Recibe la entidad Alumno completa (model).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Pérez\",\n  \"dni\": \"30111222\",\n  \"email\": \"juan@ejemplo.com\",\n  \"telefono\": \"3515556677\",\n  \"direccion\": \"Av. Colón 1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Habilitar alumno",
+          "id": "id-0034",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/1/habilitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "1",
+                "habilitar"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Deshabilitar alumno",
+          "id": "id-0035",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/1/deshabilitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "1",
+                "deshabilitar"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Reenviar email de activación",
+          "id": "id-0036",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumnos/1/reenviar-activacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alumnos",
+                "1",
+                "reenviar-activacion"
+              ]
+            },
+            "description": "Genera un nuevo token (72hs) y reenvía el email de activación. Solo si la cuenta aún no fue activada."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Arduino / ESP32",
+      "description": "Sin JWT. Autenticación por header X-Arduino-Id. Tipos: REGISTRO (enrola huellas) y AULA (toma asistencia).",
+      "item": [
+        {
+          "name": "Ping (verificar activo)",
+          "id": "id-0037",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Arduino-Id",
+                "value": "ESP32-REG-01",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/arduino/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "arduino",
+                "ping"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar alumno por DNI (solo REGISTRO)",
+          "id": "id-0038",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Arduino-Id",
+                "value": "ESP32-REG-01",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/arduino/alumno/dni/30111222",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "arduino",
+                "alumno",
+                "dni",
+                "30111222"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar huella (solo REGISTRO)",
+          "id": "id-0039",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Arduino-Id",
+                "value": "ESP32-REG-01",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/arduino/huella",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "arduino",
+                "huella"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumnoId\": 5,\n  \"sensorId\": 3,\n  \"pinAlternativo\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar huella de un alumno (solo REGISTRO)",
+          "id": "id-0040",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Arduino-Id",
+                "value": "ESP32-REG-01",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/arduino/huella/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "arduino",
+                "huella",
+                "5"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05. Asistencias",
+      "description": "Registro vía Arduino/manual y consultas de regularidad.",
+      "item": [
+        {
+          "name": "Registrar asistencia desde Arduino (método HUELLA)",
+          "id": "id-0041",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/asistencias/arduino",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "asistencias",
+                "arduino"
+              ]
+            },
+            "description": "Endpoint del Arduino de AULA. Sin JWT.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificadorArduino\": \"ESP32-AULA-LAB\",\n  \"sensorId\": 3,\n  \"metodo\": \"HUELLA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar asistencia desde Arduino (método PIN)",
+          "id": "id-0042",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/asistencias/arduino",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "asistencias",
+                "arduino"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificadorArduino\": \"ESP32-AULA-LAB\",\n  \"pin\": \"1234\",\n  \"metodo\": \"PIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar asistencias por horario y fecha",
+          "id": "id-0043",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/asistencias/horario/1?fecha=2026-08-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "asistencias",
+                "horario",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "fecha",
+                  "value": "2026-08-31",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / DOCENTE."
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen de asistencia alumno-materia",
+          "id": "id-0044",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/asistencias/resumen/1/1?desde=2026-03-01&hasta=2026-11-30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "asistencias",
+                "resumen",
+                "1",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-03-01",
+                  "disabled": false
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-30",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / DOCENTE / ALUMNO."
+          },
+          "response": []
+        },
+        {
+          "name": "Vista calendario de asistencias de una materia",
+          "id": "id-0045",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/asistencias/calendario/1?desde=2026-03-01&hasta=2026-11-30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "asistencias",
+                "calendario",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-03-01",
+                  "disabled": false
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-30",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / DOCENTE."
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar asistencia manualmente",
+          "id": "id-0046",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/asistencias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "asistencias",
+                "1"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / DOCENTE. estado: PRESENTE | TARDANZA | AUSENTE. El método queda como MANUAL.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PRESENTE\",\n  \"justificacion\": \"Alumno presentó certificado médico\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06. Materias",
+      "description": "ABM de materias y asignación de horarios/docentes.",
+      "item": [
+        {
+          "name": "Listar todas las materias",
+          "id": "id-0047",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Listar materias por año de carrera",
+          "id": "id-0048",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias/anio-carrera/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias",
+                "anio-carrera",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener materia por ID",
+          "id": "id-0049",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Crear materia",
+          "id": "id-0050",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias"
+              ]
+            },
+            "description": "docenteId y horarios son opcionales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Programación I\",\n  \"descripcion\": \"Introducción a la programación\",\n  \"anioCarreraId\": 1,\n  \"docenteId\": 1,\n  \"horarios\": [\n    {\n      \"diaSemana\": \"LUNES\",\n      \"horaInicio\": \"08:00:00\",\n      \"horaFin\": \"10:00:00\",\n      \"fechaInicioCursada\": \"2026-03-01\",\n      \"fechaFinCursada\": \"2026-11-30\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar materia",
+          "id": "id-0051",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias",
+                "1"
+              ]
+            },
+            "description": "Si se envía la lista de horarios vacía, se eliminan todos los horarios existentes.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Programación I\",\n  \"descripcion\": \"Introducción a la programación\",\n  \"anioCarreraId\": 1,\n  \"docenteId\": 1,\n  \"horarios\": [\n    {\n      \"diaSemana\": \"LUNES\",\n      \"horaInicio\": \"08:00:00\",\n      \"horaFin\": \"10:00:00\",\n      \"fechaInicioCursada\": \"2026-03-01\",\n      \"fechaFinCursada\": \"2026-11-30\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar materia",
+          "id": "id-0052",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias",
+                "1"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Asignar docente a materia",
+          "id": "id-0053",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias/1/docente/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias",
+                "1",
+                "docente",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Desasignar docente de materia",
+          "id": "id-0054",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/materias/1/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "materias",
+                "1",
+                "docente"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07. Inscripciones a Materias",
+      "description": "Solicitudes de (re)inscripción del alumno y resolución por ADMIN/DOCENTE.",
+      "item": [
+        {
+          "name": "Solicitar inscripción a materias",
+          "id": "id-0055",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/inscripciones-materia/alumno/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inscripciones-materia",
+                "alumno",
+                "1"
+              ]
+            },
+            "description": "ALUMNO / ADMIN / SUPER_ADMIN. Requiere un período de tipo REINSCRIPCION activo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materiaIds\": [\n    1,\n    2,\n    3\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver inscripciones de un alumno",
+          "id": "id-0056",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/inscripciones-materia/alumno/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inscripciones-materia",
+                "alumno",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Ver inscripciones de una materia",
+          "id": "id-0057",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/inscripciones-materia/materia/1?estado=SOLICITADA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inscripciones-materia",
+                "materia",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "SOLICITADA",
+                  "disabled": false,
+                  "description": "SOLICITADA | CONFIRMADA | RECHAZADA (opcional, default SOLICITADA)"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Confirmar o rechazar solicitud",
+          "id": "id-0058",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/inscripciones-materia/1/resolver",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inscripciones-materia",
+                "1",
+                "resolver"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / DOCENTE. estado: CONFIRMADA | RECHAZADA.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"CONFIRMADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08. Horarios de Clase",
+      "description": "CRUD de horarios de cursada por materia.",
+      "item": [
+        {
+          "name": "Listar horarios de una materia",
+          "id": "id-0059",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/horarios/materia/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "horarios",
+                "materia",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Listar horarios de un docente",
+          "id": "id-0060",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/horarios/docente/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "horarios",
+                "docente",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Crear horario para una materia",
+          "id": "id-0061",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/horarios/materia/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "horarios",
+                "materia",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diaSemana\": \"LUNES\",\n  \"horaInicio\": \"08:00:00\",\n  \"horaFin\": \"10:00:00\",\n  \"fechaInicioCursada\": \"2026-03-01\",\n  \"fechaFinCursada\": \"2026-11-30\",\n  \"aulaId\": 1,\n  \"docenteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar horario",
+          "id": "id-0062",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/horarios/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "horarios",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diaSemana\": \"MARTES\",\n  \"horaInicio\": \"10:00:00\",\n  \"horaFin\": \"12:00:00\",\n  \"fechaInicioCursada\": \"2026-03-01\",\n  \"fechaFinCursada\": \"2026-11-30\",\n  \"aulaId\": 1,\n  \"docenteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar horario",
+          "id": "id-0063",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/horarios/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "horarios",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09. Docentes",
+      "description": "Gestión de docentes.",
+      "item": [
+        {
+          "name": "Listar docentes",
+          "id": "id-0064",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener docente por ID",
+          "id": "id-0065",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Crear docente",
+          "id": "id-0066",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN. Crea el docente y su usuario; la contraseña inicial es el DNI.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"María\",\n  \"apellidos\": \"González\",\n  \"dni\": \"28111222\",\n  \"email\": \"maria.gonzalez@coviello.edu.ar\",\n  \"telefono\": \"3515551234\",\n  \"materiasIds\": [\n    1,\n    2\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar docente",
+          "id": "id-0067",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"María\",\n  \"apellidos\": \"González\",\n  \"dni\": \"28111222\",\n  \"email\": \"maria.gonzalez@coviello.edu.ar\",\n  \"telefono\": \"3515551234\",\n  \"materiasIds\": [\n    1,\n    2\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Materias asignadas a un docente",
+          "id": "id-0068",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes/1/materias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes",
+                "1",
+                "materias"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Asignar materia a docente",
+          "id": "id-0069",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes/1/materias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes",
+                "1",
+                "materias",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Quitar materia de docente",
+          "id": "id-0070",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes/1/materias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes",
+                "1",
+                "materias",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Dar de alta/baja a un docente",
+          "id": "id-0071",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docentes/1/estado?activo=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docentes",
+                "1",
+                "estado"
+              ],
+              "query": [
+                {
+                  "key": "activo",
+                  "value": "true",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Solo SUPER_ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Portal Docente",
+      "description": "Endpoints para el docente autenticado. Requiere rol DOCENTE.",
+      "item": [
+        {
+          "name": "Mis materias",
+          "id": "id-0072",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-portal/mis-materias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-portal",
+                "mis-materias"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Mis alumnos",
+          "id": "id-0073",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-portal/mis-alumnos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-portal",
+                "mis-alumnos"
+              ]
+            },
+            "description": "Alumnos de las carreras del docente con inscripción CONFIRMADA."
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle de un alumno",
+          "id": "id-0074",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-portal/alumnos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-portal",
+                "alumnos",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11. Carreras",
+      "description": "Gestión de carreras, años, materias, comisiones. Altas/bajas requieren SUPER_ADMIN.",
+      "item": [
+        {
+          "name": "Listar carreras activas (público)",
+          "id": "id-0075",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todas las carreras",
+          "id": "id-0076",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/todas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "todas"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener carrera por ID",
+          "id": "id-0077",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "1"
+              ]
+            },
+            "description": "ALUMNO / ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle completo (años y materias)",
+          "id": "id-0078",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/1/detalle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "1",
+                "detalle"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear carrera",
+          "id": "id-0079",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tecnicatura en Programación\",\n  \"descripcion\": \"Carrera de 3 años orientada a desarrollo de software\",\n  \"activa\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar carrera",
+          "id": "id-0080",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tecnicatura en Programación\",\n  \"descripcion\": \"Carrera de 3 años orientada a desarrollo de software\",\n  \"activa\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar carrera",
+          "id": "id-0081",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar año a la carrera",
+          "id": "id-0082",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/1/anios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "1",
+                "anios"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroAnio\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar año (y sus materias)",
+          "id": "id-0083",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/anios/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "anios",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar materia a un año",
+          "id": "id-0084",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/anios/1/materias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "anios",
+                "1",
+                "materias"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Programación I\",\n  \"descripcion\": \"Introducción a la programación\",\n  \"anioCarreraId\": 1,\n  \"docenteId\": null,\n  \"horarios\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar materia",
+          "id": "id-0085",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/materias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "materias",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Programación I\",\n  \"descripcion\": \"Introducción a la programación\",\n  \"anioCarreraId\": 1,\n  \"docenteId\": null,\n  \"horarios\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar materia",
+          "id": "id-0086",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/materias/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "materias",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar comisión a un año",
+          "id": "id-0087",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/anios/1/comisiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "anios",
+                "1",
+                "comisiones"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Comisión A\",\n  \"cupoMaximo\": 40,\n  \"prefijoTurno\": \"A\",\n  \"activa\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar comisión",
+          "id": "id-0088",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/comisiones/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "comisiones",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Comisión A\",\n  \"cupoMaximo\": 40,\n  \"prefijoTurno\": \"A\",\n  \"activa\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar comisión",
+          "id": "id-0089",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/comisiones/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "comisiones",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Listar docentes disponibles",
+          "id": "id-0090",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/carreras/docentes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "carreras",
+                "docentes"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN. Usado en selector del frontend."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12. Documentos Digitales",
+      "description": "Carga y revisión de documentos digitales de alumnos habilitados.",
+      "item": [
+        {
+          "name": "Listar documentos de un alumno",
+          "id": "id-0091",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documentos-digitales/alumno/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documentos-digitales",
+                "alumno",
+                "1"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar URL de documento digital",
+          "id": "id-0092",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documentos-digitales/alumno/1?tipoDocumento=DNI_FRENTE&archivoUrl=https://storage.ejemplo.com/documentos/dni-frente.pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documentos-digitales",
+                "alumno",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "tipoDocumento",
+                  "value": "DNI_FRENTE",
+                  "disabled": false
+                },
+                {
+                  "key": "archivoUrl",
+                  "value": "https://storage.ejemplo.com/documentos/dni-frente.pdf",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "ALUMNO / ADMIN / SUPER_ADMIN. El alumno registra la URL de un documento subido previamente a almacenamiento externo."
+          },
+          "response": []
+        },
+        {
+          "name": "Aprobar documento",
+          "id": "id-0093",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documentos-digitales/1/aprobar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documentos-digitales",
+                "1",
+                "aprobar"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Rechazar documento",
+          "id": "id-0094",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documentos-digitales/1/rechazar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documentos-digitales",
+                "1",
+                "rechazar"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"La imagen se ve borrosa, volver a subir.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver documento por ID",
+          "id": "id-0095",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documentos-digitales/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documentos-digitales",
+                "1"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / ALUMNO."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "13. Turnos",
+      "description": "Gestión de turnos de inscripción presencial.",
+      "item": [
+        {
+          "name": "Días de inscripción disponibles (público)",
+          "id": "id-0096",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/dias-disponibles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "dias-disponibles"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar preinscripción para turno (público)",
+          "id": "id-0097",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/buscar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "buscar"
+              ]
+            },
+            "description": "tipoBusqueda: CODIGO | DNI | NOMBRE.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoBusqueda\": \"DNI\",\n  \"valor\": \"30111222\",\n  \"nombre\": null,\n  \"apellido\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Solicitar turno (público)",
+          "id": "id-0098",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/solicitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "solicitar"
+              ]
+            },
+            "description": "El aspirante se identifica por código, DNI o nombre+apellido. Si se envía preinscripcionId, se salta la búsqueda por texto.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"configuracionTurnoId\": 1,\n  \"preinscripcionId\": null,\n  \"tipoBusqueda\": \"DNI\",\n  \"valor\": \"30111222\",\n  \"nombre\": null,\n  \"apellido\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirmar turno (público)",
+          "id": "id-0099",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/confirmar?token=abc123...",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "confirmar"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "abc123...",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar configuraciones de días de inscripción",
+          "id": "id-0100",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/configuracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "configuracion"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear día de inscripción",
+          "id": "id-0101",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/configuracion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "configuracion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Inscripción presencial - Marzo\",\n  \"fecha\": \"2026-03-10\",\n  \"horarioInicio\": \"09:00:00\",\n  \"horarioFin\": \"13:00:00\",\n  \"intervaloMinutos\": 15,\n  \"cupoMaximo\": 16\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar día de inscripción",
+          "id": "id-0102",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/configuracion/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "configuracion",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Inscripción presencial - Marzo\",\n  \"fecha\": \"2026-03-10\",\n  \"horarioInicio\": \"09:00:00\",\n  \"horarioFin\": \"13:00:00\",\n  \"intervaloMinutos\": 15,\n  \"cupoMaximo\": 16\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar día de inscripción",
+          "id": "id-0103",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/configuracion/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "configuracion",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Asignar turno manualmente",
+          "id": "id-0104",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/asignar/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "asignar",
+                "1"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Notificar apertura de turnos (masivo)",
+          "id": "id-0105",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/notificar-apertura",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "notificar-apertura"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN. Notifica a todos los aspirantes pendientes.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Ya podés solicitar tu turno de inscripción presencial.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver turno de una preinscripción",
+          "id": "id-0106",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/turnos/preinscripcion/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "turnos",
+                "preinscripcion",
+                "1"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / ALUMNO."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "14. Calendario Académico",
+      "description": "Feriados, eventos y días no cursables.",
+      "item": [
+        {
+          "name": "Listar eventos por rango (público)",
+          "id": "id-0107",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendario?desde=2026-01-01&hasta=2026-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "calendario"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-01-01",
+                  "disabled": false
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-12-31",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar eventos por tipo (público)",
+          "id": "id-0108",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendario/tipo/FERIADO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "calendario",
+                "tipo",
+                "FERIADO"
+              ]
+            },
+            "description": "tipo: FERIADO | SUSPENSION | EVENTO.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Días no cursables de una carrera",
+          "id": "id-0109",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendario/no-cursables/1?desde=2026-01-01&hasta=2026-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "calendario",
+                "no-cursables",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-01-01",
+                  "disabled": false
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-12-31",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN / DOCENTE."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear evento de calendario",
+          "id": "id-0110",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "calendario"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN. afectaA: TODAS | CARRERA (con carreraId).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha\": \"2026-10-12\",\n  \"tipo\": \"FERIADO\",\n  \"descripcion\": \"Día del Respeto a la Diversidad Cultural\",\n  \"afectaA\": \"TODAS\",\n  \"carreraId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar evento",
+          "id": "id-0111",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendario/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "calendario",
+                "1"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "15. Configuración del Sistema",
+      "description": "Ajustes globales gestionados por SUPER_ADMIN.",
+      "item": [
+        {
+          "name": "Estado de preinscripción (público)",
+          "id": "id-0112",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion/preinscripcion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion",
+                "preinscripcion"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Habilitar/deshabilitar preinscripción",
+          "id": "id-0113",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion/preinscripcion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion",
+                "preinscripcion"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"habilitada\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estado de turnos (público)",
+          "id": "id-0114",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion/turnos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion",
+                "turnos"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Habilitar/deshabilitar turnos",
+          "id": "id-0115",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/configuracion/turnos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "configuracion",
+                "turnos"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN. Al habilitar, envía email masivo a los aspirantes pendientes.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"habilitado\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "16. Perfil",
+      "description": "Datos del usuario ALUMNO autenticado.",
+      "item": [
+        {
+          "name": "Obtener perfil",
+          "id": "id-0116",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "perfil"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar perfil (dirección/teléfono)",
+          "id": "id-0117",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "perfil"
+              ]
+            },
+            "description": "Solo ALUMNO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"direccion\": \"Av. Colón 1234\",\n  \"telefono\": \"3515556677\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Documentos del alumno autenticado",
+          "id": "id-0118",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil/documentos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "perfil",
+                "documentos"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Subir documento digital (archivo)",
+          "id": "id-0119",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil/documentos/DNI_FRENTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "perfil",
+                "documentos",
+                "DNI_FRENTE"
+              ]
+            },
+            "description": "Solo ALUMNO. multipart/form-data con el campo `archivo`. Configurar el body como form-data en Postman: key=archivo (type File)."
+          },
+          "response": []
+        },
+        {
+          "name": "Servir archivo de documento (público)",
+          "id": "id-0120",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil/documentos/archivo/ejemplo.pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "perfil",
+                "documentos",
+                "archivo",
+                "ejemplo.pdf"
+              ]
+            },
+            "description": "Usado en links de email; sin JWT.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Horario semanal del alumno",
+          "id": "id-0121",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil/horarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "perfil",
+                "horarios"
+              ]
+            },
+            "description": "Solo ALUMNO. Materias con inscripción CONFIRMADA."
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen de asistencias por materia",
+          "id": "id-0122",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil/asistencias-resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "perfil",
+                "asistencias-resumen"
+              ]
+            },
+            "description": "Solo ALUMNO."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "17. Períodos de Inscripción",
+      "description": "Gestión de períodos de preinscripción y reinscripción.",
+      "item": [
+        {
+          "name": "Listar todos los períodos",
+          "id": "id-0123",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/periodos-inscripcion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "periodos-inscripcion"
+              ]
+            },
+            "description": "ADMIN / SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener período activo por tipo (público)",
+          "id": "id-0124",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/periodos-inscripcion/activo?tipo=REINSCRIPCION",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "periodos-inscripcion",
+                "activo"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "REINSCRIPCION",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "tipo: PREINSCRIPCION | REINSCRIPCION."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear período",
+          "id": "id-0125",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/periodos-inscripcion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "periodos-inscripcion"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN. Solo puede haber un período activo por tipo a la vez.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Reinscripción 2do cuatrimestre 2026\",\n  \"fechaInicio\": \"2026-07-01\",\n  \"fechaFin\": \"2026-07-15\",\n  \"tipo\": \"REINSCRIPCION\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cerrar período activo",
+          "id": "id-0126",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/periodos-inscripcion/1/cerrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "periodos-inscripcion",
+                "1",
+                "cerrar"
+              ]
+            },
+            "description": "Solo SUPER_ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "18. Permisos",
+      "description": "Permisos granulares otorgados a usuarios ADMIN. Todo el módulo requiere SUPER_ADMIN.",
+      "item": [
+        {
+          "name": "Ver permisos activos de un usuario",
+          "id": "id-0127",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permisos/usuario/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permisos",
+                "usuario",
+                "1"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Otorgar permiso",
+          "id": "id-0128",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permisos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permisos"
+              ]
+            },
+            "description": "codigoPermiso: HABILITAR_ALUMNO | REGISTRAR_PAGO | GESTIONAR_DOCUMENTOS | ENVIAR_MAILS | GESTIONAR_CARRERAS | GESTIONAR_MATERIAS | GESTIONAR_DOCENTES. Si fechaHasta es null, no expira.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuarioId\": 2,\n  \"codigoPermiso\": \"HABILITAR_ALUMNO\",\n  \"fechaHasta\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Revocar permiso",
+          "id": "id-0129",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permisos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permisos",
+                "1"
+              ]
+            },
+            "description": "Fija fechaHasta = ahora; el permiso queda inactivo inmediatamente."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "19. Envío de Emails",
+      "description": "Envío masivo de emails a alumnos, con historial. ADMIN / SUPER_ADMIN.",
+      "item": [
+        {
+          "name": "Enviar email masivo",
+          "id": "id-0130",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mails/enviar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mails",
+                "enviar"
+              ]
+            },
+            "description": "destinatarioTipo: TODOS | POR_CARRERA | POR_ANIO | DOCS_FALTANTES.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asunto\": \"Recordatorio inscripción\",\n  \"cuerpo\": \"Les recordamos que...\",\n  \"destinatarioTipo\": \"POR_CARRERA\",\n  \"carreraId\": 1,\n  \"anioCarreraId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver historial de envíos",
+          "id": "id-0131",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mails/historial?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mails",
+                "historial"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "20. Gestión de Usuarios Admin",
+      "description": "El SUPER_ADMIN crea y gestiona cuentas ADMIN y DOCENTE.",
+      "item": [
+        {
+          "name": "Listar administradores",
+          "id": "id-0132",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Crear usuario ADMIN o DOCENTE",
+          "id": "id-0133",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios"
+              ]
+            },
+            "description": "rol: ADMIN | DOCENTE. Genera contraseña aleatoria y la envía por email.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Rodríguez\",\n  \"email\": \"ana.rodriguez@coviello.edu.ar\",\n  \"rol\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Desactivar usuario ADMIN o DOCENTE",
+          "id": "id-0134",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios",
+                "1"
+              ]
+            },
+            "description": "No se puede desactivar al propio SUPER_ADMIN."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

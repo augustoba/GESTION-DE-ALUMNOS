@@ -12,7 +12,6 @@ import coviello.gestion_de_alumnos.repository.AlumnoRepository;
 import coviello.gestion_de_alumnos.repository.RolRepository;
 import coviello.gestion_de_alumnos.repository.UsuarioRepository;
 import coviello.gestion_de_alumnos.security.JwtUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -22,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
@@ -75,7 +73,7 @@ public class AuthService {
         try {
             emailService.enviarBienvenida(request.email(), request.nombres());
         } catch (MailException e) {
-            log.error("No se pudo enviar el email de bienvenida a {}: {}", request.email(), e.getMessage());
+            System.err.println("No se pudo enviar el email de bienvenida a " + request.email() + ": " + e.getMessage());
         }
     }
 
@@ -94,7 +92,7 @@ public class AuthService {
         try {
             emailService.enviarNuevaContrasena(email, nombre, nuevaPassword);
         } catch (MailException e) {
-            log.error("No se pudo enviar el email de recuperación a {}: {}", email, e.getMessage());
+            System.err.println("No se pudo enviar el email de recuperación a " + email + ": " + e.getMessage());
             throw new RuntimeException("Error al enviar el email. Intentá nuevamente más tarde.");
         }
     }

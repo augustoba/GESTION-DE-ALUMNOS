@@ -2,7 +2,6 @@ package coviello.gestion_de_alumnos.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -60,9 +58,9 @@ public class EmailService {
                     new ByteArrayResource(pdf),
                     "application/pdf");
             mailSender.send(mensaje);
-            log.info("Formulario de preinscripción enviado a {}", destinatario);
+            System.out.println("Formulario de preinscripción enviado a " + destinatario);
         } catch (MessagingException | RuntimeException e) {
-            log.error("No se pudo enviar el formulario PDF a {}: {}", destinatario, e.getMessage());
+            System.err.println("No se pudo enviar el formulario PDF a " + destinatario + ": " + e.getMessage());
         }
     }
 

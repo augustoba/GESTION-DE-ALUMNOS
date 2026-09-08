@@ -3,7 +3,6 @@ package coviello.gestion_de_alumnos.service;
 import coviello.gestion_de_alumnos.dto.*;
 import coviello.gestion_de_alumnos.model.*;
 import coviello.gestion_de_alumnos.repository.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Slf4j
 public class TurnoService {
 
     private final TurnoAsignadoRepository turnoRepository;
@@ -177,7 +175,7 @@ public class TurnoService {
                         pre.getNombre() + " " + pre.getApellido(), mensajeExtra);
                 enviados++;
             } catch (MailException e) {
-                log.error("No se pudo notificar a {}: {}", pre.getEmail(), e.getMessage());
+                System.err.println("No se pudo notificar a " + pre.getEmail() + ": " + e.getMessage());
             }
         }
         return enviados;
@@ -267,7 +265,7 @@ public class TurnoService {
                 String hora = horaAsignada.toString();
                 emailService.enviarTurnoAsignado(pre.getEmail(), nombre, numeroTurno, fecha, hora);
             } catch (MailException e) {
-                log.error("No se pudo enviar email de turno a {}: {}", pre.getEmail(), e.getMessage());
+                System.err.println("No se pudo enviar email de turno a " + pre.getEmail() + ": " + e.getMessage());
             }
         }
 

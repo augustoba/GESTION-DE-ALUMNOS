@@ -7,7 +7,6 @@ import coviello.gestion_de_alumnos.model.TipoDocumento;
 import coviello.gestion_de_alumnos.repository.AlumnoRepository;
 import coviello.gestion_de_alumnos.repository.DocumentoDigitalRepository;
 import coviello.gestion_de_alumnos.repository.UsuarioRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Slf4j
 public class DocumentoDigitalService {
 
     @Value("${app.upload.dir:uploads/documentos}")

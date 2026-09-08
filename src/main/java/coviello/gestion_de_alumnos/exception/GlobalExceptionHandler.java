@@ -1,7 +1,6 @@
 package coviello.gestion_de_alumnos.exception;
 
 import coviello.gestion_de_alumnos.Util.ApiResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 
 @RestControllerAdvice
-@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
@@ -34,7 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse> handleRuntime(RuntimeException e) {
-        log.warn("Error de negocio: {}", e.getMessage());
+        System.out.println("Error de negocio: " + e.getMessage());
         return ResponseEntity.badRequest()
                 .body(new ApiResponse(e.getMessage(), null));
     }
@@ -74,14 +72,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MailException.class)
     public ResponseEntity<ApiResponse> handleMail(MailException e) {
-        log.error("Error al enviar email: {}", e.getMessage());
+        System.err.println("Error al enviar email: " + e.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(new ApiResponse("Operación completada pero no se pudo enviar el email. Contacte al administrador.", null));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGeneral(Exception e) {
-        log.error("Error inesperado: {}", e.getMessage(), e);
+        System.err.println("Error inesperado: " + e.getMessage());
+        e.printStackTrace();
         return ResponseEntity.internalServerError()
                 .body(new ApiResponse("Error interno del servidor", null));
     }
